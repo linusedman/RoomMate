@@ -24,5 +24,3 @@ CREATE TABLE `bookings` (
 );
 
 
-
-
