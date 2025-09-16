@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($password === $confirmPassword) {
         // Prepare and execute
-        $stmt = $conn->prepare("UPDATE userdata SET password = ? WHERE email = ?");
+        $stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
         $stmt->bind_param("ss", $password, $email);
 
         if ($stmt->execute()) {

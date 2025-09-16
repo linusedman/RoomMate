@@ -49,7 +49,7 @@ if (!isset($_SESSION['email'])) {
     </nav>
 
     <div>
-        <h2 class="p-4 mt-5">Welcome To Dashboard</h2>
+        <h2 class="p-4 mt-5">Welcome To RoomMate</h2>
     </div>
 </body>
 

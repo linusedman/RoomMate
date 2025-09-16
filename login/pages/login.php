@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Prepare and execute
-    $stmt = $conn->prepare("SELECT password FROM userdata WHERE email = ?");
+    $stmt = $conn->prepare("SELECT password FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
@@ -27,12 +27,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: dashboard.php");
             exit();
         } else {
-            $message = "Incorrect password";
+            $message = "Incorrect user or password";
             $toastClass = "bg-danger";
         }
     } else {
-        $message = "Email not found";
-        $toastClass = "bg-warning";
+        $message = "Incorrect user or password";
+        $toastClass = "bg-danger";
     }
 
     $stmt->close();
@@ -93,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="col mb-3 mt-3">
                 <label for="password"><i
                   class="fa fa-lock"></i> Password</label>
-                <input type="text" name="password" id="password" 
+                <input type="password" name="password" id="password" 
                   class="form-control" required>
             </div>
             <div class="col mb-3 mt-3">
