@@ -9,6 +9,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
+    // Hash the password
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
     // Check if email already exists
     $checkEmailStmt = $conn->prepare("SELECT email FROM users WHERE email = ?");
     $checkEmailStmt->bind_param("s", $email);
@@ -21,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Prepare and bind
         $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $username, $email, $password);
+        $stmt->bind_param("sss", $username, $email, $hashedPassword);
 
         if ($stmt->execute()) {
             $message = "Account created successfully";

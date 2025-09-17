@@ -10,17 +10,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirmPassword = $_POST['confirm_password'];
 
     if ($password === $confirmPassword) {
-        // Prepare and execute
-        $stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
-        $stmt->bind_param("ss", $password, $email);
+        // Hash the new password
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        if ($stmt->execute()) {
-            $message = "Password updated successfully";
-            $toastClass = "bg-success";
-        } else {
-            $message = "Error updating password";
-            $toastClass = "bg-danger";
-        }
+        // Update the password for this user
+        $stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+        $stmt->bind_param("ss", $hashedPassword, $email);
+        $stmt->execute();
+
+        $message = "If an account with this email exists, the password has been updated.";
+        $toastClass = "bg-success";
 
         $stmt->close();
     } else {
