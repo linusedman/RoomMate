@@ -9,13 +9,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Prepare and execute
-    $stmt = $conn->prepare("SELECT password FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, password FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($db_password);
+        $stmt->bind_result($user_id, $db_password);
         $stmt->fetch();
 
         // Verify the password
@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $toastClass = "bg-success";
             // Start the session and redirect to the dashboard or home page
             session_start();
+            $_SESSION['user_id'] = $user_id;
             $_SESSION['email'] = $email;
             header("Location: dashboard.php");
             exit();

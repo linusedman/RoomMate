@@ -53,4 +53,7 @@ if (!isset($_SESSION['email'])) {
     </div>
 </body>
 
+<a href="book.php" class="btn btn-primary">Book a Room</a>
+
+
 </html>
