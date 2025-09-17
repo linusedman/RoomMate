@@ -89,13 +89,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="col mb-3 mt-3">
                 <label for="password"><i class="fa fa-lock"></i> 
                   Password</label>
-                <input type="text" name="password"
+                <input type="password" name="password"
                   id="password" class="form-control" required>
             </div>
             <div class="col mb-3 mt-3">
                 <label for="confirm_password"><i 
                   class="fa fa-lock"></i> Confirm Password</label>
-                <input type="text" name="confirm_password" 
+                <input type="password" name="confirm_password" 
                   id="confirm_password"
                   class="form-control" required>
             </div>
