@@ -1,100 +1,88 @@
 <?php
 session_start();
-include 'db.php';
+include '../database/db_connect.php';
 
-$user_id = 1; // For testing, assume logged in as Alice
 $message = "";
 
-// Handle booking or release
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $lab_id = $_POST['lab_id'];
-    $action = $_POST['action']; // "book" or "release"
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $user_id = $_SESSION['user_id'];
+    $room_id = $_POST['room_id'];
+    $start_time = $_POST['start_time'];
+    $end_time = $_POST['end_time'];
 
-    if ($action === "book") {
-        // Check if already booked
-        $stmt = $conn->prepare("SELECT is_booked FROM labs WHERE id=?");
-        $stmt->bind_param("i", $lab_id);
-        $stmt->execute();
-        $stmt->bind_result($is_booked);
-        $stmt->fetch();
-        $stmt->close();
+    // Check for booking conflicts
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) 
+        FROM bookings 
+        WHERE room_id = ? 
+        AND (start_time < ? AND end_time > ?)
+    ");
+    $stmt->bind_param("iss", $room_id, $end_time, $start_time);
+    $stmt->execute();
+    $stmt->bind_result($conflict_count);
+    $stmt->fetch();
+    $stmt->close();
 
-        if ($is_booked) {
-            $message = "⚠️ This lab is already booked.";
-        } else {
-            $stmt = $conn->prepare("UPDATE labs SET is_booked=1 WHERE id=?");
-            $stmt->bind_param("i", $lab_id);
-            $stmt->execute();
-            $stmt->close();
-            $message = "✅ Lab booked successfully!";
-        }
+    // Insert the booking
+    $stmt = $conn->prepare("
+        INSERT INTO bookings (user_id, room_id, start_time, end_time)
+        VALUES (?, ?, ?, ?)
+    ");
+    $stmt->bind_param("iiss", $user_id, $room_id, $start_time, $end_time);
+
+    if ($stmt->execute()) {
+        echo "Booking confirmed!";
+    } else {
+        echo "Error: " . $stmt->error;
     }
 
-    if ($action === "release") {
-        $stmt = $conn->prepare("UPDATE labs SET is_booked=0 WHERE id=?");
-        $stmt->bind_param("i", $lab_id);
-        $stmt->execute();
-        $stmt->close();
-        $message = "✅ Lab released successfully!";
-    }
+    $stmt->close();
+    $conn->close();
 }
-
-// Fetch all labs
-$labs = $conn->query("SELECT * FROM labs");
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Lab Booking</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Room</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="p-4">
+<body>
+<div class="container mt-5">
+    <h2>Book a Room</h2>
 
-<h2>Lab Booking System</h2>
+    <?php if ($message): ?>
+        <div class="alert alert-info"><?php echo $message; ?></div>
+    <?php endif; ?>
 
-<?php if($message != ""): ?>
-    <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
-<?php endif; ?>
+    <form method="post">
+        <div class="mb-3">
+            <label for="room_id" class="form-label">Select Room</label>
+            <select name="room_id" id="room_id" class="form-select" required>
+                <?php
+                include '../database/db_connect.php';
+                $result = $conn->query("SELECT id, roomname FROM rooms");
+                while ($row = $result->fetch_assoc()) {
+                    echo "<option value='{$row['id']}'>{$row['roomname']}</option>";
+                }
+                ?>
+            </select>
+        </div>
 
-<h3>Book a Lab</h3>
-<form method="POST" action="book.php">
-    <label>Select Lab to Book:</label>
-    <select name="lab_id" class="form-control mb-2" required>
-        <?php while($lab = $labs->fetch_assoc()): ?>
-            <?php if(!$lab['is_booked']): ?>
-                <option value="<?= $lab['id'] ?>"><?= htmlspecialchars($lab['name']) ?> (Available)</option>
-            <?php endif; ?>
-        <?php endwhile; ?>
-    </select>
-    <input type="hidden" name="action" value="book">
-    <button type="submit" class="btn btn-primary">Book Lab</button>
-</form>
+        <div class="mb-3">
+            <label for="start_time" class="form-label">Start Time</label>
+            <input type="datetime-local" name="start_time" id="start_time" class="form-control" required>
+        </div>
 
-<h3 class="mt-4">Booked Labs</h3>
-<table class="table table-bordered">
-    <tr><th>Lab</th><th>Status</th><th>Action</th></tr>
-    <?php
-    $labs = $conn->query("SELECT * FROM labs");
-    while($lab = $labs->fetch_assoc()):
-    ?>
-        <tr>
-            <td><?= htmlspecialchars($lab['name']) ?></td>
-            <td><?= $lab['is_booked'] ? 'Booked' : 'Available' ?></td>
-            <td>
-                <?php if($lab['is_booked']): ?>
-                    <form method="POST" action="book.php" style="display:inline">
-                        <input type="hidden" name="lab_id" value="<?= $lab['id'] ?>">
-                        <input type="hidden" name="action" value="release">
-                        <button type="submit" class="btn btn-warning btn-sm">Release</button>
-                    </form>
-                <?php else: ?>
-                    <button class="btn btn-secondary btn-sm" disabled>Release</button>
-                <?php endif; ?>
-            </td>
-        </tr>
-    <?php endwhile; ?>
-</table>
+        <div class="mb-3">
+            <label for="end_time" class="form-label">End Time</label>
+            <input type="datetime-local" name="end_time" id="end_time" class="form-control" required>
+        </div>
 
+        <button type="submit" class="btn btn-success">Book Room</button>
+    </form>
+</div>
 </body>
 </html>
