@@ -5,7 +5,7 @@ import RegisterView from './views/RegisterView.vue';
 import ResetPasswordView from './views/ResetPasswordView.vue';
 import ScheduleView from './views/ScheduleView.vue';
 import LogoutView from './views/LogoutView.vue';
-import LayoutView from './views/LayoutView.vue';
+import MainView from './views/MainView.vue';
 
 const routes = [
   {
@@ -18,7 +18,7 @@ const routes = [
       { path: 'resetpassword', component: ResetPasswordView },
       { path: 'schedule', component: ScheduleView },
       { path: 'logout', component: LogoutView },
-      { path: 'layout', component: LayoutView },
+      { path: 'main', component: MainView },
     ],
   },
   { path: '/:pathMatch(.*)*', redirect: '/login' },

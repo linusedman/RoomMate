@@ -48,7 +48,7 @@ onMounted(() => {
     <div class="popover"
          v-show="activePopover === 1"
          :style="{ top: popoverPosition.y + 'px', left: popoverPosition.x + 'px' }">
-       <SingleRoom roomnumber=1 />
+       <SingleRoom room_number=1 />
     </div>
     <div class="trigger"
          @click="togglePopover(2)"
@@ -58,7 +58,7 @@ onMounted(() => {
     <div class="popover"
          v-show="activePopover === 2"
          :style="{ top: popoverPosition.y + 'px', left: popoverPosition.x + 'px' }">
-       <SingleRoom roomnumber=2 />
+       <SingleRoom room_number=2 />
     </div>
 
   </main>
