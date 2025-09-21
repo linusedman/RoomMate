@@ -1,5 +1,5 @@
 <script setup>
-import Book from './components/Book.vue'
+import SingleRoom from '../components/SingleRoom.vue'
 
 import { ref, onMounted } from 'vue'
 
@@ -48,7 +48,7 @@ onMounted(() => {
     <div class="popover"
          v-show="activePopover === 1"
          :style="{ top: popoverPosition.y + 'px', left: popoverPosition.x + 'px' }">
-       <Book roomnumber=1 />
+       <SingleRoom roomnumber=1 />
     </div>
     <div class="trigger"
          @click="togglePopover(2)"
@@ -58,7 +58,7 @@ onMounted(() => {
     <div class="popover"
          v-show="activePopover === 2"
          :style="{ top: popoverPosition.y + 'px', left: popoverPosition.x + 'px' }">
-       <Book roomnumber=2 />
+       <SingleRoom roomnumber=2 />
     </div>
 
   </main>
