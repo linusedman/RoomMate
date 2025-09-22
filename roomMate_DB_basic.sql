@@ -38,5 +38,5 @@ CREATE TABLE `bookings` (
 -- )
 
 
-ALTER TABLE users
-ADD COLUMN email VARCHAR(100) NOT NULL UNIQUE AFTER username;
+-- ALTER TABLE users
+-- ADD COLUMN email VARCHAR(100) NOT NULL UNIQUE AFTER username;

@@ -1,9 +1,10 @@
-INSERT INTO users (username, password, email)
-VALUES
-('Tom_Sawyer', 'Password1', 'tom@example.com'),
-('Huck_Finn', 'Password2', 'huck@example.com'),
-('Sherlock_Holmes', 'Password3', 'sherlock@example.com'),
-('Oliver_Twist', 'password4', 'oliver@example.com');
+-- Cannot add users this way since the passwords will not be hased!
+-- INSERT INTO users (username, password, email)
+-- VALUES
+-- ('Tom_Sawyer', 'Password1', 'tom@example.com'),
+-- ('Huck_Finn', 'Password2', 'huck@example.com'),
+-- ('Sherlock_Holmes', 'Password3', 'sherlock@example.com'),
+-- ('Oliver_Twist', 'password4', 'oliver@example.com');
 
 -- Insert some floors
 INSERT INTO floors (id) VALUES
