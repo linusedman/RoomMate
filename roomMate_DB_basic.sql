@@ -49,7 +49,7 @@ CREATE TABLE `instruments` (
 
 -- INSERT INTO instrument_types (typename) VALUES ('centrifuge');
 
--- INSERT INTO instruments (user_id, room_id) VALUES (1, 1);
+-- INSERT INTO instruments (type_id, room_id) VALUES (1, 1);
 
 -- INSERT INTO bookings (user_id, room_id, start_time, end_time) VALUES (1, 1, '2008-11-11 13:23:44', '2008-11-11 13:24:00');
 -- INSERT INTO bookings (user_id, room_id, start_time, end_time) VALUES (2, 1, '2008-11-11 13:23:44', '2008-11-11 13:24:00');
