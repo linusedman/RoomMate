@@ -14,7 +14,7 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL UNIQUE,
-  `admin` BOOLEAN
+  `admin` BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE `bookings` (
