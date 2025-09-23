@@ -14,22 +14,25 @@ ________________________________________________________________________________
 _________________________________________________________________________________________
 
 **users**
-""id"" - Primary key, auto-incrementad, unique id for each user of the RoomMate system
-""username"" - Username associated with each user
-""password"" - The password of each user after applying hash and salt
-""email"" - The email used by user when registering account
-""admin"" - Whether the user is an admin or not, boolean with false as the standard value.
+"id" - Primary key, auto-incrementad, unique id for each user of the RoomMate system
+"username" - Username associated with each user
+"password" - The password of each user after applying hash and salt
+"email" - The email used by user when registering account
+"admin" - Whether the user is an admin or not, boolean with false as the standard value.
 _________________________________________________________________________________________
 
 **bookings**
-""id"" - Primary key, auto-incrementad, unique id for each user of the booking made
-""user_id"" - Foreign key referencing "id" attribute in "user", references 
+"id" - Primary key, auto-incrementad, unique id for each user of the booking made
+"user_id" - Foreign key referencing "id" attribute in "user", references 
               the user who made the booking
-""room_id"" - Foreign key referencing "id" attribute in "rooms", the room to be booked
-""start_time"" - Datetime at the start of the booking
-""end_time"" - Datetime at the end of the booking
-______________________________________________________________________________________
+"room_id" - Foreign key referencing "id" attribute in "rooms", the room to be booked
+"start_time" - Datetime at the start of the booking
+"end_time" - Datetime at the end of the booking
+_________________________________________________________________________________________
 
-
+**instrument_types**
+"id" - Primary key, INT, auto-incremental, id associated with type of instrument
+"type_name" - varchar(255), not null, name of the instrument
+_________________________________________________________________________________________
 
 
