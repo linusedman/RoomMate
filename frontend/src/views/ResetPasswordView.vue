@@ -69,7 +69,7 @@ export default {
       this.message = "";
       try {
         const res = await fetch(
-          "http://localhost/RoomMate/login/pages/resetpassword.php",
+          "http://localhost/RoomMate/backend/pages/resetpassword.php",
           {
             method: "POST",
             credentials: "include",

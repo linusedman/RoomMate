@@ -9,8 +9,8 @@ export default defineConfig({
       '/api': {
         //target: 'http://localhost:80/RoomMate', 
         changeOrigin: true,
-        //rewrite: (path) => path.replace(/^\/api/, '/login/pages/api')
-        rewrite: (path) => path.replace(/^\/api/, '/RoomMate/login/pages/api')
+        //rewrite: (path) => path.replace(/^\/api/, '/backend/pages/api')
+        rewrite: (path) => path.replace(/^\/api/, '/RoomMate/backend/pages/api')
       }
     }
   }

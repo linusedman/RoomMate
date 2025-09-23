@@ -48,7 +48,7 @@ export default {
       formData.append("password", this.password);
 
       try {
-        const response = await fetch("http://localhost/RoomMate/login/pages/login.php", {
+        const response = await fetch("http://localhost/RoomMate/backend/pages/login.php", {
           method: "POST",
           credentials: "include",  
           headers: {

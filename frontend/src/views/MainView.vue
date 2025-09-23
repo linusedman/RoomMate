@@ -41,10 +41,10 @@ function onRoomSelected(roomId) {
 
 async function refreshData() {
   try {
-    const r1 = await fetch("http://localhost/RoomMate/login/pages/get_rooms.php", { credentials: "include" })
+    const r1 = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", { credentials: "include" })
     rooms.value = await r1.json()
 
-    const r2 = await fetch("http://localhost/RoomMate/login/pages/get_bookings.php", { credentials: "include" })
+    const r2 = await fetch("http://localhost/RoomMate/backend/pages/get_bookings.php", { credentials: "include" })
     bookings.value = await r2.json()
   } catch (e) {
     console.error(e)

@@ -9,7 +9,7 @@ export default {
   name: "LogoutView",
   async mounted() {
     try {
-      await fetch("http://localhost:80/RoomMate/login/pages/logout.php", {
+      await fetch("http://localhost:80/RoomMate/backend/pages/logout.php", {
         method: "GET",
         credentials: "include",
       });

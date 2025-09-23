@@ -86,7 +86,7 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
     end_time: toMysqlDatetime(endISO)
   })
   try {
-    const res = await fetch("http://localhost/RoomMate/login/pages/book.php", {
+    const res = await fetch("http://localhost/RoomMate/backend/pages/book.php", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
