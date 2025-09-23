@@ -35,4 +35,11 @@ ________________________________________________________________________________
 "type_name" - varchar(255), not null, name of the instrument
 _________________________________________________________________________________________
 
+**instruments**
+"id" - Primary key, INT, auto-incremental, assigned to each instrument in every room
+"type_id" - Foreign key referencing attribute "id" in "instrument_types", INT, not null,
+            id for instrument type
+"room_id" - Foreign key referencing attribute "id" in "rooms", INT, not null, id of the room
+            where intrument is located
+
 
