@@ -1,0 +1,35 @@
+***Database documentation***
+
+The following document will describe how the Database for the RoomMate booking system works.
+
+_________________________________________________________________________________________
+**floors**
+"id" - Primary key, should reflect the floor numbers for each floor in a building.
+_________________________________________________________________________________________
+
+**rooms**
+"id" - Primary key, number assigned to the room
+"roomname" - Name assigned to the room besides room "id" attribute
+"floor_id" - Foreign key referencing "id" attribute in "floors" table.
+_________________________________________________________________________________________
+
+**users**
+""id"" - Primary key, auto-incrementad, unique id for each user of the RoomMate system
+""username"" - Username associated with each user
+""password"" - The password of each user after applying hash and salt
+""email"" - The email used by user when registering account
+""admin"" - Whether the user is an admin or not, boolean with false as the standard value.
+_________________________________________________________________________________________
+
+**bookings**
+""id"" - Primary key, auto-incrementad, unique id for each user of the booking made
+""user_id"" - Foreign key referencing "id" attribute in "user", references 
+              the user who made the booking
+""room_id"" - Foreign key referencing "id" attribute in "rooms", the room to be booked
+""start_time"" - Datetime at the start of the booking
+""end_time"" - Datetime at the end of the booking
+______________________________________________________________________________________
+
+
+
+
