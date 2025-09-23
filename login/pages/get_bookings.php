@@ -18,15 +18,19 @@ header("Content-Type: application/json");
 session_start();
 include '../database/db_connect.php';
 
-$res = $conn->query("SELECT room_id FROM bookings");
+$res = $conn->query("SELECT id, user_id, room_id, start_time, end_time FROM bookings ORDER BY start_time ASC");
 if (!$res) {
     echo json_encode([]);
     exit;
 }
-$rows     = $res->fetch_all(MYSQLI_ASSOC);
-$bookings = array_map('intval', array_column($rows, 'room_id'));
+$rows = $res->fetch_all(MYSQLI_ASSOC);
 
-echo json_encode($bookings);
+// Convert datetimes to same format frontend will parse
+foreach ($rows as &$r) {
+    $r['room_id'] = (int)$r['room_id'];
+    // keep start_time and end_time as strings (MySQL DATETIME)
+}
+echo json_encode($rows);
 
 $res->free();
 $conn->close();

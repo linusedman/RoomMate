@@ -63,7 +63,7 @@ export default {
           this.successMessage = data.message;
           this.errorMessage = "";
           setTimeout(() => {
-            this.$router.push("/schedule");
+            this.$router.push("/main"); 
           }, 1500);
         } else {
           this.errorMessage = data.message || "Login failed.";
@@ -79,3 +79,4 @@ export default {
   },
 };
 </script>
+
