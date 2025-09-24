@@ -23,22 +23,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email    = $_POST['email']    ?? '';
     $password = $_POST['password'] ?? '';
 
-    $stmt = $conn->prepare("SELECT id, password FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, password, admin FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($user_id, $db_password);
+        $stmt->bind_result($user_id, $db_password, $admin);
         $stmt->fetch();
 
         if (password_verify($password, $db_password)) {
             $_SESSION['user_id'] = $user_id;
             $_SESSION['email']   = $email;
+            $_SESSION['admin']    = $admin;
 
             echo json_encode([
                 "status"  => "success",
-                "message" => "Login successful"
+                "message" => "Login successful",
+                "role"    => $admin
             ]);
         } else {
             echo json_encode([
