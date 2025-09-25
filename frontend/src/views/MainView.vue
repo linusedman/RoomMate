@@ -11,7 +11,7 @@
     </div>
 
     <div class="right-panel p-3">
-      <FloorView
+      <LayoutView
         :filter="filter"
         :rooms="rooms"
         :bookings="bookings"
@@ -25,7 +25,7 @@
 import { ref, onMounted } from 'vue'
 import FilterPanel from '../components/FilterPanel.vue'
 import ScheduleView from './ScheduleView.vue'
-import FloorView from './FloorView.vue'
+import LayoutView from './LayoutView.vue'
 
 const filter = ref({ day: '', start: '', end: '' })
 const rooms = ref([])
