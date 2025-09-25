@@ -33,6 +33,19 @@ if (!$room_id || !$start_time || !$end_time) {
     exit;
 }
 
+
+// Time validation
+$start_datetime = new DateTime($start_time);
+$end_datetime = new DateTime($end_time);
+
+if ($start_datetime >= $end_datetime) {
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Start time cannot be after or equal to end time"
+    ]);
+    exit;
+}
+
 $stmt = $conn->prepare("
     SELECT COUNT(*) 
       FROM bookings 
