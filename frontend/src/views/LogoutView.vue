@@ -1,6 +1,6 @@
 <template>
   <div class="logout-page text-center mt-5">
-    <h2>Looging out...</h2>
+    <h2>Logging out...</h2>
   </div>
 </template>
 
