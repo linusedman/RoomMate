@@ -63,7 +63,8 @@ export default {
           this.successMessage = data.message;
           this.errorMessage = "";
           setTimeout(() => {
-            this.$router.push("/main"); 
+            this.$router.push("/main");
+            this.$emit("login-success");
           }, 1500);
         } else {
           this.errorMessage = data.message || "Login failed.";
