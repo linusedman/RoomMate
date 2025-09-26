@@ -4,3 +4,5 @@ vendor/
 
 # Ignore smtp configuration file
 backend/config/smtp_config.php
+
+.idea
