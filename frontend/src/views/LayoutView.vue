@@ -23,7 +23,7 @@
           :booked="isBooked(room.id)"
           :availableByFilter="isAvailableDuringFilter(room.id)"
           :selected="activePopoverId === room.id"
-          @select="onRoomClick"
+          @select="(id, e) => onRoomClick(id, e)"
           />
         </g>
       </svg>
@@ -31,6 +31,8 @@
       <div
           v-show="activePopoverId !== null"
           class="inline-popover"
+          :style="{ left: popoverPos.x + 'px', top: popoverPos.y + 'px' }"
+          @mousedown="startDrag"
           @click.stop
         >
           <RoomPopover :room="getRoom(activePopoverId)" />
@@ -60,6 +62,9 @@ const activePopoverId = ref(null)
 const filter = ref(props.filter || { start:'', end:'' })
 const svg = ref(null)
 const group = ref(null)
+const popoverPos = ref({ x: 0, y: 0 })
+const isDragging = ref(false)
+const dragOffset = ref({ x: 0, y: 0 })
 
 watch(() => props.rooms, (v) => roomsRef.value = v || [])
 watch(() => props.bookings, (v) => bookingsRef.value = v || [])
@@ -112,12 +117,16 @@ function changeFloor(f) {
   selectedFloor.value = f
 }
 
-function onRoomClick(id) {
+function onRoomClick(id, event) {
   if (activePopoverId.value === id) {
     activePopoverId.value = null
   } else {
+    if (activePopoverId.value === null) {
+      popoverPos.value = { x: event.clientX, y: event.clientY }
+    }
     activePopoverId.value = id
     emit('selectedRoom', id)
+
   }
 }
 
@@ -138,6 +147,31 @@ function centerGroup() {
   })
 }
 
+function startDrag(e) {
+  isDragging.value = true
+  // store offset inside popover where clicked
+  dragOffset.value = {
+    x: e.clientX - popoverPos.value.x,
+    y: e.clientY - popoverPos.value.y
+  }
+  window.addEventListener('mousemove', onDrag)
+  window.addEventListener('mouseup', stopDrag)
+}
+
+function onDrag(e) {
+  if (!isDragging.value) return
+  popoverPos.value = {
+    x: e.clientX - dragOffset.value.x,
+    y: e.clientY - dragOffset.value.y
+  }
+}
+
+function stopDrag() {
+  isDragging.value = false
+  window.removeEventListener('mousemove', onDrag)
+  window.removeEventListener('mouseup', stopDrag)
+}
+
 onMounted(() => {
   const floors = availableFloors.value
   if (floors && floors.length) selectedFloor.value = floors[0]
@@ -146,7 +180,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', centerAndScaleGroup)
+  window.removeEventListener('resize', centerGroup)
 })
 
 //Currently hardcoded, have idea on how to make it dynamic, but requires database changes
@@ -187,7 +221,7 @@ function getFPath(id){
 
 
 .inline-popover {
-  position: absolute;
+  position: fixed;
   top: calc(100% + 0px);
   left: 0;
   width: 220px;
@@ -195,8 +229,8 @@ function getFPath(id){
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
   z-index: 5;
+  cursor: move;
 }
 
 

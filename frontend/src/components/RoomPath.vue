@@ -8,7 +8,7 @@
       filteredAvailable: !booked && availableByFilter,
       selected: selected
     }"
-    @click="handleClick"
+    @click="(e) => handleClick(e)"
   >
 
   </path>
@@ -25,8 +25,8 @@ const props = defineProps({
 
 const emit = defineEmits(['select'])
 
-function handleClick() {
-  if (!props.booked) emit('select', props.room.id)
+function handleClick(event) {
+  if (!props.booked) emit('select', props.room.id, event)
 }
 
 function getFill(){

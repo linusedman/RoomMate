@@ -1,6 +1,11 @@
 <template>
   <div class="popover">
-    <div class="room-visual"></div>
+    Room {{room.roomname}}
+    <div class="room-visual"
+    style="align-content: center;
+          text-align: center">
+
+    </div>
   </div>
 </template>
 
@@ -12,12 +17,13 @@ const props = defineProps({
 
 <style scoped>
 .popover {
-  padding: 0;
+  padding: 10px;
   background: transparent;
   border-radius: 6px;
-  width: 220px;
-  height: 160px;
+  width: auto;
+  height: auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   box-shadow: none;
@@ -27,7 +33,7 @@ const props = defineProps({
 /* A box representing the room */
 .room-visual {
   width: 200px;
-  height: 140px;
+  height: 120px;
   background: #f6fff6;
   border: 2px solid #2ecc71;
   border-radius: 6px;
