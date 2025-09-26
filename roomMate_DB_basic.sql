@@ -27,16 +27,13 @@ CREATE TABLE `bookings` (
 );
 
 
--- Alternative user table 
--- CREATE TABLE  users  (
---   id  int NOT NULL AUTO_INCREMENT,
---   username  varchar(45) NOT NULL,
---   email  varchar(45) NOT NULL,
---   password  varchar(45) NOT NULL,
---  PRIMARY KEY ( id ),
---  UNIQUE KEY  id_UNIQUE  ( id )
--- )
-
-
 ALTER TABLE users
 ADD COLUMN email VARCHAR(100) NOT NULL UNIQUE AFTER username;
+
+
+
+CREATE TABLE `password_reset_temp` (
+  `email` varchar(250) NOT NULL,
+  `key` varchar(250) NOT NULL,
+  `expDate` datetime NOT NULL
+)
