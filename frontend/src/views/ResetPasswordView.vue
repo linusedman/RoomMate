@@ -24,19 +24,8 @@
       </div>
 
       <div class="mb-3">
-        <label for="newPassword"><i class="fa fa-lock"></i> New Password</label>
-        <input
-          id="newPassword"
-          type="password"
-          v-model="newPassword"
-          class="form-control"
-          required
-        />
-      </div>
-
-      <div class="mb-3">
         <button type="submit" class="btn btn-primary fw-bold w-100">
-          Reset Password
+          Send Reset Link
         </button>
       </div>
 
@@ -59,7 +48,6 @@ export default {
   data() {
     return {
       email: "",
-      newPassword: "",
       message: "",
       messageClass: "text-danger",
     };
@@ -76,7 +64,6 @@ export default {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({
               email: this.email,
-              new_password: this.newPassword,
             }),
           }
         );

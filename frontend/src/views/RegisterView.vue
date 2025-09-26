@@ -67,7 +67,7 @@ export default {
       formData.append("password", this.password);
 
       try {
-        const response = await fetch("http://localhost:80/RoomMate/backend/pages/register.php", {
+        const response = await fetch("http://localhost/RoomMate/backend/pages/register.php", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
