@@ -198,7 +198,7 @@ function confirmSelection(){
   clearSelection()
 }
 
-function onMouseDown(evt){ if(evt.button!==0) return startDragAtClientX(evt.clientX) }
+function onMouseDown(evt){ if(evt.button===0) return startDragAtClientX(evt.clientX) }
 function onMouseMove(evt){ moveDragAtClientX(evt.clientX) }
 function onMouseUp(){ endDrag() }
 function onMouseLeave(){ if(dragging.value){ dragging.value=false; clearSelection() } }
