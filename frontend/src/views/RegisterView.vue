@@ -23,7 +23,7 @@
 
       <div class="mb-2 mt-2">
         <label for="password"><i class="fa fa-lock"></i> Password</label>
-        <input type="password" v-model="password" id="password" class="form-control" required />
+        <input type="password" v-model="password" id="password" class="form-control" required minlength="8" />
       </div>
 
       <div class="mb-2 mt-3">
@@ -61,6 +61,12 @@ export default {
   },
   methods: {
     async handleRegister() {
+
+       if (this.password.length < 8) {
+      this.message = "Password must be at least 8 characters long.";
+      this.messageColor = "#dc3545";
+      return; // stop execution
+      }
       const formData = new URLSearchParams();
       formData.append("username", this.username);
       formData.append("email", this.email);
