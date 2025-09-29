@@ -55,7 +55,8 @@ try {
     $stmt->close();
 
     // 6. Build reset link
-    $resetLink = "http://localhost/RoomMate/backend/pages/resetpassword_form.php?key=$key";
+    $resetLink = "http://localhost:5173/reset-password?key=" . urlencode($key);
+
 
     // 7. Send email using MailHog (PHPMailer)
     $mail = new PHPMailer(true);
@@ -69,7 +70,8 @@ try {
         $mail->addAddress($email);
         $mail->isHTML(true);
         $mail->Subject = "Reset your password";
-        $mail->Body = "Click here to reset your password: <a href='$resetLink'>$resetLink</a>";
+        $mail->Body = "New message: Click here to reset your password: <a href='{$resetLink}' target='_blank'>{$resetLink}</a>";
+
 
         $mail->send();
         echo json_encode(["status" => "success", "message" => "Check your email for the reset link."]);
