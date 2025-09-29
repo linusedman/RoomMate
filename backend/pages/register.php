@@ -17,6 +17,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
+    if (strlen($_POST['password']) < 8) {
+    echo json_encode(["status" => "error", "message" => "Password must be at least 8 characters long."]);
+    exit;
+    }
+
+
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     $checkEmailStmt = $conn->prepare("SELECT email FROM users WHERE email = ?");
