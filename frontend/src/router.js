@@ -6,6 +6,7 @@ import ResetPasswordView from './views/ResetPasswordView.vue';
 import ScheduleView from './views/ScheduleView.vue';
 import LogoutView from './views/LogoutView.vue';
 import MainView from './views/MainView.vue';
+import ResetPasswordFormView from './views/ResetPasswordFormView.vue';
 import axios from "axios";
 
 const routes = [
@@ -20,6 +21,7 @@ const routes = [
       { path: 'schedule', component: ScheduleView, meta: { requiresAuth: true, role: 'user' } },
       { path: 'logout', component: LogoutView },
       { path: 'main', component: MainView, meta: { requiresAuth: true, role: 'user' }},
+      { path: '/reset-password', name: 'ResetPassword', component: ResetPasswordFormView }
     ],
   },
   { path: '/:pathMatch(.*)*', redirect: '/login' },
