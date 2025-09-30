@@ -1,0 +1,60 @@
+***Database documentation***
+
+The following document will describe how the Database for the RoomMate booking system works.
+
+Each table will be described in the following format:
+
+**Table Name**
+# small description of the table
+"attribute name" - Type of key, data type, other details, description
+
+_________________________________________________________________________________________
+**floors**
+# floors in the building
+"id" - Primary key, INT, should reflect the floor numbers for each floor in a building.
+_________________________________________________________________________________________
+
+**rooms**
+# rooms available for booking in the system
+"id" - Primary key, INT, number assigned to the room
+"roomname" - varchar(255), Name assigned to the room besides room "id" attribute
+"floor_id" - Foreign key referencing "id" attribute in "floors" table, INT, not null,
+             floor the room is on
+_________________________________________________________________________________________
+
+**users**
+# users of the system
+"id" - Primary key, INT, auto-incremental, unique id for each user of the RoomMate system
+"username" - varchar(255), not null, Username associated with each user
+"password" - varchar(255), not null, The password of each user after applying hash and salt
+"email" - varchar(255), not null, unique, The email used by user when registering account
+"admin" - Boolean, defaul is false, Whether the user is an admin or not, 
+          boolean with false as the standard value.
+_________________________________________________________________________________________
+
+**bookings**
+# bookings made by the users of the system
+"id" - Primary key, INT, auto-incremental, unique id for each user of the booking made
+"user_id" - Foreign key referencing "id" attribute in "user", INT, not null, references 
+            the user who made the booking
+"room_id" - Foreign key referencing "id" attribute in "rooms", INT, not null, 
+            the room to be booked
+"start_time" - Datetime, not null, timepoint at the start of the booking
+"end_time" - Datetime, not null, timepoint at the end of the booking
+_________________________________________________________________________________________
+
+**instrument_types**
+# instruments used in the lab
+"id" - Primary key, INT, auto-incremental, id associated with type of instrument
+"type_name" - varchar(255), not null, name of the instrument
+_________________________________________________________________________________________
+
+**instruments**
+# instruments in each lab
+"id" - Primary key, INT, auto-incremental, assigned to each instrument in every room
+"type_id" - Foreign key referencing attribute "id" in "instrument_types", INT, not null,
+            id for instrument type
+"room_id" - Foreign key referencing attribute "id" in "rooms", INT, not null, id of the room
+            where intrument is located
+
+
