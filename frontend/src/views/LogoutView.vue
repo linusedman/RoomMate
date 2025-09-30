@@ -16,7 +16,9 @@ export default {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      this.$router.push("/login");
+      setTimeout(() => {
+        this.$router.push("/login");
+      }, 1000);
     }
   },
 };
