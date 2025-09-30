@@ -3,9 +3,19 @@
     <header class="bg-success text-white p-3 text-center">
       <h1>RoomMate</h1>
       <button @click="logout" class="btn btn-outline-danger"
-      style="margin-left: auto"
+      style="margin-left: auto;
+              position: absolute;
+                right: 20px;"
       v-show="loggedIn">
         Logout
+      </button>
+
+      <button @click="switchPage" class="btn btn-outline-danger"
+      style="margin-left: auto;
+              position: absolute;
+                right: 100px;"
+      v-show="admin===true">
+        Switch
       </button>
     </header>
 
@@ -21,16 +31,24 @@
 
 <script>
 import axios from "axios";
-import { loggedIn } from "../router";
+import { loggedIn, admin } from "../router";
 
 export default {
   name: "BaseLayout",
   setup() {
-    return { loggedIn };
+    return { loggedIn, admin };
   },
   methods: {
     async logout() {
       this.$router.push("/logout")
+    },
+    async switchPage() {
+      const current = this.$route.path;
+      if (current === '/admin') {
+        await this.$router.push('/main');
+      } else if (current === '/main') {
+        await this.$router.push('/admin');
+      }
     }
   },
 };
@@ -53,10 +71,5 @@ header {
 
 header h1 {
   margin: 0 auto; /* remove default h1 margin */
-}
-
-header button {
-  position: absolute;
-  right: 20px; /* keep logout button on the right */
 }
 </style>
