@@ -2,7 +2,9 @@
   <div class="floor-view container">
     <FloorSelector :floors="availableFloors" @change="changeFloor" />
 
-    <div class="room-layout d-flex flex-wrap">
+    <div class="room-layout d-flex flex-wrap"
+    style="width:100%">
+
       <svg
           width = 100%
           id="Floor"
@@ -130,7 +132,7 @@ function onRoomClick(id, event) {
   }
 }
 
-function centerGroup() {
+function CenterAndScaleGroup() {
   if (!svg.value || !group.value) return
 
   // Wait for paths to render
@@ -147,6 +149,7 @@ function centerGroup() {
   })
 }
 
+// Three functions to make the room-windows draggable
 function startDrag(e) {
   isDragging.value = true
   // store offset inside popover where clicked
@@ -175,12 +178,12 @@ function stopDrag() {
 onMounted(() => {
   const floors = availableFloors.value
   if (floors && floors.length) selectedFloor.value = floors[0]
-  centerGroup()
-  window.addEventListener('resize', centerGroup)
+  CenterAndScaleGroup()
+  window.addEventListener('resize', CenterAndScaleGroup)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', centerGroup)
+  window.removeEventListener('resize', CenterAndScaleGroup)
 })
 
 //Currently hardcoded, have idea on how to make it dynamic, but requires database changes
@@ -211,14 +214,6 @@ function getFPath(id){
 
 <style scoped>
 .room-layout { gap: 10px; display:flex; flex-wrap:wrap; }
-.room-wrapper {
-  position: relative;
-  margin: 6px;
-  width: 80px;
-  height: 80px;
-  display: inline-block;
-}
-
 
 .inline-popover {
   position: fixed;
@@ -232,7 +227,6 @@ function getFPath(id){
   z-index: 5;
   cursor: move;
 }
-
 
 .inline-popover > * {
   pointer-events: none;
