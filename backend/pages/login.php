@@ -35,12 +35,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (password_verify($password, $db_password)) {
             $_SESSION['user_id'] = $user_id;
             $_SESSION['email']   = $email;
-            $_SESSION['admin']    = $admin;
+            $_SESSION['admin']    = (bool)$admin;
 
             echo json_encode([
                 "status"  => "success",
                 "message" => "Login successful",
-                "role"    => $admin
+                "role"    => (bool)$admin
             ]);
         } else {
             echo json_encode([

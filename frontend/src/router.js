@@ -53,7 +53,7 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // If route requires admin but user is not admin
-    if (to.meta.role === 'admin' && admin !== 'True') {
+    if (to.meta.role === 'admin' && admin !== true) {
       return next('/main')
     }
 
