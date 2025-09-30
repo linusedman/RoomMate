@@ -62,10 +62,16 @@ export default {
         if (data.status === "success") {
           this.successMessage = data.message;
           this.errorMessage = "";
-          setTimeout(() => {
-            this.$router.push("/main");
-            this.$emit("login-success");
-          }, 1500);
+          if (data.role === true) {
+            setTimeout(() => {
+              this.$router.push("/admin");
+            }, 1500);
+          }
+          else {
+            setTimeout(() => {
+              this.$router.push("/main");
+            }, 1500);
+          }
         } else {
           this.errorMessage = data.message || "Login failed.";
           this.successMessage = "";
