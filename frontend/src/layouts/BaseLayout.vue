@@ -30,16 +30,7 @@ export default {
   },
   methods: {
     async logout() {
-      try {
-        await fetch("http://localhost/RoomMate/backend/pages/logout.php", {
-          method: "POST",
-          credentials: "include"
-        });
-      } catch (e) {
-        console.error("Logout failed:", e);
-      } finally {
-        this.$router.push("/login");
-      }
+      this.$router.push("/logout")
     }
   },
 };
