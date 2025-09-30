@@ -7,7 +7,9 @@ import ScheduleView from './views/ScheduleView.vue';
 import LogoutView from './views/LogoutView.vue';
 import MainView from './views/MainView.vue';
 import ResetPasswordFormView from './views/ResetPasswordFormView.vue';
+import AdminView from "./views/AdminView.vue";
 import axios from "axios";
+import {ref} from "vue";
 
 const routes = [
   {
@@ -21,6 +23,7 @@ const routes = [
       { path: 'schedule', component: ScheduleView, meta: { requiresAuth: true, role: 'user' } },
       { path: 'logout', component: LogoutView },
       { path: 'main', component: MainView, meta: { requiresAuth: true, role: 'user' }},
+      { path: 'admin', component: AdminView, meta: { requiresAuth: true, role: 'admin' }},
       { path: '/reset-password', name: 'ResetPassword', component: ResetPasswordFormView }
     ],
   },
@@ -33,17 +36,18 @@ const router = createRouter({
 });
 
 export default router;
+export const loggedIn = ref(false);
 
 router.beforeEach(async (to, from, next) => {
   // routes without auth are always allowed
+  const res = await axios.get("http://localhost/RoomMate/backend/pages/check_login.php", { withCredentials: true })
+  const { loggedIn: isLoggedIn, admin } = res.data
+      loggedIn.value = isLoggedIn;
   if (!to.meta.requiresAuth) {
     return next()
   }
 
   try {
-    const res = await axios.get("http://localhost/RoomMate/backend/pages/check_login.php", { withCredentials: true })
-    const { loggedIn, admin } = res.data
-
     if (!loggedIn) {
       return next('/login')
     }

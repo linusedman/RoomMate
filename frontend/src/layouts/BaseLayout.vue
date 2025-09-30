@@ -10,7 +10,7 @@
     </header>
 
     <main class="container mt-4">
-      <router-view @login-success="login"/>
+      <router-view/>
     </main>
 
     <footer class="bg-light text-center p-3 mt-5 border-top">
@@ -21,13 +21,12 @@
 
 <script>
 import axios from "axios";
+import { loggedIn } from "../router";
 
 export default {
   name: "BaseLayout",
-  data() {
-    return {
-      loggedIn: false,
-    };
+  setup() {
+    return { loggedIn };
   },
   methods: {
     async logout() {
@@ -39,12 +38,8 @@ export default {
       } catch (e) {
         console.error("Logout failed:", e);
       } finally {
-        this.loggedIn = false
         this.$router.push("/login");
       }
-    },
-    async login() {
-      this.loggedIn = true
     }
   },
 };
