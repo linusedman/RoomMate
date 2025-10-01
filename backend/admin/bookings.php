@@ -130,5 +130,121 @@ if ($action === 'list') {
         exit;
     }
 
-}   
+// Update booking
+} elseif ($action === 'update') {
+    $bidToUpd = $_POST['id'] ?? null;
+    $user_id = $_POST['user_id'] ?? null;
+    $room_id = $_POST['room_id'] ?? null;
+    $start_time = $_POST['start_time'] ?? null;
+    $end_time = $_POST['end_time'] ?? null;
+
+    if (!$bidToUpd) {
+        echo json_encode(["status" => "error", "message" => "Missing booking ID"]);
+        exit;
+    }
+
+    // Fetch current booking based on booking ID
+    $stmt = $conn->prepare("SELECT * FROM bookings WHERE id = ?");
+    $stmt->bind_param("i", $bidToUpd);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows === 0) {
+        echo json_encode(["status" => "error", "message" => "Booking not found"]);
+        exit;
+    }
+    $currentBooking = $res->fetch_assoc();
+
+    $updates = [];
+    $params = [];
+    $types = "";
+    
+    if ($room_id) {
+        // Validate room ID
+        $stmt = $conn->prepare("SELECT id FROM rooms WHERE id = ?");
+        $stmt->bind_param("i", $room_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($res->num_rows === 0) {
+            echo json_encode(["status" => "error", "message" => "Room does not exist"]);
+            exit;
+        }
+        $updates[] = "room_id = ?";
+        $params[] = $room_id;
+        $types .= "i";
+    } else {
+        $room_id = $currentBooking['room_id'];
+    }
+
+    if ($user_id) {
+        // Validate user ID
+        $stmt = $conn->prepare("SELECT id FROM users WHERE id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($res->num_rows === 0) {
+            echo json_encode(["status" => "error", "message" => "User does not exist"]);
+            exit;
+        }
+        $updates[] = "user_id = ?";
+        $params[] = $user_id;
+        $types .= "i";
+    }
+
+    // Time validation
+    $new_start = $start_time ?? $currentBooking['start_time'];
+    $new_end = $end_time ?? $currentBooking['end_time'];
+
+    $start_datetime = new DateTime($new_start);
+    $end_datetime = new DateTime($new_end);
+
+    if ($start_datetime >= $end_datetime) {
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Start time cannot be after or equal to end time"
+        ]);
+        exit;
+    }
+
+    // Check for conflicts
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM bookings WHERE room_id = ? AND id != ? AND (start_time < ? AND end_time > ?)");
+    $stmt->bind_param("iiss", $room_id, $bidToUpd, $new_end, $new_start);
+    $stmt->execute();
+    $stmt->bind_result($conflicts);
+    $stmt->fetch();
+    $stmt->close();
+
+    if ($conflicts > 0) {
+        echo json_encode(["status" => "error", "message" => "Room is already booked during this time"]);
+        exit;
+    }
+
+    if ($start_time) {
+        $updates[] = "start_time = ?";
+        $params[] = $start_time;
+        $types .= "s";
+    }
+    if ($end_time) {
+        $updates[] = "end_time = ?";
+        $params[] = $end_time;
+        $types .= "s";
+    }
+
+    if (empty($updates)) {
+        echo json_encode(["status" => "error", "message" => "No fields to update"]);
+        exit;
+    }
+
+    $sql = "UPDATE bookings SET " . implode(", ", $updates) . " WHERE id = ?";
+    $params[] = $bidToUpd;
+    $types .= "i";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param($types, ...$params);
+
+    if ($stmt->execute()) {
+        echo json_encode(["status" => "success", "message" => "Booking updated"]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Failed to update booking"]);
+    }
+}
 ?>
