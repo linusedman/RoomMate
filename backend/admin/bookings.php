@@ -61,5 +61,74 @@ if ($action === 'list') {
         echo json_encode(["status" => "error", "message" => "Failed to delete booking"]);
         exit;
     }
-}
+
+// Create booking
+} elseif ($action === 'create') {
+    $target_user_id = $_POST['user_id'] ?? null;
+    $room_id = $_POST['room_id'] ?? null;
+    $start_time = $_POST['start_time'] ?? null;
+    $end_time = $_POST['end_time'] ?? null;
+
+    if (!$target_user_id || !$room_id || !$start_time || !$end_time) {
+        echo json_encode(["status" => "error", "message" => "Missing parameters"]);
+        exit;
+    }
+
+    // Time validation
+    $start_datetime = new DateTime($start_time);
+    $end_datetime = new DateTime($end_time);
+
+    if ($start_datetime >= $end_datetime) {
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Start time cannot be after or equal to end time"
+        ]);
+        exit;
+    }
+
+    // Validate user
+    $stmt = $conn->prepare("SELECT id FROM users WHERE id = ?");
+    $stmt->bind_param("i", $target_user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows === 0) {
+        echo json_encode(["status" => "error", "message" => "User does not exist"]);
+        exit;
+    }
+
+    // Validate room
+    $stmt = $conn->prepare("SELECT id FROM rooms WHERE id = ?");
+    $stmt->bind_param("i", $room_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows === 0) {
+        echo json_encode(["status" => "error", "message" => "Room does not exist"]);
+        exit;
+    }
+
+    // Check for conflicts
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM bookings WHERE room_id = ? AND (start_time < ? AND end_time > ?)");
+    $stmt->bind_param("iss", $room_id, $end_time, $start_time);
+    $stmt->execute();
+    $stmt->bind_result($conflicts);
+    $stmt->fetch();
+    $stmt->close();
+
+    if ($conflicts > 0) {
+        echo json_encode(["status" => "error", "message" => "Room is already booked during this time"]);
+        exit;
+    }
+
+    // Insert booking
+    $stmt = $conn->prepare("INSERT INTO bookings (user_id, room_id, start_time, end_time) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("iiss", $target_user_id, $room_id, $start_time, $end_time);
+
+    if ($stmt->execute()) {
+        echo json_encode(["status" => "success", "message" => "Booking created"]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Failed to create booking"]);
+        exit;
+    }
+
+}   
 ?>
