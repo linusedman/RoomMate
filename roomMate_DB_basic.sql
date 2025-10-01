@@ -41,9 +41,12 @@ CREATE TABLE `instruments` (
 );
 
 CREATE TABLE `password_reset_temp` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,  
   `email` varchar(250) NOT NULL,
   `key` varchar(250) NOT NULL,
-  `expDate` datetime NOT NULL
+  `expDate` datetime NOT NULL,
+  CONSTRAINT fk_email_user FOREIGN KEY (`email`) REFERENCES `users`(`email`)
+
 )
 
 -- INSERT INTO users (username, password, email) VALUES ('test', '1', 'test@test.com');
