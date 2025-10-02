@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `rooms` (
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `username` varchar(255) NOT NULL,
+  `username` varchar(255) NOT NULL UNIQUE,
   `password` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL UNIQUE,
   `admin` BOOLEAN DEFAULT FALSE
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,  
   `email` varchar(250) NOT NULL UNIQUE,
-  `reset_key` varchar(250) NOT NULL,
+  `key` varchar(250) NOT NULL,
   `expDate` datetime NOT NULL,
   CONSTRAINT fk_email_user FOREIGN KEY (`email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -56,6 +56,12 @@ ON DUPLICATE KEY UPDATE
     reset_key = VALUES(reset_key),
     expDate = VALUES(expDate);
 */ 
+
+ALTER TABLE `floors`
+ADD COLUMN `path` VARCHAR(1000);
+
+ALTER TABLE `rooms`
+ADD COLUMN `path` VARCHAR(1000);
 
 -- INSERT INTO users (username, password, email) VALUES ('test', '1', 'test@test.com');
 
