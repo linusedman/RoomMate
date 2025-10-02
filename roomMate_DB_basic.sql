@@ -48,6 +48,14 @@ CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   CONSTRAINT fk_email_user FOREIGN KEY (`email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+/* To backend team: 
+the Insert statements for password reset shoul look like this:--- 
+INSERT INTO password_reset_temp (email, reset_key, expDate)
+VALUES ('user@example.com', 'reset', expiry date)
+ON DUPLICATE KEY UPDATE
+    reset_key = VALUES(reset_key),
+    expDate = VALUES(expDate);
+*/ 
 
 -- INSERT INTO users (username, password, email) VALUES ('test', '1', 'test@test.com');
 
