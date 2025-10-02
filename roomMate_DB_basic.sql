@@ -1,15 +1,15 @@
-CREATE TABLE `floors` (
+CREATE TABLE IF NOT EXISTS `floors` (
   `id` INT PRIMARY KEY
 );
 
-CREATE TABLE `rooms` (
+CREATE TABLE IF NOT EXISTS `rooms` (
   `id` INT PRIMARY KEY,
   `roomname` varchar(255),
   `floor_id` INT NOT NULL,
   CONSTRAINT fk_rooms_floor FOREIGN KEY (`floor_id`) REFERENCES `floors` (`id`) ON UPDATE CASCADE
 );
 
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE `users` (
   `admin` BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE `bookings` (
+CREATE TABLE IF NOT EXISTS `bookings` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `room_id` INT NOT NULL,
@@ -27,12 +27,12 @@ CREATE TABLE `bookings` (
   CONSTRAINT fk_bookings_room FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `instrument_types` (
+CREATE TABLE IF NOT EXISTS `instrument_types` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `typename` varchar(255) NOT NULL
 );
 
-CREATE TABLE `instruments` (
+CREATE TABLE IF NOT EXISTS `instruments` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `type_id` INT NOT NULL,
   `room_id` INT NOT NULL,
@@ -40,14 +40,22 @@ CREATE TABLE `instruments` (
   CONSTRAINT fk_instruments_room FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `password_reset_temp` (
+CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,  
-  `email` varchar(250) NOT NULL,
-  `key` varchar(250) NOT NULL,
+  `email` varchar(250) NOT NULL UNIQUE,
+  `reset_key` varchar(250) NOT NULL,
   `expDate` datetime NOT NULL,
-  CONSTRAINT fk_email_user FOREIGN KEY (`email`) REFERENCES `users`(`email`)
+  CONSTRAINT fk_email_user FOREIGN KEY (`email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
-)
+/* To backend team: 
+the Insert statements for password reset shoul look like this:--- 
+INSERT INTO password_reset_temp (email, reset_key, expDate)
+VALUES ('user@example.com', 'reset', expiry date)
+ON DUPLICATE KEY UPDATE
+    reset_key = VALUES(reset_key),
+    expDate = VALUES(expDate);
+*/ 
 
 -- INSERT INTO users (username, password, email) VALUES ('test', '1', 'test@test.com');
 
