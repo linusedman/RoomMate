@@ -46,6 +46,26 @@ if ($start_datetime >= $end_datetime) {
     exit;
 }
 
+
+// Min/Max booking duration (30 mins to 8 hours)
+$duration = ($end_datetime->getTimestamp() - $start_datetime->getTimestamp()) / 60; // duration in minutes
+
+if ($duration < 30) {
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Booking duration must be at least 30 minutes"
+    ]);
+    exit;
+}
+
+if ($duration > 8 * 60) {
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Booking duration cannot exceed 8 hours"
+    ]);
+    exit;
+}
+
 $stmt = $conn->prepare("
     SELECT COUNT(*) 
       FROM bookings 
