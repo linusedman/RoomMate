@@ -76,3 +76,17 @@ ADD COLUMN `path` VARCHAR(1000);
 -- INSERT INTO bookings (user_id, room_id, start_time, end_time) VALUES (1, 1, '2008-11-11 13:23:44', '2008-11-11 13:24:00');
 -- INSERT INTO bookings (user_id, room_id, start_time, end_time) VALUES (2, 1, '2008-11-11 13:23:44', '2008-11-11 13:24:00');
 
+
+-- create event that re,oves expired passwords--
+-- 1. Enable the MySQL Event Scheduler
+SET GLOBAL event_scheduler = ON;
+
+-- 2. Create an automatic cleanup event
+CREATE EVENT IF NOT EXISTS delete_expired_password_resets
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+  DELETE FROM password_reset_temp
+  WHERE expDate < NOW();
+
+
