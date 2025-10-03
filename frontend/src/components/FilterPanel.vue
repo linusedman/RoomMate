@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <div class="d-flex gap-2 mt-2"></div>
+    <div class="d-flex gap-2 mt-2">
       <label>Instrument</label>
       <select v-model="instrumentId">
         <option value="">Filter by Instrument</option>
@@ -29,6 +29,7 @@
       <button class="btn btn-primary" @click="applyFilter">Apply</button>
       <button class="btn btn-outline-secondary" @click="clearFilter">Clear</button>
     </div>
+  </div>
 </template>
 
 <script setup>

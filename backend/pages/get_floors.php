@@ -17,35 +17,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header("Content-Type: application/json");
 include '../database/db_connect.php';
 
-$instrumentId = $_POST['instrumentId'] ?? '';
 
-if ($instrumentId) {
-    $result = $conn->prepare("
-        SELECT rooms.*
-        FROM rooms
-        JOIN instruments ON rooms.id = instruments.room_id
-        WHERE instruments.type_id = ?
-    ");
-    $result->bind_param("i", $instrumentId);
-} else {
-
-    $result = $conn->query("SELECT id, roomname, floor_id AS floor, path FROM rooms");
+$result = $conn->query("SELECT id, path FROM floors");
         if (!$result) {
             echo json_encode([]);
             exit;
         }
-} 
 $rows = $result->fetch_all(MYSQLI_ASSOC);
-$rooms = array_map(function($r) {
+$floors = array_map(function($r) {
     return [
         'id'       => (int)$r['id'],
-        'roomname' => $r['roomname'],
-        'floor'    => (int)$r['floor'],
         'path'    => $r['path'],
     ];
 }, $rows);
 
-echo json_encode($rooms);
+echo json_encode($floors);
 
 $result->free();
 $conn->close();

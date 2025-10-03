@@ -14,6 +14,7 @@
       <LayoutView
         :filter="filter"
         :rooms="rooms"
+        :floors="floors"
         :bookings="bookings"
         @selectedRoom="onRoomSelected"
       />
@@ -30,6 +31,7 @@ import LayoutView from './LayoutView.vue'
 const filter = ref({ day: '', start: '', end: '' })
 const rooms = ref([])
 const bookings = ref([])
+const floors = ref([])
 
 function onFilter(f) {
   filter.value = f
@@ -46,6 +48,9 @@ async function refreshData() {
 
     const r2 = await fetch("http://localhost/RoomMate/backend/pages/get_bookings.php", { credentials: "include" })
     bookings.value = await r2.json()
+
+    const r3 = await fetch("http://localhost/RoomMate/backend/pages/get_floors.php", { credentials: "include" })
+    floors.value = await r3.json()
   } catch (e) {
     console.error(e)
   }
@@ -55,6 +60,6 @@ onMounted(refreshData)
 </script>
 
 <style scoped>
-.main-view { display:flex; gap:1rem; }
-.left-panel, .right-panel { width:50%; }
+.main-view { display:flex; gap:1rem; height:100%; min-height: 70vh}
+.left-panel, .right-panel { width:50%; height:100%; min-height: 70vh }
 </style>
