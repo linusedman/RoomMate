@@ -20,22 +20,24 @@ if ($conn->connect_errno) {
     exit;
 }
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email    = $_POST['email']    ?? '';
+    $identifier = $_POST['identifier'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    $stmt = $conn->prepare("SELECT id, password, admin FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
+    // Match either email or username
+    $stmt = $conn->prepare("SELECT id, username, email, password, admin FROM users WHERE email = ? OR username = ?");
+    $stmt->bind_param("ss", $identifier, $identifier);
     $stmt->execute();
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($user_id, $db_password, $admin);
+        $stmt->bind_result($user_id, $username, $email, $db_password, $admin);
         $stmt->fetch();
 
         if (password_verify($password, $db_password)) {
             $_SESSION['user_id'] = $user_id;
-            $_SESSION['email']   = $email;
-            $_SESSION['admin']    = (bool)$admin;
+            $_SESSION['username'] = $username;
+            $_SESSION['email'] = $email;
+            $_SESSION['admin'] = (bool)$admin;
 
             echo json_encode([
                 "status"  => "success",
