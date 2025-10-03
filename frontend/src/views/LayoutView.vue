@@ -3,7 +3,8 @@
     <FloorSelector :floors="availableFloors" @change="changeFloor" />
 
     <div class="room-layout d-flex flex-wrap"
-    style="width:100%">
+    style="width:100%;
+height:100%; min-height: 70vh">
 
       <svg
           width = 100%
@@ -21,7 +22,7 @@
           v-for="room in roomsOnFloor"
           :key="room.id"
           :room="room"
-          :path="getPath(room.id)"
+          :path="room.path"
           :booked="isBooked(room.id)"
           :availableByFilter="isAvailableDuringFilter(room.id)"
           :selected="activePopoverId === room.id"
@@ -53,12 +54,14 @@ import RoomPath from "../components/RoomPath.vue";
 const props = defineProps({
   filter: Object,
   rooms: Array,
-  bookings: Array
+  floors: Array,
+  bookings: Array,
 })
 const emit = defineEmits(['selectedRoom'])
 
 const roomsRef = ref(props.rooms || [])
 const bookingsRef = ref(props.bookings || [])
+const floorsRef = ref(props.floors || [])
 const selectedFloor = ref(1)
 const activePopoverId = ref(null)
 const filter = ref(props.filter || { start:'', end:'' })
@@ -70,6 +73,7 @@ const dragOffset = ref({ x: 0, y: 0 })
 
 watch(() => props.rooms, (v) => roomsRef.value = v || [])
 watch(() => props.bookings, (v) => bookingsRef.value = v || [])
+watch(() => props.floors, (v) => floorsRef.value = v || [])
 watch(() => props.filter, (v) => filter.value = v || { start:'', end:'' }, { immediate: true })
 
 const availableFloors = computed(() => {
@@ -117,6 +121,7 @@ function getRoom(id) {
 
 function changeFloor(f) {
   selectedFloor.value = f
+  CenterAndScaleGroup()
 }
 
 function onRoomClick(id, event) {
@@ -138,12 +143,16 @@ function CenterAndScaleGroup() {
   // Wait for paths to render
   nextTick(() => {
     const bbox = group.value.getBBox()
+    if (!bbox.width || !bbox.height) {
+      console.warn("BBox is empty, skipping transform");
+      return;
+    }
     const svgWidth = svg.value.viewBox.baseVal.width || svg.value.clientWidth
     const svgHeight = svg.value.viewBox.baseVal.height || svg.value.clientHeight
 
     const scale = Math.min(svgWidth / bbox.width, svgHeight / bbox.height);
     const dx = (svgWidth - bbox.width * scale) / 2 - bbox.x * scale
-    const dy = (svgHeight - bbox.height * scale) / 2 - bbox.y * scale
+    const dy = - bbox.y * scale
 
     group.value.setAttribute('transform', `translate(${dx}, ${dy}) scale(${scale})`)
   })
@@ -178,7 +187,6 @@ function stopDrag() {
 onMounted(() => {
   const floors = availableFloors.value
   if (floors && floors.length) selectedFloor.value = floors[0]
-  CenterAndScaleGroup()
   window.addEventListener('resize', CenterAndScaleGroup)
 })
 
@@ -186,30 +194,23 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', CenterAndScaleGroup)
 })
 
-//Currently hardcoded, have idea on how to make it dynamic, but requires database changes
-function getPath(id){
-    if (id === 1) {
-      return "m -127.29961,89.868727 9.90405,49.970393 52.671492,-9.90404 -10.354225,-50.870762 z"
-    }
-    if (id === 2) {
-      return "M -57.102713,75.526386 -46.957695,126.36537 5.9547779,115.5292 -4.3994473,64.835878 Z"
-    }
-    if (id === 3) {
-      return "M 48.658901,54.063157 -4.6404419,64.721831 6.1640666,115.32004 58.835271,105.14317 Z"
-    }
-    if (id === 4) {
-      return "M 65.760276,50.237843 76.429863,101.91212 128.94097,91.033325 118.68979,39.359047 Z"
-    }
-    if (id === 5) {
-      return "M 171.41011,28.689459 182.0797,80.363737 128.94097,91.033325 118.48058,39.149838 Z"
-    }
+function getFPath(id){
+    const current_floor = floorsRef.value.find(r => r.id === id) || {}
+    return current_floor.path
 }
 
-function getFPath(id){
-    if (id === 1) {
-      return "m 239.4026,82.455814 -15.48138,-65.481981 -352.3056,71.758209 12.97087,65.272778 z"
+watch(
+  () => availableFloors.value,
+  (floors) => {
+    if (floors && floors.length) {
+      selectedFloor.value = floors[0]
+      nextTick(() => {
+        CenterAndScaleGroup()
+      })
     }
-}
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
