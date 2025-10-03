@@ -4,16 +4,16 @@ CREATE TABLE IF NOT EXISTS `floors` (
 
 CREATE TABLE IF NOT EXISTS `rooms` (
   `id` INT PRIMARY KEY,
-  `roomname` varchar(255),
+  `roomname` varchar(30),
   `floor_id` INT NOT NULL,
   CONSTRAINT fk_rooms_floor FOREIGN KEY (`floor_id`) REFERENCES `floors` (`id`) ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `username` varchar(255) NOT NULL UNIQUE,
-  `password` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL UNIQUE,
+  `username` varchar(30) NOT NULL UNIQUE,
+  `password` varchar(30) NOT NULL,
+  `email` varchar(30) NOT NULL UNIQUE,
   `admin` BOOLEAN DEFAULT FALSE
 );
 
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `bookings` (
 
 CREATE TABLE IF NOT EXISTS `instrument_types` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `typename` varchar(255) NOT NULL
+  `typename` varchar(50) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `instruments` (
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,  
-  `email` varchar(250) NOT NULL UNIQUE,
+  `email` varchar(30) NOT NULL UNIQUE,
   `key` varchar(250) NOT NULL,
   `expDate` datetime NOT NULL,
   CONSTRAINT fk_email_user FOREIGN KEY (`email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
