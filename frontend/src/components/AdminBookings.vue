@@ -1,5 +1,4 @@
 <template>
-<h2>Bookings</h2>
   <table>
     <thead>
       <tr>
