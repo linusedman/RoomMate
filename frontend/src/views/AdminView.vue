@@ -21,4 +21,5 @@ import AdminInstruments from "../components/AdminInstruments.vue";
 <style scoped>
 .admin-view { display:flex; gap:1rem; }
 .left-panel, .right-panel { width:50%; }
+
 </style>
