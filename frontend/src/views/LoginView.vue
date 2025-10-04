@@ -5,7 +5,8 @@
       style="height:auto; width:380px; box-shadow: rgba(60, 64, 67, 0.3) 
              0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;">
       <div class="row text-center">
-        <i class="fa fa-user-circle-o fa-3x mt-1 mb-2" style="color: green;"></i>
+        <i class="fa fa-user-circle-o fa-3x mt-1 mb-2" style="color: #005cbf;"></i>
+
         <h5 class="p-4 fw-bold">Login Into Your Account</h5>
       </div>
       <div class="mb-3">
@@ -17,7 +18,8 @@
         <input type="password" v-model="password" id="password" class="form-control" required />
       </div>
       <div class="mb-3">
-        <button type="submit" class="btn btn-success fw-bold">Login</button>
+        <button type="submit" class="btn btn-login fw-bold">Login</button>
+
       </div>
       <div class="mb-2 mt-4 text-center fw-bold text-primary">
         <router-link to="/register" class="text-decoration-none">Create Account</router-link>
@@ -86,4 +88,17 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.btn-login {
+  background-color: #005cbf;
+  border: none;
+  color: white;
+}
+.btn-login:disabled {
+  background-color: #7fb8ea;
+  cursor: not-allowed;
+}
+
+</style>
 

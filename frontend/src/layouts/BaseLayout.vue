@@ -1,6 +1,7 @@
 <template>
   <div>
-    <header class="bg-success text-white p-3 text-center">
+    <header class="text-white p-3 text-center" style="background-color: #0029aa;">
+
       <h1>RoomMate</h1>
       <button @click="logout" class="btn btn-outline-danger"
       style="margin-left: auto;
@@ -63,13 +64,13 @@ main {
 
 header {
   display: flex;
-  justify-content: center;  /* centers horizontally */
-  align-items: center;      /* centers vertically */
+  justify-content: center;  
+  align-items: center;      
   position: relative;
-  padding: 20px 0;          /* adds space above/below */
+  padding: 20px 0;          
 }
 
 header h1 {
-  margin: 0 auto; /* remove default h1 margin */
+  margin: 0 auto; 
 }
 </style>

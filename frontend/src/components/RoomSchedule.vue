@@ -217,8 +217,26 @@ function onTouchEnd(){ endDrag() }
 .tick { border-left:1px dashed rgba(0,0,0,0.03); height:100%; box-sizing:border-box; position:relative; }
 .tick-label { font-size:11px; color:rgba(0,0,0,0.45); position:absolute; top:-18px; left:6px; }
 .booked-block { position:absolute; top:4px; bottom:4px; background:#6c757d; border-radius:4px; z-index:3; }
-.selection { position:absolute; top:4px; bottom:4px; background:rgba(46,204,113,0.22); border:2px solid rgba(46,204,113,0.45); border-radius:4px; z-index:4; }
-.drag-label { position:absolute; top:calc(100% + 6px); transform:translateX(-50%); background:rgba(255,255,255,0.98); border:1px solid #ddd; padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:8px; z-index:10; box-shadow:0 4px 8px rgba(0,0,0,0.08); }
-.pending-row { background:#fff; border:1px solid #e9ecef; padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:8px; margin-top:6px; }
+.selection {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  background: rgba(109,190,69,0.22);
+  border: 2px solid rgba(109,190,69,0.45);
+  border-radius: 4px;
+  z-index: 4;
+}
+
+.drag-label button.btn-success {
+  background-color: #6DBE45;
+  border-color: #6DBE45;
+  color: #fff;
+}
+
+.pending-row button.btn-success {
+  background-color: #6DBE45;
+  border-color: #6DBE45;
+  color: #fff;
+  }
 @media (max-width:720px) { .room-label { width:90px; font-size:13px } .tick-label { display:none } }
 </style>

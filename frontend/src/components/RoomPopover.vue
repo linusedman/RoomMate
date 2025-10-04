@@ -30,14 +30,15 @@ const props = defineProps({
   pointer-events: auto; /* allow interactions inside popover if needed later */
 }
 
-/* A box representing the room */
+
 .room-visual {
   width: 200px;
   height: 120px;
-  background: #f6fff6;
-  border: 2px solid #2ecc71;
+  background: #34495E;
+  border: 2px solid #1F3A93;
   border-radius: 6px;
   box-sizing: border-box;
   z-index: 5;
 }
+
 </style>

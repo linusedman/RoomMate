@@ -7,7 +7,8 @@
       rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;">
       
       <div class="row text-center">
-        <i class="fa fa-user-circle-o fa-3x mt-1 mb-2" style="color: green;"></i>
+        <i class="fa fa-user-circle-o fa-3x mt-1 mb-2" style="color: #005cbf;"></i>
+
         <h5 class="p-4 fw-bold">Create Your Account</h5>
       </div>
 
@@ -27,7 +28,8 @@
       </div>
 
       <div class="mb-2 mt-3">
-        <button type="submit" class="btn btn-success fw-bold">Create Account</button>
+        <button type="submit" class="btn btn-register fw-bold">Create Account</button>
+
       </div>
 
       <div class="mb-2 mt-4 text-center fw-bold text-primary">
@@ -99,3 +101,16 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.btn-register {
+  background-color: #005cbf;
+  border: none;
+  color: white;
+}
+.btn-register:disabled {
+  background-color: #7fb8ea;
+  cursor: not-allowed;
+}
+
+</style>

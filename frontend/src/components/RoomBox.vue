@@ -50,16 +50,16 @@ function handleClick() {
 }
 
 .available {
-  background-color: #486950;
+  background-color: #1F3A93;
   color: #fff;
 }
-/* when the room fulfills the filtering requirements */
+
 .filteredAvailable {
-  background-color: #2ecc71;
+  background-color: #6DBE45;
   color: #fff;
-  box-shadow: 0 0 0 3px rgba(46,204,113,0.15);
+  box-shadow: 0 0 0 3px rgba(109,190,69,0.15);
 }
 .selected {
-  border: 3px solid #0d6efd;
+  border: 3px solid #6DBE45;
 }
 </style>
