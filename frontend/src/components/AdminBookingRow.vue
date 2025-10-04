@@ -33,7 +33,7 @@ async function deleteBooking() {
   try {
     const response = await fetch(`http://localhost/RoomMate/backend/admin/bookings.php?action=delete`, {
       method: "POST",
-      credentials: "include", // needed because your PHP checks sessions
+      credentials: "include",
       body: new URLSearchParams({ id: props.id }),
     })
 
