@@ -27,7 +27,7 @@ async function deleteInstrument() {
   const confirmed = confirm(`Are you sure you want to delete ${props.user}?`)
   if (!confirmed) return
   try {
-    const response = await fetch(`http://localhost/RoomMate/backend/admin/instrument.php?action=delete`, {
+    const response = await fetch(`http://localhost/RoomMate/backend/admin/instruments.php?action=delete`, {
       method: "POST",
       credentials: "include",
       body: new URLSearchParams({ id: props.id }),
