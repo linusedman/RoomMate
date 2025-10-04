@@ -11,7 +11,7 @@
       </tr>
     </thead>
     <tbody>
-      <BookingRow
+      <AdminBookingRow
       v-for="booking in bookings"
       :id = "Number(booking.id)"
       :user = "booking.username"
@@ -29,7 +29,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import BookingRow from "./BookingRow.vue";
+import AdminBookingRow from "./AdminBookingRow.vue";
 const bookings = ref([])
 const rooms = ref([])
 
