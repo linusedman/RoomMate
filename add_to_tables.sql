@@ -38,3 +38,15 @@ INSERT INTO rooms (id, roomname, floor_id, path) VALUES
 (20, 306,3,"M 55.544619,120.87871 76.613268,116.62242 72.356976,95.979399 51.394735,100.12929 Z"),
 (21, 307,3,"m 55.544619,120.87871 -14.258581,2.76659 -4.043476,-20.4302 14.152173,-2.66018 z"),
 (22, 308,3,"M 44.584667,138.43592 29.581234,141.52173 26.60183,126.19908 41.498853,123.5389 Z");
+
+-- Insert some types of instruments
+INSERT INTO instrument_types (typename) VALUES
+("Centrifuge"),
+("Autoclave"),
+("Electron microscope");
+
+-- Insert instruments assigned to rooms
+INSERT INTO instruments (type_id, room_id) VALUES
+(1, 1), (2, 2), (3, 3), (1, 4), (2, 5), (1, 6), (3, 7), (2, 8),
+(3, 9), (1, 10), (2, 11), (1, 12), (2, 13), (3, 14),
+(1, 15), (2, 16), (3, 17), (1, 18), (2, 19), (3, 20), (1, 21), (2, 22);

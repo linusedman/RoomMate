@@ -1,20 +1,16 @@
 <template>
   <path
-      :d = "path"
-      :fill =getFill()
-    :class="{
-      booked: booked,
-      available: !booked && !availableByFilter,
-      filteredAvailable: !booked && availableByFilter,
-      selected: selected
-    }"
+    :d="path"
+    :fill="currentFill"
     @click="(e) => handleClick(e)"
-  >
-
-  </path>
+    @mouseover="hovering = true"
+    @mouseleave="hovering = false"
+  />
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+
 const props = defineProps({
   room: Object,
   path: String,
@@ -24,20 +20,32 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
+const hovering = ref(false)
+
+
 
 function handleClick(event) {
   if (!props.booked) emit('select', props.room.id, event)
 }
 
+
 function getFill(){
-  if (props.booked) {
-    return "#6c757d"
-  }
-  if (props.availableByFilter) {
-    return "#6DBE45"
-  }
+  if (props.selected) return "#0087e6"
+  if (props.booked) return "#6c757d"
+  if (props.availableByFilter) return "#03d4a8"
   return "#1F3A93"
 }
+
+function getHoverFill(){
+  if (props.booked) return "#5a6268"             
+  if (props.availableByFilter) return "#02c4a0"   
+  return "#34495E"        
+}
+
+const currentFill = computed(() => {
+  return hovering.value ? getHoverFill() : getFill()
+})
+
 </script>
 
 <style scoped>
@@ -51,7 +59,7 @@ function getFill(){
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 20; /* stay above popover */
+  z-index: 20; 
 }
 /* compleately occupied */
 .booked {
@@ -60,18 +68,5 @@ function getFill(){
   cursor: not-allowed;
 }
 
-.available {
-  background-color: #1F3A93;
-  color: #fff;
-}
 
-.filteredAvailable {
-  background-color: #6DBE45;
-  color: #fff;
-  box-shadow: 0 0 0 3px rgba(109,190,69,0.15);
-}
-
-.selected {
-  border: 3px solid #6DBE45;
-}
 </style>
