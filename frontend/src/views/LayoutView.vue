@@ -128,19 +128,29 @@ function onRoomClick(id, event) {
   if (activePopoverId.value === id) {
     activePopoverId.value = null
   } else {
-    if (activePopoverId.value === null) {
-      popoverPos.value = { x: event.clientX, y: event.clientY }
+    const svgRect = svg.value.getBoundingClientRect()
+    const roomBox = event.target.getBoundingClientRect()
+
+    
+    let x = roomBox.left
+    let y = roomBox.bottom + window.scrollY + 4 
+
+    const popoverWidth = 220
+    if (x + popoverWidth > window.innerWidth - 10) {
+      x = window.innerWidth - popoverWidth - 10
     }
+
+    popoverPos.value = { x, y }
+
     activePopoverId.value = id
     emit('selectedRoom', id)
-
   }
 }
+
 
 function CenterAndScaleGroup() {
   if (!svg.value || !group.value) return
 
-  // Wait for paths to render
   nextTick(() => {
     const bbox = group.value.getBBox()
     if (!bbox.width || !bbox.height) {
@@ -158,7 +168,7 @@ function CenterAndScaleGroup() {
   })
 }
 
-// Three functions to make the room-windows draggable
+
 function startDrag(e) {
   isDragging.value = true
   // store offset inside popover where clicked
@@ -188,6 +198,21 @@ onMounted(() => {
   const floors = availableFloors.value
   if (floors && floors.length) selectedFloor.value = floors[0]
   window.addEventListener('resize', CenterAndScaleGroup)
+  window.addEventListener('scroll', () => {
+  if (activePopoverId.value !== null) {
+    const el = document.querySelector('path.selected')
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      let x = rect.left
+      let y = rect.bottom + window.scrollY + 4
+      const popoverWidth = 220
+      if (x + popoverWidth > window.innerWidth - 10) {
+        x = window.innerWidth - popoverWidth - 10
+      }
+      popoverPos.value = { x, y }
+    }
+  }
+})
 })
 
 onBeforeUnmount(() => {
@@ -217,17 +242,17 @@ watch(
 .room-layout { gap: 10px; display:flex; flex-wrap:wrap; }
 
 .inline-popover {
-  position: fixed;
-  top: calc(100% + 0px);
-  left: 0;
+  position: absolute; /* inte fixed – så att den scrollar med sidan */
   width: 220px;
   height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
-  cursor: move;
+  z-index: 10;
+  pointer-events: auto;
+  cursor: default;
 }
+
 
 .inline-popover > * {
   pointer-events: none;
