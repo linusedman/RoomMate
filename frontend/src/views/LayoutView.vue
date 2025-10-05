@@ -121,6 +121,7 @@ function getRoom(id) {
 
 function changeFloor(f) {
   selectedFloor.value = f
+  activePopoverId.value = null 
   CenterAndScaleGroup()
 }
 
@@ -242,13 +243,14 @@ watch(
 .room-layout { gap: 10px; display:flex; flex-wrap:wrap; }
 
 .inline-popover {
-  position: absolute; /* inte fixed – så att den scrollar med sidan */
+  position: absolute; 
   width: 220px;
   height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
+  overflow: visible;
   pointer-events: auto;
   cursor: default;
 }

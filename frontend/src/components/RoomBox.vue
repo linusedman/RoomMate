@@ -40,9 +40,9 @@ function handleClick() {
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 20; /* stay above popover */
+  z-index: 20; 
 }
-/* compleately occupied */
+
 .booked {
   background-color: #6c757d;
   color: #fff;
@@ -55,11 +55,12 @@ function handleClick() {
 }
 
 .filteredAvailable {
-  background-color: #6DBE45;
+  background-color: #03d4a8;
   color: #fff;
-  box-shadow: 0 0 0 3px rgba(109,190,69,0.15);
+  box-shadow: 0 0 0 3px rgba(3, 212, 168, 0.15);
 }
+
 .selected {
-  border: 3px solid #6DBE45;
+  border: 3px solid #03d4a8;
 }
 </style>

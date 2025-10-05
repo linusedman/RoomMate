@@ -221,21 +221,21 @@ function onTouchEnd(){ endDrag() }
   position: absolute;
   top: 4px;
   bottom: 4px;
-  background: rgba(109,190,69,0.22);
-  border: 2px solid rgba(109,190,69,0.45);
+  background: rgba(3, 212, 168, 0.22);
+  border: 2px solid rgba(3, 212, 168, 0.45);
   border-radius: 4px;
   z-index: 4;
 }
 
 .drag-label button.btn-success {
-  background-color: #6DBE45;
-  border-color: #6DBE45;
+  background-color: #03d4a8;
+  border-color: #03d4a8;
   color: #fff;
 }
 
 .pending-row button.btn-success {
-  background-color: #6DBE45;
-  border-color: #6DBE45;
+  background-color: #03d4a8;
+  border-color: #03d4a8;
   color: #fff;
   }
 @media (max-width:720px) { .room-label { width:90px; font-size:13px } .tick-label { display:none } }
