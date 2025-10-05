@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `rooms` (
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `username` varchar(30) NOT NULL UNIQUE,
-  `password` varchar(30) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `email` varchar(30) NOT NULL UNIQUE,
   `admin` BOOLEAN DEFAULT FALSE
 );
