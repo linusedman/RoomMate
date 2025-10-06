@@ -61,5 +61,5 @@ onMounted(refreshData)
 
 <style scoped>
 .main-view { display:flex; gap:1rem; height:100%; min-height: 70vh}
-.left-panel, .right-panel { width:50%; height:100%; min-height: 70vh }
+.left-panel, .right-panel { width:50%; flex:1}
 </style>
