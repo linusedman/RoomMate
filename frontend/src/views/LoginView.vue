@@ -10,8 +10,8 @@
         <h5 class="p-4 fw-bold">Login Into Your Account</h5>
       </div>
       <div class="mb-3">
-        <label for="email"><i class="fa fa-envelope"></i> Email</label>
-        <input type="text" v-model="email" id="email" class="form-control" required />
+        <label for="identifier"><i class="fa fa-envelope"></i> Username or email</label>
+        <input type="text" v-model="identifier" id="identifier" class="form-control" required />
       </div>
       <div class="mb-3">
         <label for="password"><i class="fa fa-lock"></i> Password</label>
@@ -46,7 +46,7 @@ export default {
   methods: {
     async handleLogin() {
       const formData = new URLSearchParams();
-      formData.append("email", this.email);
+      formData.append("identifier", this.identifier);
       formData.append("password", this.password);
 
       try {
