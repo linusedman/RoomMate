@@ -34,11 +34,15 @@ function pathToPolygon(path) {
     const maxX = Math.max(...xs)
     const minY = Math.min(...ys)
     const maxY = Math.max(...ys)
-
+    const widthScale = maxX - minX
+    const heightScale = maxY - minY
+    const scale = Math.min(props.width / widthScale, props.height / heightScale)
+    const xOffset = (props.width - widthScale * scale) / 2
+    const yOffset = (props.height - heightScale * scale) / 2
     const polygonPoints = points.map(p => {
-      const x = ((p[0] - minX) / (maxX - minX)) * 100
-      const y = ((p[1] - minY) / (maxY - minY)) * 100
-      return `${x}% ${y}%`
+      const x = (p[0] - minX) * scale + xOffset
+      const y = (p[1] - minY) * scale + yOffset
+      return `${x}px ${y}px`
     })
 
     return `polygon(${polygonPoints.join(",")})`
