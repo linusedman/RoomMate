@@ -27,7 +27,7 @@ const routes = [
       { path: '/reset-password', name: 'ResetPassword', component: ResetPasswordFormView }
     ],
   },
-  { path: '/:pathMatch(.*)*', redirect: '/login' },
+  { path: '/:pathMatch(.*)*', redirect: '/main' },
 ];
 
 const router = createRouter({
