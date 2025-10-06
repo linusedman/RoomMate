@@ -5,7 +5,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 
-require '../database/db_connect.php'; // gives $conn (MySQLi)
+require '../database/db_connect.php'; 
 
 $key = $_GET['key'] ?? '';
 if (!$key) {

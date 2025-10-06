@@ -34,7 +34,7 @@ try {
 
     if (!$user) {
         // Don’t reveal whether email exists
-        echo json_encode(["status" => "success", "message" => "If this email exists, a reset link has been sent."]);
+        echo json_encode(["status" => "success", "message" => "Email could not be sent."]);
         exit;
     }
 

@@ -1,10 +1,11 @@
 <template>
-  <div class="floor-view container">
+  <div class="floor-view container"
+  style="display: flex; flex-direction: column; height: 100%">
     <FloorSelector :floors="availableFloors" @change="changeFloor" />
 
     <div class="room-layout d-flex flex-wrap"
     style="width:100%;
-height:100%; min-height: 70vh">
+     flex: 1">
 
       <svg
           width = 100%

@@ -61,7 +61,7 @@ export default {
 
 <style scoped>
 main {
-  min-height: 70vh;
+  min-height: 75vh;
 }
 
 header {

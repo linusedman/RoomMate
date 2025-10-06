@@ -6,7 +6,7 @@
     <td v-if="!isEditing">{{ email }}</td>
     <td v-else><input v-model="editedEmail" /></td>
 
-    <td v-if="!isEditing">{{ admin ? "Yes" : "No" }}</td>
+    <td v-if="!isEditing">{{ Number(admin) ? "Yes" : "No" }}</td>
     <td v-else>
       <select v-model="editedAdmin">
         <option :value="true">Yes</option>
@@ -41,7 +41,7 @@ const props = defineProps({
 const isEditing = ref(false);
 const editedUser = ref(props.user);
 const editedEmail = ref(props.email);
-const editedAdmin = ref(props.admin ? "Yes" : "No");
+const editedAdmin = ref(Number(props.admin) ? "Yes" : "No");
 
 const emit = defineEmits(["userDeleted", "userUpdated"])
 
