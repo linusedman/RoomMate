@@ -253,9 +253,12 @@ watch(
   z-index: 10;
   overflow: visible;
   pointer-events: auto;
-  cursor: default;
+  cursor: grab;
 }
 
+.inline-popover:active {
+  cursor: grabbing;
+}
 
 .inline-popover > * {
   pointer-events: none;
