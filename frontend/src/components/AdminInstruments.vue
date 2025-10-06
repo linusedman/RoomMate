@@ -135,8 +135,11 @@ form {
 input, select{
   padding: 6px 12px;
   font-size: 14px;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   color: #000000;
+    border-radius: 10px;
+  border-color: #000000;
+  border-style: solid;
 }
 
 button {

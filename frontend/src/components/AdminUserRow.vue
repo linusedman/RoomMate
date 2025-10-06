@@ -120,4 +120,11 @@ tr:nth-child(even) {
 button {
   background-color: #2ecc71;
 }
+input, select {
+  background-color: #ffffff;
+  color: #000000;
+  border-radius: 10px;
+  border-color: #000000;
+  border-style: solid;
+}
 </style>
