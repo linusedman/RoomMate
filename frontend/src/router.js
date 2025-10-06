@@ -40,11 +40,12 @@ export const loggedIn = ref(false);
 export const admin = ref(false);
 
 router.beforeEach(async (to, from, next) => {
-  // routes without auth are always allowed
+
   const res = await axios.get("http://localhost/RoomMate/backend/pages/check_login.php", { withCredentials: true })
   const { loggedIn: isLoggedIn, admin:isAdmin } = res.data
       loggedIn.value = isLoggedIn;
       admin.value=isAdmin
+    // routes without auth are always allowed
   if (!to.meta.requiresAuth) {
     return next()
   }
