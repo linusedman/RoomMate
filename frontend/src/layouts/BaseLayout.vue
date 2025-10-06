@@ -34,6 +34,8 @@
 import axios from "axios";
 import { loggedIn, admin } from "../router";
 
+
+
 export default {
   name: "BaseLayout",
   setup() {
@@ -73,4 +75,5 @@ header {
 header h1 {
   margin: 0 auto; 
 }
+
 </style>

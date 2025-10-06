@@ -8,8 +8,10 @@
       <div class="subtitle mb-2">{{ filter.day }}</div>
 
       <div class="schedule-grid">
-        <div class="time-header" :style="ticksGridStyle">
-          <div class="time-cell" v-for="t in hours" :key="t">{{ t }}</div>
+        <div class="time-header-wrapper" ref="timeHeaderWrapper">
+          <div class="time-header" :style="ticksGridStyle">
+            <div class="time-cell" v-for="t in hours" :key="t">{{ t }}</div>
+          </div>
         </div>
 
         <div class="rows">
@@ -22,7 +24,9 @@
             :bookings="bookingsForRoom(room.id)"
             :ticksGridStyle="ticksGridStyle"
             :hourWidth="hourWidth"
+            :scrollX="scrollX"
             @confirmBooking="onConfirmBooking"
+            @scrollX="syncScroll"
           />
         </div>
       </div>
@@ -31,8 +35,13 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+
 import { computed } from 'vue'
 import RoomSchedule from '../components/RoomSchedule.vue'
+
+const timeHeaderWrapper = ref(null)
+const scrollX = ref(0)
 
 const props = defineProps({
   filter: Object,
@@ -71,6 +80,13 @@ const ticksGridStyle = computed(() => {
 
 const roomsSorted = computed(() => (props.rooms || []).slice().sort((a,b)=>a.id-b.id))
 
+function syncScroll(x) {
+  scrollX.value = x
+  if (timeHeaderWrapper.value) {
+    timeHeaderWrapper.value.scrollLeft = x
+  }
+}
+
 function bookingsForRoom(roomId) {
   return (props.bookings || []).filter(b => Number(b.room_id) === Number(roomId))
 }
@@ -107,9 +123,42 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
 </script>
 
 <style scoped>
-.schedule-grid { border:1px solid #ddd; padding:8px; overflow-x:auto; }
-.time-header { display:block; margin-bottom:6px; }
-.time-cell { width:60px; text-align:center; font-size:12px; color:#333; box-sizing:border-box; }
-.rows { margin-top:8px; display:flex; flex-direction:column; gap:6px; max-height:60vh; overflow:auto; }
-.subtitle { font-weight:600; }
+.schedule-grid {
+  border: 1px solid #ddd;
+  padding: 8px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.time-header-wrapper {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+  overflow-x: auto;
+  border-bottom: 1px solid #ccc;
+  scrollbar-width: none;
+}
+.time-header-wrapper::-webkit-scrollbar { display: none; }
+
+.time-header {
+  display: grid;
+  margin-bottom: 6px;
+}
+.time-cell {
+  width: 60px;
+  text-align: center;
+  font-size: 12px;
+  color: #333;
+  box-sizing: border-box;
+}
+.rows {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 60vh;
+  overflow: auto;
+}
+.subtitle { font-weight: 600; }
 </style>

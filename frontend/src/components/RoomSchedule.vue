@@ -3,9 +3,11 @@
     <div class="room-label">{{ room.roomname }}</div>
 
     <div class="timeline-wrapper">
+      
       <div
         class="timeline"
         ref="timeline"
+        @scroll="onScroll"
         @mousedown="onMouseDown"
         @mousemove="onMouseMove"
         @mouseup="onMouseUp"
@@ -49,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 const props = defineProps({
   room: { type: Object, required: true },
@@ -59,7 +61,7 @@ const props = defineProps({
   ticksGridStyle: { type: Object, default: () => ({}) },
   hourWidth: { type: Number, default: 60 }
 })
-const emit = defineEmits(['confirmBooking'])
+const emit = defineEmits(['confirmBooking', 'scrollX'])
 
 const timeline = ref(null)
 const content = ref(null)
@@ -73,6 +75,17 @@ const dragLabelStyle = ref({ left: '0px', transform: 'translateX(-50%)' })
 const dragLabelStart = ref('')
 const dragLabelEnd = ref('')
 
+function onScroll(e) {
+  emit('scrollX', e.target.scrollLeft)
+}
+watch(
+  () => props.scrollX,
+  (newX) => {
+    if (timeline.value && timeline.value.scrollLeft !== newX) {
+      timeline.value.scrollLeft = newX
+    }
+  }
+)
 function clamp(v,a=0,b=1){ return Math.max(a, Math.min(b,v)) }
 function fractionToMs(frac){ return props.dayStart.getTime() + frac * (props.dayEnd.getTime() - props.dayStart.getTime()) }
 function msToFraction(ms){ return clamp((ms - props.dayStart.getTime()) / (props.dayEnd.getTime() - props.dayStart.getTime())) }
