@@ -111,7 +111,7 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
     const data = await res.json()
     if (data.status === 'success') {
       emit('booked')
-      alert('Booking confirmed')
+      
     } else {
       alert(data.message || 'Booking failed')
     }

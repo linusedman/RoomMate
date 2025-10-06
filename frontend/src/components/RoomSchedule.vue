@@ -46,13 +46,18 @@
         <button class="btn btn-sm btn-success ms-3" @click="confirmSelection">Book</button>
         <button class="btn btn-sm btn-secondary ms-2" @click="clearSelection">Cancel</button>
       </div>
+      <p v-if="messageText" :class="['mt-2 fw-bold', messageType === 'error' ? 'custom-error' : 'custom-success']">
+        {{ messageText }}
+      </p>
+
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-
+const messageText = ref('')
+const messageType = ref('')
 const props = defineProps({
   room: { type: Object, required: true },
   dayStart: { type: Date, required: true },
@@ -178,7 +183,16 @@ function endDrag(){
   sMs = snapToMinutes(sMs,5)
   eMs = snapToMinutes(eMs,5)
   if(eMs <= sMs){ clearSelection(); return }
-  if(overlapsExistingRange(sMs,eMs)){ alert('Selected range overlaps existing booking'); clearSelection(); return }
+  if (overlapsExistingRange(sMs,eMs)) {
+    messageText.value = 'Selected time overlaps an existing booking.'
+    messageType.value = 'error'
+    clearSelection()
+    setTimeout(() => {
+      messageText.value = ''
+      messageType.value = ''
+    }, 5000)
+    return
+  }
   pendingSelection.value = {
     startISO: isoLocalFromMs(sMs),
     endISO: isoLocalFromMs(eMs),
@@ -187,6 +201,7 @@ function endDrag(){
   }
   const el = content.value
   updateSelectionVisual(msToFraction(sMs), msToFraction(eMs))
+
 }
 
 function clearSelection(){
@@ -208,7 +223,13 @@ function confirmSelection(){
   const sel = pendingSelection.value
   if(!sel) return
   emit('confirmBooking', { roomId: props.room.id, startISO: sel.startISO, endISO: sel.endISO })
+  messageText.value = `Room ${props.room.roomname} successfully booked from ${sel.displayStart} to ${sel.displayEnd}.`
+  messageType.value = 'success'
   clearSelection()
+  setTimeout(() => {
+    messageText.value = ''
+    messageType.value = ''
+  }, 5000)
 }
 
 function onMouseDown(evt){ if(evt.button===0) return startDragAtClientX(evt.clientX) }
@@ -252,4 +273,10 @@ function onTouchEnd(){ endDrag() }
   color: #fff;
   }
 @media (max-width:720px) { .room-label { width:90px; font-size:13px } .tick-label { display:none } }
+.custom-success {
+  color: #03d4a8;
+}
+.custom-error {
+  color: #dc3545; 
+}
 </style>
