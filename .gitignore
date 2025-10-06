@@ -1,3 +1,13 @@
+
+
+# PHP mailer vendor directory
+vendor/
+
+# Ignore smtp configuration file
+backend/config/smtp_config.php
+
+.idea
+
 # Dependencies
 node_modules/
 package-lock.json
@@ -5,3 +15,4 @@ dist/
 
 # Local environment files
 .env
+

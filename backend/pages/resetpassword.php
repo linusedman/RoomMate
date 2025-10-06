@@ -1,149 +1,86 @@
 <?php
-include '../database/db_connect.php';
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
+header("Content-Type: application/json");
 
-$message = "";
-$toastClass = "";
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $confirmPassword = $_POST['confirm_password'];
+require '../../vendor/autoload.php'; // PHPMailer
+require '../database/db_connect.php';  
 
-    if ($password === $confirmPassword) {
-        // Hash the new password
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-        // Update the password for this user
-        $stmt = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
-        $stmt->bind_param("ss", $hashedPassword, $email);
-        $stmt->execute();
-
-        $message = "If an account with this email exists, the password has been updated.";
-        $toastClass = "bg-success";
-
-        $stmt->close();
-    } else {
-        $message = "Passwords do not match";
-        $toastClass = "bg-warning";
+try {
+    // 1. Get email from request
+    $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+    if (!$email) {
+        echo json_encode(["status" => "error", "message" => "Invalid email"]);
+        exit;
     }
 
-    $conn->close();
+    // 2. Check if email exists in users
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $stmt->close();
+
+    if (!$user) {
+        // Don’t reveal whether email exists
+        echo json_encode(["status" => "success", "message" => "Email could not be sent."]);
+        exit;
+    }
+
+    // 3. Generate reset key and expiration
+    $key     = bin2hex(random_bytes(32));
+    $expDate = date("Y-m-d H:i:s", time() + 3600);
+
+    // 4. Clean up old requests
+    $stmt = $conn->prepare("DELETE FROM password_reset_temp WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->close();
+
+    // 5. Insert new reset request
+    $stmt = $conn->prepare("INSERT INTO password_reset_temp (email, `key`, expDate) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $email, $key, $expDate);
+    $stmt->execute();
+    $stmt->close();
+
+    // 6. Build reset link
+    $resetLink = "http://localhost:5173/reset-password?key=" . urlencode($key);
+
+
+    // 7. Send email using MailHog (PHPMailer)
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = 'localhost';
+        $mail->Port = 1025; // MailHog default
+        $mail->SMTPAuth = false; 
+
+        $mail->setFrom('no-reply@roommate.test', 'RoomMate App');
+        $mail->addAddress($email);
+        $mail->isHTML(true);
+        $mail->Subject = "Reset your password";
+        $mail->Body = "New message: Click here to reset your password: <a href='{$resetLink}' target='_blank'>{$resetLink}</a>";
+
+
+        $mail->send();
+        echo json_encode(["status" => "success", "message" => "Check your email for the reset link."]);
+    } catch (Exception $e) {
+        echo json_encode(["status" => "error", "message" => "Email could not be sent."]);
+    }
+
+} catch (Throwable $e) {
+    echo json_encode(["status" => "error", "message" => "Server error: " . $e->getMessage()]);
 }
-?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" 
-          content="width=device-width, 
-                   initial-scale=1.0">
-    <link href=
-"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href=
-"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
-    <link rel="shortcut icon" href=
-"https://cdn-icons-png.flaticon.com/512/295/295128.png">
-    <script src=
-"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src=
-"https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>Reset Password</title>
-</head>
-
-<body>
-    <div class="container p-5 d-flex flex-column align-items-center">
-        <?php if ($message): ?>
-            <div class="toast align-items-center text-white border-0" role="alert"
-          aria-live="assertive" aria-atomic="true"
-                style="background-color: <?php echo $toastClass === 'bg-success' ? 
-                '#28a745' : ($toastClass === 'bg-danger' ? '#dc3545' :
-                ($toastClass === 'bg-warning' ? '#ffc107' : '')); ?>">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <?php echo $message; ?>
-                    </div>
-                    <button type="button" class="btn-close 
-                    btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                        aria-label="Close"></button>
-                </div>
-            </div>
-        <?php endif; ?>
-        <form action="" method="post" class="form-control mt-5 p-4"
-            style="height:auto; width:380px; box-shadow: rgba(60, 64, 67, 0.3) 
-            0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;">
-            <div class="row">
-                <i class="fa fa-user-circle-o fa-3x mt-1 mb-2" 
-          style="text-align: center; color: green;"></i>
-                <h5 class="text-center p-4" style="font-weight: 700;">
-          Change Your Password</h5>
-            </div>
-            <div class="col-mb-3 position-relative">
-                <label for="email"><i class="fa fa-envelope"></i> Email</label>
-                <input type="text" name="email" id="email" 
-                  class="form-control" required>
-                <span id="email-check" class="position-absolute"
-                    style="right: 10px; top: 50%; transform: translateY(-50%);"></span>
-            </div>
-            <div class="col mb-3 mt-3">
-                <label for="password"><i class="fa fa-lock"></i> 
-                  Password</label>
-                <input type="password" name="password"
-                  id="password" class="form-control" required>
-            </div>
-            <div class="col mb-3 mt-3">
-                <label for="confirm_password"><i 
-                  class="fa fa-lock"></i> Confirm Password</label>
-                <input type="password" name="confirm_password" 
-                  id="confirm_password"
-                  class="form-control" required>
-            </div>
-            <div class="col mb-3 mt-3">
-                <button type="submit" class="btn bg-dark" 
-                  style="font-weight: 600; color:white;">
-                  Reset Password</button>
-            </div>
-            <div class="col mb-2 mt-4">
-                <p class="text-center" style="font-weight: 600;
-                color: navy;"><a href="./register.php"
-                        style="text-decoration: none;">
-                  Create Account</a> OR <a href="./login.php"
-                        style="text-decoration: none;">Login</a></p>
-            </div>
-        </form>
-    </div>
-    <script>
-        $(document).ready(function () {
-            $('#email').on('blur', function () {
-                var email = $(this).val();
-                if (email) {
-                    $.ajax({
-                        url: 'check_email.php',
-                        type: 'POST',
-                        data: { email: email },
-                        success: function (response) {
-                            if (response == 'exists') {
-                                $('#email-check').html('<i class="fa fa-check 
-                                text-success"></i>');
-                            } else {
-                                $('#email-check').html('<i class="fa fa-times
-                                text-danger"></i>');
-                            }
-                        }
-                    });
-                } else {
-                    $('#email-check').html('');
-                }
-            });
-
-            let toastElList = [].slice.call(document.querySelectorAll('.toast'))
-            let toastList = toastElList.map(function (toastEl) {
-                return new bootstrap.Toast(toastEl, { delay: 3000 });
-            });
-            toastList.forEach(toast => toast.show());
-        });
-    </script>
-</body>
-
-</html>
+$conn->close();
