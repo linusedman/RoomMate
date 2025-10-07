@@ -43,13 +43,13 @@ try {
     $expDate = date("Y-m-d H:i:s", time() + 3600);
 
     // 4. Clean up old requests
-    $stmt = $conn->prepare("DELETE FROM password_reset_temp WHERE email = ?");
+    $stmt = $conn->prepare("DELETE FROM password_reset_temp WHERE user_email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->close();
 
     // 5. Insert new reset request
-    $stmt = $conn->prepare("INSERT INTO password_reset_temp (email, `key`, expDate) VALUES (?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO password_reset_temp (user_email, `key`, expDate) VALUES (?, ?, ?)");
     $stmt->bind_param("sss", $email, $key, $expDate);
     $stmt->execute();
     $stmt->close();
