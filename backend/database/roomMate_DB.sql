@@ -42,10 +42,10 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,  
-  `email` varchar(30) NOT NULL UNIQUE,
+  `user_email` varchar(30) NOT NULL UNIQUE,
   `key` varchar(50) NOT NULL,
   `expDate` datetime NOT NULL,
-  CONSTRAINT fk_email_user FOREIGN KEY (`email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_email_user FOREIGN KEY (`user_email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 /* To backend team: 
