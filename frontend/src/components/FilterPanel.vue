@@ -15,15 +15,36 @@
       </div>
     </div>
 
-    <div class="d-flex gap-2 mt-2">
-      <label>Instrument</label>
-      <select v-model="instrumentId">
-        <option value="">Filter by Instrument</option>
-        <option v-for="type in instrumentTypes" :key="type.id" :value="type.id">
-          {{ type.typename }}
-        </option>
-      </select>
-    </div>
+        <div class="mt-3 position-relative">
+          <label>Instrument</label>
+          <input
+            type="text"
+            v-model="instrumentSearch"
+            @input="searchInstruments"
+            placeholder="Search for instruments..."
+            class="form-control mb-2"
+          />
+
+          <div class="dropdown-wrapper">
+            <button class="form-select text-start" @click="toggleDropdown">
+              {{ selectedInstrumentName || 'Select instrument' }}
+            </button>
+
+            <ul v-if="dropdownOpen" class="dropdown-list">
+              <li
+                v-for="type in instrumentTypes"
+                :key="type.id"
+                @click="selectInstrument(type)"
+                class="dropdown-item"
+              >
+                {{ type.typename }}
+              </li>
+              <li v-if="instrumentTypes.length === 0" class="dropdown-item disabled">
+                No instruments matched your search.
+              </li>
+            </ul>
+          </div>
+        </div>
 
     <div class="d-flex gap-2 mt-2">
       <button class="btn btn-primary" @click="applyFilter">Apply</button>
@@ -33,7 +54,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   initialStart: { type: String, default: '' },
@@ -45,23 +66,62 @@ const day = ref('')
 const startTime = ref('08:00')
 const endTime = ref('17:00')
 const instrumentId = ref('')
+const instrumentSearch = ref('')
 const instrumentTypes = ref([])
+const allInstrumentTypes = ref([])
+const selectedInstrumentName = ref('')
+const dropdownOpen = ref(false)
 
-onMounted(async() => {
-  if (props.initialStart) {
-    const s = new Date(props.initialStart)
-    day.value = s.toISOString().slice(0, 10)
-    startTime.value = String(s.getHours()).padStart(2, '0') + ':' + String(s.getMinutes()).padStart(2, '0')
+function toggleDropdown() {
+  dropdownOpen.value = !dropdownOpen.value
+}
+
+function selectInstrument(type) {
+  instrumentId.value = type.id
+  selectedInstrumentName.value = type.typename
+  dropdownOpen.value = false
+}
+
+async function fetchInstruments(search = '') {
+  try {
+    const url = search
+      ? `http://localhost/RoomMate/backend/pages/get_instrument_types.php?search=${encodeURIComponent(search)}`
+      : `http://localhost/RoomMate/backend/pages/get_instrument_types.php`
+    const res = await fetch(url)
+    const data = await res.json()
+    instrumentTypes.value = data.length > 0 ? data : []
+  } catch (e) {
+    console.error('Instrument fetch failed', e)
+    instrumentTypes.value = []
   }
-  if (props.initialEnd) {
-    const e = new Date(props.initialEnd)
-    endTime.value = String(e.getHours()).padStart(2, '0') + ':' + String(e.getMinutes()).padStart(2, '0')
+}
+
+function searchInstruments() {
+  if (instrumentSearch.value.trim() === '') {
+    instrumentTypes.value = [...allInstrumentTypes.value]
+  } else {
+    fetchInstruments(instrumentSearch.value)
   }
+}
 
-  const res = await fetch('http://localhost/RoomMate/backend/pages/get_instrument_types.php')
-  instrumentTypes.value = await res.json()
+onMounted(async () => {
+  await fetchInstruments()
+  allInstrumentTypes.value = [...instrumentTypes.value]
+})
 
+function handleClickOutside(event) {
+  const wrapper = document.querySelector('.dropdown-wrapper')
+  if (wrapper && !wrapper.contains(event.target)) {
+    dropdownOpen.value = false
+  }
+}
 
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 
 function applyFilter() {
@@ -80,7 +140,36 @@ function clearFilter() {
 </script>
 
 <style scoped>
-.filter-panel input {
-  display: block;
+.dropdown-wrapper {
+  position: relative;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 160px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 10;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-item.disabled {
+  color: #999;
+  cursor: default;
 }
 </style>
