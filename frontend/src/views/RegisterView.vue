@@ -20,7 +20,7 @@
           id="username"
           class="form-control"
           required
-          maxlength="30"
+          maxlength="20"
         />
       </div>
 
@@ -76,8 +76,8 @@ export default {
       this.messageColor = "#dc3545";
       return; 
       }
-      if (this.username.length > 30) {
-      this.message = "Username must be 30 characters or shorter.";
+      if (this.username.length > 20) {
+      this.message = "Username must be 20 characters or shorter.";
       this.messageColor = "#dc3545";
       return; 
       }

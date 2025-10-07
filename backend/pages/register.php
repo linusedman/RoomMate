@@ -22,8 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
     }
 
-    if (strlen($_POST['username']) > 30) {
-    echo json_encode(["status" => "error", "message" => "Username must be 30 characters or shorter."]);
+    if (strlen($_POST['username']) > 20) {
+    echo json_encode(["status" => "error", "message" => "Username must be 20 characters or shorter."]);
     exit;
     }
 
