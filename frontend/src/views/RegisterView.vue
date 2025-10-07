@@ -14,7 +14,14 @@
 
       <div class="mb-2">
         <label for="username"><i class="fa fa-user"></i> User Name</label>
-        <input type="text" v-model="username" id="username" class="form-control" required />
+        <input
+          type="text"
+          v-model="username"
+          id="username"
+          class="form-control"
+          required
+          maxlength="30"
+        />
       </div>
 
       <div class="mb-2 mt-2">
@@ -67,7 +74,12 @@ export default {
        if (this.password.length < 8) {
       this.message = "Password must be at least 8 characters long.";
       this.messageColor = "#dc3545";
-      return; // stop execution
+      return; 
+      }
+      if (this.username.length > 30) {
+      this.message = "Username must be 30 characters or shorter.";
+      this.messageColor = "#dc3545";
+      return; 
       }
       const formData = new URLSearchParams();
       formData.append("username", this.username);
@@ -94,7 +106,7 @@ export default {
           this.messageColor = "#dc3545";
         }
       } catch {
-        this.message = "Server error, try again.";
+        this.message = "Server error.";
         this.messageColor = "#dc3545";
       }
     },

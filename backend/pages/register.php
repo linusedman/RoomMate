@@ -22,6 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
     }
 
+    if (strlen($_POST['username']) > 30) {
+    echo json_encode(["status" => "error", "message" => "Username must be 30 characters or shorter."]);
+    exit;
+    }
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
