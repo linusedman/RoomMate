@@ -1,21 +1,21 @@
 CREATE TABLE IF NOT EXISTS `floors` (
   `id` INT PRIMARY KEY,
-  `path` VARCHAR(1000) 
+  `path` VARCHAR(1000) -- Can store a floor with ~50 corners
 );
 
 CREATE TABLE IF NOT EXISTS `rooms` (
   `id` INT PRIMARY KEY,
-  `roomname` varchar(30),
+  `roomname` VARCHAR(30),
   `floor_id` INT NOT NULL,
-  `path` VARCHAR(1000) 
+  `path` VARCHAR(1000) -- Can store a room with ~50 corners
   CONSTRAINT fk_rooms_floor FOREIGN KEY (`floor_id`) REFERENCES `floors` (`id`) ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `username` varchar(30) NOT NULL UNIQUE,
-  `password` varchar(255) NOT NULL,
-  `email` varchar(50) NOT NULL UNIQUE,
+  `username` VARCHAR(30) NOT NULL UNIQUE,
+  `password` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(50) NOT NULL UNIQUE,
   `admin` BOOLEAN DEFAULT FALSE
 );
 
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `bookings` (
 
 CREATE TABLE IF NOT EXISTS `instrument_types` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `typename` varchar(50) NOT NULL
+  `typename` VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `instruments` (
@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,  
-  `user_email` varchar(50) NOT NULL UNIQUE,
-  `key` varchar(50) NOT NULL,
+  `user_email` VARCHAR(50) NOT NULL UNIQUE,
+  `key` VARCHAR(50) NOT NULL,
   `expDate` datetime NOT NULL,
   CONSTRAINT fk_email_user FOREIGN KEY (`user_email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
