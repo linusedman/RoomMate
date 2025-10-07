@@ -48,33 +48,12 @@ CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   CONSTRAINT fk_email_user FOREIGN KEY (`user_email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-/* To backend team: 
-the Insert statements for password reset shoul look like this:--- 
-INSERT INTO password_reset_temp (email, reset_key, expDate)
-VALUES ('user@example.com', 'reset', expiry date)
-ON DUPLICATE KEY UPDATE
-    reset_key = VALUES(reset_key),
-    expDate = VALUES(expDate);
-*/ 
 
 ALTER TABLE `floors`
 ADD COLUMN `path` VARCHAR(1000);
 
 ALTER TABLE `rooms`
 ADD COLUMN `path` VARCHAR(1000);
-
--- INSERT INTO users (username, password, email) VALUES ('test', '1', 'test@test.com');
-
--- INSERT INTO floors (id) VALUES (1);
-
--- INSERT INTO rooms (id, floor_id) VALUES (2, 1);
-
--- INSERT INTO instrument_types (typename) VALUES ('centrifuge');
-
--- INSERT INTO instruments (type_id, room_id) VALUES (1, 1);
-
--- INSERT INTO bookings (user_id, room_id, start_time, end_time) VALUES (1, 1, '2008-11-11 13:23:44', '2008-11-11 13:24:00');
--- INSERT INTO bookings (user_id, room_id, start_time, end_time) VALUES (2, 1, '2008-11-11 13:23:44', '2008-11-11 13:24:00');
 
 
 -- create event that re,oves expired passwords--
