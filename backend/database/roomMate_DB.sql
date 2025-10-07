@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `username` varchar(30) NOT NULL UNIQUE,
   `password` varchar(255) NOT NULL,
-  `email` varchar(30) NOT NULL UNIQUE,
+  `email` varchar(50) NOT NULL UNIQUE,
   `admin` BOOLEAN DEFAULT FALSE
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,  
-  `user_email` varchar(30) NOT NULL UNIQUE,
+  `user_email` varchar(50) NOT NULL UNIQUE,
   `key` varchar(50) NOT NULL,
   `expDate` datetime NOT NULL,
   CONSTRAINT fk_email_user FOREIGN KEY (`user_email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
