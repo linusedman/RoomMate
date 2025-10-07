@@ -1,11 +1,13 @@
 CREATE TABLE IF NOT EXISTS `floors` (
-  `id` INT PRIMARY KEY
+  `id` INT PRIMARY KEY,
+  `path` VARCHAR(1000) 
 );
 
 CREATE TABLE IF NOT EXISTS `rooms` (
   `id` INT PRIMARY KEY,
   `roomname` varchar(30),
   `floor_id` INT NOT NULL,
+  `path` VARCHAR(1000) 
   CONSTRAINT fk_rooms_floor FOREIGN KEY (`floor_id`) REFERENCES `floors` (`id`) ON UPDATE CASCADE
 );
 
@@ -47,13 +49,6 @@ CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `expDate` datetime NOT NULL,
   CONSTRAINT fk_email_user FOREIGN KEY (`user_email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
-
-ALTER TABLE `floors`
-ADD COLUMN `path` VARCHAR(1000);
-
-ALTER TABLE `rooms`
-ADD COLUMN `path` VARCHAR(1000);
 
 
 -- create event that re,oves expired passwords--
