@@ -1,3 +1,12 @@
+-- Drop existing tables in reverse dependency order to make updating simpler
+DROP TABLE IF EXISTS `password_reset_temp`;
+DROP TABLE IF EXISTS `instruments`;
+DROP TABLE IF EXISTS `instrument_types`;
+DROP TABLE IF EXISTS `bookings`;
+DROP TABLE IF EXISTS `rooms`;
+DROP TABLE IF EXISTS `floors`;
+DROP TABLE IF EXISTS `users`;
+
 CREATE TABLE IF NOT EXISTS `floors` (
   `id` INT PRIMARY KEY,
   `path` VARCHAR(1000) -- Can store a floor with ~50 corners
