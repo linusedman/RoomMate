@@ -18,6 +18,7 @@
         :bookings="bookings"
         @selectedRoom="onRoomSelected"
       />
+      <CurrentBookings />
     </div>
   </div>
 </template>
@@ -27,6 +28,7 @@ import { ref, onMounted } from 'vue'
 import FilterPanel from '../components/FilterPanel.vue'
 import ScheduleView from './ScheduleView.vue'
 import LayoutView from './LayoutView.vue'
+import CurrentBookings from '../components/CurrentBookings.vue'
 
 const filter = ref({ day: '', start: '', end: '' })
 const rooms = ref([])
@@ -62,4 +64,10 @@ onMounted(refreshData)
 <style scoped>
 .main-view { display:flex; gap:1rem; height:100%; min-height: 70vh}
 .left-panel, .right-panel { width:50%; flex:1}
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 </style>
