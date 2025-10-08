@@ -6,7 +6,9 @@ if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed
     header("Access-Control-Allow-Methods: POST, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type");
 }
+// PREFLIGHT:  The Browser comunicates with API to check if it can send the actual POST request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204); // Success without body
     exit;
 }
 header("Content-Type: application/json");
