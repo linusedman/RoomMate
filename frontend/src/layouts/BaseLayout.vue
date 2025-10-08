@@ -79,7 +79,7 @@ header h1 {
 .logo {
   position: absolute;
   left: 20px;
-  height: 100px;
+  height: 80px;
   object-fit: contain;
 }
 
