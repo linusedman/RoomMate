@@ -86,6 +86,25 @@ if ($conflicts > 0) {
     exit;
 }
 
+$maxBookings = 5;
+$stmt = $conn->prepare("
+    SELECT COUNT(*) 
+    FROM bookings 
+    WHERE user_id = ?
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($userBookingCount);
+$stmt->fetch();
+$stmt->close();
+
+if ($userBookingCount >= $maxBookings) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "You already have the maximum number of allowed bookings ($maxBookings)."
+    ]);
+    exit;
+}
 $stmt = $conn->prepare("
     INSERT INTO bookings (user_id, room_id, start_time, end_time)
     VALUES (?, ?, ?, ?)

@@ -55,7 +55,8 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
+
 const messageText = ref('')
 const messageType = ref('')
 const props = defineProps({
@@ -64,7 +65,8 @@ const props = defineProps({
   dayEnd: { type: Date, required: true },
   bookings: { type: Array, default: () => [] },
   ticksGridStyle: { type: Object, default: () => ({}) },
-  hourWidth: { type: Number, default: 60 }
+  hourWidth: { type: Number, default: 60 },
+  bookingStatus: { type: Object, default: null } 
 })
 const emit = defineEmits(['confirmBooking', 'scrollX'])
 
@@ -223,14 +225,9 @@ function confirmSelection(){
   const sel = pendingSelection.value
   if(!sel) return
   emit('confirmBooking', { roomId: props.room.id, startISO: sel.startISO, endISO: sel.endISO })
-  messageText.value = `Room ${props.room.roomname} successfully booked from ${sel.displayStart} to ${sel.displayEnd}.`
-  messageType.value = 'success'
   clearSelection()
-  setTimeout(() => {
-    messageText.value = ''
-    messageType.value = ''
-  }, 5000)
 }
+
 
 function onMouseDown(evt){ if(evt.button===0) return startDragAtClientX(evt.clientX) }
 function onMouseMove(evt){ moveDragAtClientX(evt.clientX) }
@@ -239,6 +236,45 @@ function onMouseLeave(){ if(dragging.value){ dragging.value=false; clearSelectio
 function onTouchStart(e){ if(e.touches && e.touches[0]) startDragAtClientX(e.touches[0].clientX) }
 function onTouchMove(e){ if(e.touches && e.touches[0]) moveDragAtClientX(e.touches[0].clientX) }
 function onTouchEnd(){ endDrag() }
+
+function handleBookingSuccess(message) {
+  messageText.value = message
+  messageType.value = 'success'
+  setTimeout(() => {
+    messageText.value = ''
+    messageType.value = ''
+  }, 5000)
+}
+
+function handleBookingError(errorMsg) {
+  messageText.value = errorMsg
+  messageType.value = 'error'
+  setTimeout(() => {
+    messageText.value = ''
+    messageType.value = ''
+  }, 5000)
+}
+
+watch(() => props.bookingStatus, (status) => {
+  if (!status) return
+  if (status.type === 'error' && status.roomId === props.room.id)
+    handleBookingError(status.message)
+  if (status.type === 'success' && status.roomId === props.room.id)
+    handleBookingSuccess(status.message)
+})
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('bookingError', (e) => {
+      if (e.detail && e.detail.roomId === props.room.id)
+        handleBookingError(e.detail.message)
+    })
+    window.addEventListener('bookingSuccess', (e) => {
+      if (e.detail && e.detail.roomId === props.room.id)
+        handleBookingSuccess(e.detail.message)
+    })
+  }
+})
 </script>
 
 <style scoped>

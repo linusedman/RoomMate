@@ -24,6 +24,7 @@
             :bookings="bookingsForRoom(room.id)"
             :ticksGridStyle="ticksGridStyle"
             :hourWidth="hourWidth"
+            :bookingStatus="bookingStatus"
             :scrollX="scrollX"
             @confirmBooking="onConfirmBooking"
             @scrollX="syncScroll"
@@ -49,6 +50,7 @@ const props = defineProps({
   bookings: Array
 })
 const emit = defineEmits(['booked'])
+const bookingStatus = ref(null)
 
 const hourWidth = 60
 
@@ -96,6 +98,28 @@ function toMysqlDatetime(isoLocal) {
 }
 
 async function onConfirmBooking({ roomId, startISO, endISO }) {
+
+  const start = new Date(startISO)
+  const end = new Date(endISO)
+  const durationMinutes = (end - start) / 60000
+   
+  // Frontend restriction before fetch
+  
+  if (durationMinutes < 30) {
+    const evt = new CustomEvent('bookingError', {
+      detail: { roomId, message: 'Booking duration must be at least 30 minutes.' }
+    })
+    window.dispatchEvent(evt)
+    return
+  }
+  if (durationMinutes > 8 * 60) {
+    const evt = new CustomEvent('bookingError', {
+      detail: { roomId, message: 'Booking duration cannot exceed 8 hours.' }
+    })
+    window.dispatchEvent(evt)
+    return
+  }
+
   const form = new URLSearchParams({
     room_id: roomId,
     start_time: toMysqlDatetime(startISO),
@@ -108,17 +132,30 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: form.toString()
     })
+
     const data = await res.json()
+
     if (data.status === 'success') {
       emit('booked')
-      
+      const msg = `Room successfully booked from ${startISO.slice(11,16)} to ${endISO.slice(11,16)}.`
+      const evt = new CustomEvent('bookingSuccess', {
+        detail: { roomId, message: msg }
+      })
+      window.dispatchEvent(evt)
     } else {
-      alert(data.message || 'Booking failed')
+      const evt = new CustomEvent('bookingError', {
+        detail: { roomId, message: data.message || 'Booking failed' }
+      })
+      window.dispatchEvent(evt)
     }
   } catch (e) {
     console.error(e)
-    alert('Network error')
+    const evt = new CustomEvent('bookingError', {
+      detail: { roomId, message: 'Network error' }
+    })
+    window.dispatchEvent(evt)
   }
+
 }
 </script>
 
