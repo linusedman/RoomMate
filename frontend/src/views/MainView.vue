@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import FilterPanel from '../components/FilterPanel.vue'
 import ScheduleView from './ScheduleView.vue'
 import LayoutView from './LayoutView.vue'
@@ -36,7 +36,10 @@ const bookings = ref([])
 const floors = ref([])
 
 function onFilter(f) {
-  filter.value = f
+  Object.assign(filter.value, f)
+  nextTick(() => {
+    refreshData()
+  })
 }
 
 
@@ -48,7 +51,7 @@ async function refreshData() {
       start: filter.value.start || '',
       end: filter.value.end || ''
     })
-
+    
     const r1 = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
       method: "POST",
       credentials: "include",

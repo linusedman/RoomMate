@@ -80,7 +80,10 @@ const ticksGridStyle = computed(() => {
   }
 })
 
-const roomsSorted = computed(() => (props.rooms || []).slice().sort((a,b)=>a.id-b.id))
+const roomsSorted = computed(() => {
+  const sorted = (props.rooms || []).slice().sort((a,b)=>a.id-b.id)
+  return sorted
+})
 
 function syncScroll(x) {
   scrollX.value = x

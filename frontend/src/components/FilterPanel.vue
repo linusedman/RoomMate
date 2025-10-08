@@ -54,7 +54,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 
 const props = defineProps({
   initialStart: { type: String, default: '' },
@@ -130,6 +130,7 @@ function applyFilter() {
   const end = `${day.value}T${endTime.value}`
   emit('filter', { day: day.value, start, end, instrumentId: instrumentId.value })
 }
+
 
 function clearFilter() {
   day.value = ''
