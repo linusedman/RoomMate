@@ -39,13 +39,22 @@ function onFilter(f) {
   filter.value = f
 }
 
-function onRoomSelected(roomId) {
-  // for future highlight in ScheduleView
-}
+
 
 async function refreshData() {
   try {
-    const r1 = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", { credentials: "include" })
+    const form = new URLSearchParams({
+      instrumentId: filter.value.instrumentId || '',
+      start: filter.value.start || '',
+      end: filter.value.end || ''
+    })
+
+    const r1 = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form.toString()
+    })
     rooms.value = await r1.json()
 
     const r2 = await fetch("http://localhost/RoomMate/backend/pages/get_bookings.php", { credentials: "include" })
@@ -56,6 +65,8 @@ async function refreshData() {
   } catch (e) {
     console.error(e)
   }
+}
+function onRoomSelected(room) {
 }
 
 onMounted(refreshData)
