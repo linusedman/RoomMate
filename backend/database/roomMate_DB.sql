@@ -1,4 +1,5 @@
 -- Drop existing tables in reverse dependency order to make updating simpler
+DROP TABLE IF EXISTS `favorites`;
 DROP TABLE IF EXISTS `password_reset_temp`;
 DROP TABLE IF EXISTS `instruments`;
 DROP TABLE IF EXISTS `instrument_types`;
@@ -66,7 +67,7 @@ CREATE TABLE If NOT EXISTS `favorites` (
   CONSTRAINT fk_user_id FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT fk_room_id FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 
-)
+);
 
 
 -- create event that re,oves expired passwords--
