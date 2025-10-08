@@ -19,7 +19,7 @@
       </router-link>
 
       <h1>RoomMate</h1>
-      <button @click="logout" class="btn btn-outline-danger"
+      <button @click="logout" class="logout-btn"
       style="margin-left: auto;
               position: absolute;
                 right: 20px;"
@@ -27,10 +27,10 @@
         Logout
       </button>
 
-      <button @click="switchPage" class="btn btn-outline-danger"
+      <button @click="switchPage" class="switch-btn"
       style="margin-left: auto;
               position: absolute;
-                right: 100px;"
+                right: 130px;"
       v-show="admin===true">
         Switch
       </button>
@@ -104,5 +104,48 @@ header h1 {
   display: flex;
   align-items: center;
 }
+
+.logout-btn {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.logout-btn:hover {
+  background-color: #ff6b5a;
+  border-color: #ff6b5a;
+}
+
+.switch-btn {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.switch-btn:hover {
+  background-color: #03d4a8;
+  border-color: #03d4a8;
+}
+
+@media (prefers-color-scheme: light) {
+  .logout-btn {
+    background-color: transparent;
+    border-color: white;
+    color: white;
+  }
+  .logout-btn:hover {
+    background-color: #e74c3c;
+  }
+
+  .switch-btn {
+    background-color: transparent;
+    border-color: white;
+    color: white;
+  }
+  .switch-btn:hover {
+    background-color: #03d4a8;
+  }
+}
+
 
 </style>
