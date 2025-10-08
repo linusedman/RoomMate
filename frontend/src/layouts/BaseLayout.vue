@@ -3,7 +3,19 @@
     <header class="text-white p-3 text-center" style="background-color: #0087e6;">
 
       <router-link to="/main" class="logo-link">
-        <img src="../assets/RoomMate_Logo.png" alt="RoomMate Logo" class="logo" />
+        <img
+        src="../assets/RoomMate_Logo.png"
+        alt="RoomMate Logo"
+        class="logo"
+        v-show="admin===false"/>
+      </router-link>
+
+      <router-link to="/admin" class="logo-link">
+        <img
+        src="../assets/RoomMate_Logo_inverted.png"
+        alt="RoomMate Logo"
+        class="logo"
+        v-show="admin===true"/>
       </router-link>
 
       <h1>RoomMate</h1>
