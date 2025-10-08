@@ -1,6 +1,6 @@
 <template>
   <div>
-    <header class="text-white p-3 text-center" style="background-color: #0029aa;">
+    <header class="text-white p-3 text-center" style="background-color: #0087e6;">
       <img src="../assets/RoomMate_Logo.png" alt="RoomMate Logo" class="logo" />
 
       <h1>RoomMate</h1>
