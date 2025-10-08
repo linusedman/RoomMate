@@ -1,7 +1,10 @@
 <template>
   <div>
     <header class="text-white p-3 text-center" style="background-color: #0087e6;">
-      <img src="../assets/RoomMate_Logo.png" alt="RoomMate Logo" class="logo" />
+
+      <router-link to="/main" class="logo-link">
+        <img src="../assets/RoomMate_Logo.png" alt="RoomMate Logo" class="logo" />
+      </router-link>
 
       <h1>RoomMate</h1>
       <button @click="logout" class="btn btn-outline-danger"
@@ -81,6 +84,13 @@ header h1 {
   left: 20px;
   height: 80px;
   object-fit: contain;
+  cursor: pointer;
+}
+
+.logo-link {
+  left: 0px;
+  display: flex;
+  align-items: center;
 }
 
 </style>
