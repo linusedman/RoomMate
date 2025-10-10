@@ -81,6 +81,11 @@ function cancelEdit() {
 }
 
 async function saveEdit() {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(editedEmail.value)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
   const formData = new FormData();
   formData.append('id', props.id)
   formData.append('username', editedUser.value);
