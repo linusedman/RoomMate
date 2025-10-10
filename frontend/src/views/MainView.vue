@@ -1,12 +1,18 @@
 <template>
   <div class="main-view d-flex">
     <div class="left-panel p-3">
-      <FilterPanel :initialStart="filter.start" :initialEnd="filter.end" @filter="onFilter" />
+      <FilterPanel 
+        ref="filterPanelRef"
+        :initialStart="filter.start" 
+        :initialEnd="filter.end" 
+        @filter="onFilter" 
+        />
       <ScheduleView
         :filter="filter"
         :rooms="rooms"
         :bookings="bookings"
         @booked="refreshData"
+        @resetFilter="resetFilter"
       />
     </div>
 
@@ -34,6 +40,7 @@ const filter = ref({ day: '', start: '', end: '' })
 const rooms = ref([])
 const bookings = ref([])
 const floors = ref([])
+const filterPanelRef = ref(null)
 
 function onFilter(f) {
   Object.assign(filter.value, f)
@@ -42,6 +49,14 @@ function onFilter(f) {
   })
 }
 
+function resetFilter() {
+  filter.value.instrumentId = ''
+  refreshData()
+ 
+  if (filterPanelRef.value?.resetInstrument) {
+    filterPanelRef.value.resetInstrument()
+  }
+}
 
 
 async function refreshData() {

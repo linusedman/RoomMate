@@ -55,6 +55,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+defineExpose({ resetInstrument })
 
 const props = defineProps({
   initialStart: { type: String, default: '' },
@@ -107,7 +108,19 @@ function searchInstruments() {
 onMounted(async () => {
   await fetchInstruments()
   allInstrumentTypes.value = [...instrumentTypes.value]
+
+  window.addEventListener('clearInstrument', () => {
+    instrumentId.value = ''
+    selectedInstrumentName.value = ''
+  })
 })
+
+function resetInstrument() {
+  instrumentId.value = ''
+  selectedInstrumentName.value = ''
+  instrumentSearch.value = ''
+  instrumentTypes.value = [...allInstrumentTypes.value]
+}
 
 function handleClickOutside(event) {
   const wrapper = document.querySelector('.dropdown-wrapper')
@@ -136,6 +149,10 @@ function clearFilter() {
   day.value = ''
   startTime.value = '08:00'
   endTime.value = '17:00'
+  instrumentId.value = ''
+  selectedInstrumentName.value = ''
+  instrumentSearch.value = ''
+  instrumentTypes.value = [...allInstrumentTypes.value]
   emit('filter', { day: '', start: '', end: '', instrumentId: '' })
 }
 </script>
