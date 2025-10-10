@@ -45,6 +45,7 @@
 
       <div v-if="message" class="toast align-items-center text-white border-0 mt-3"
         role="alert" aria-live="assertive" aria-atomic="true"
+           style="opacity: 1"
         :style="{ backgroundColor: messageColor }">
         <div class="d-flex">
           <div class="toast-body">{{ message }}</div>
