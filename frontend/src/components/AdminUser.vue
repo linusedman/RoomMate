@@ -169,8 +169,10 @@ const filteredAndSortedUsers = computed(() => {
   );
 
   return filtered.sort((a, b) => {
-    const aVal = a[sortKey.value];
-    const bVal = b[sortKey.value];
+    let aVal = a[sortKey.value];
+    let bVal = b[sortKey.value];
+    aVal = aVal?.toString().toLowerCase();
+    bVal = bVal?.toString().toLowerCase();
     if (aVal < bVal) return sortOrder.value === 'asc' ? -1 : 1;
     if (aVal > bVal) return sortOrder.value === 'asc' ? 1 : -1;
     return 0;
