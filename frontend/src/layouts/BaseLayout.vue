@@ -32,7 +32,7 @@
               position: absolute;
                 right: 130px;"
       v-show="loggedIn">
-        Settings
+        {{settingsButtonLabel}}
       </button>
 
       <button @click="switchPage" class="link-btn"
@@ -64,6 +64,11 @@ export default {
   name: "BaseLayout",
   setup() {
     return { loggedIn, admin };
+  },
+  computed: {
+    settingsButtonLabel() {
+      return this.$route.path === "/settings" ? "Home" : "Settings";
+    },
   },
   methods: {
     async logout() {
