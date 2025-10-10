@@ -75,16 +75,23 @@
         </tr>
       </thead>
       <tbody>
-        <AdminUserRow
-        v-for="user in filteredAndSortedUsers"
-        :key="user.id"
-        :id = "Number(user.id)"
-        :user = "user.username"
-        :email = "user.email"
-        :admin = "user.admin"
-        @userDeleted = "getUsers"
-        @userUpdated = "getUsers"
-        />
+        <template v-if="filteredAndSortedUsers.length > 0">
+          <AdminUserRow
+          v-for="user in filteredAndSortedUsers"
+          :key="user.id"
+          :id = "Number(user.id)"
+          :user = "user.username"
+          :email = "user.email"
+          :admin = "user.admin"
+          @userDeleted = "getUsers"
+          @userUpdated = "getUsers"
+          />
+        </template>
+        <tr v-else>
+          <td colspan="5" class="no-results">
+            No users found
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -213,5 +220,12 @@ table {
 
 button {
   background-color: #2ecc71;
+}
+
+.no-results {
+  text-align: center;
+  padding: 12px;
+  color: #666;
+  font-style: italic;
 }
 </style>
