@@ -8,6 +8,7 @@ import LogoutView from './views/LogoutView.vue';
 import MainView from './views/MainView.vue';
 import ResetPasswordFormView from './views/ResetPasswordFormView.vue';
 import AdminView from "./views/AdminView.vue";
+import SettingsView from './views/SettingsView.vue';
 import axios from "axios";
 import {ref} from "vue";
 
@@ -24,7 +25,8 @@ const routes = [
       { path: 'logout', component: LogoutView },
       { path: 'main', component: MainView, meta: { requiresAuth: true, role: 'user' }},
       { path: 'admin', component: AdminView, meta: { requiresAuth: true, role: 'admin' }},
-      { path: '/reset-password', name: 'ResetPassword', component: ResetPasswordFormView }
+      { path: '/reset-password', name: 'ResetPassword', component: ResetPasswordFormView },
+      { path: '/settings', component: SettingsView, meta: { requiresAuth: true, role: 'user' }}
     ],
   },
   { path: '/:pathMatch(.*)*', redirect: '/main' },
