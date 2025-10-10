@@ -7,6 +7,7 @@
         <th>Start Time</th>
         <th>End Time</th>
         <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -14,10 +15,12 @@
       v-for="booking in bookings"
       :id = "Number(booking.id)"
       :user = "booking.username"
-      :room = "get_roomname(booking.room_id)"
+      :room_id = "booking.room_id"
       :start = "booking.start_time"
       :end = "booking.end_time"
+      :rooms = "rooms"
       @bookingDeleted = "getBookings"
+      @bookingUpdated = "getBookings"
       />
     </tbody>
   </table>
@@ -49,10 +52,6 @@ async function getRooms() {
   rooms.value = await res.json();
 }
 
-function get_roomname(id){
-  const current_room = rooms.value.find(r => Number(r.id) === Number(id)) || {}
-  return current_room.roomname
-}
 
 onMounted( () => {
   getRooms()
