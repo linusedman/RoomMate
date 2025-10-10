@@ -62,12 +62,27 @@ onMounted(refreshData)
 </script>
 
 <style scoped>
-.main-view { display:flex; gap:1rem; height:100%; min-height: 70vh}
-.left-panel, .right-panel { width:50%; flex:1}
+.main-view {
+  display: flex; 
+  gap: 1rem;
+  min-height: 70vh;
+  align-items: flex-start;
+}
+
+.left-panel,
 .right-panel {
-  flex: 1;
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+.right-panel {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.right-panel > * {
+  flex: 0 0 auto;
+  align-self: stretch;
 }
 </style>
