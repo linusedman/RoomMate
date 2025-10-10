@@ -23,7 +23,10 @@ include '../database/db_connect.php';
 
 $res = $conn->query("SELECT id, user_id, room_id, start_time, end_time FROM bookings ORDER BY start_time ASC");
 if (!$res) {
-    echo json_encode(["error" => "Failed to retrieve bookings"]);
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Failed to retrieve Bookings"
+    ]);
     exit;
 }
 $rows = $res->fetch_all(MYSQLI_ASSOC);
