@@ -25,7 +25,7 @@
           :room="room"
           :path="room.path"
           :booked="isBooked(room.id)"
-          :availableByFilter="isAvailableDuringFilter(room.id)"
+          :matchesFilter="matchesFilter(room)"
           :selected="activePopoverId === room.id"
           @select="(id, e) => onRoomClick(id, e)"
           />
@@ -55,12 +55,13 @@ import RoomPath from "../components/RoomPath.vue";
 const props = defineProps({
   filter: Object,
   rooms: Array,
+  allRooms: Array,
   floors: Array,
   bookings: Array,
 })
 const emit = defineEmits(['selectedRoom'])
 
-const roomsRef = ref(props.rooms || [])
+const roomsRef = ref([])
 const bookingsRef = ref(props.bookings || [])
 const floorsRef = ref(props.floors || [])
 const selectedFloor = ref(1)
@@ -72,7 +73,9 @@ const popoverPos = ref({ x: 0, y: 0 })
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
 
-watch(() => props.rooms, (v) => roomsRef.value = v || [])
+watch(() => props.allRooms, (v) => {
+  roomsRef.value = v || []
+})
 watch(() => props.bookings, (v) => bookingsRef.value = v || [])
 watch(() => props.floors, (v) => floorsRef.value = v || [])
 watch(() => props.filter, (v) => filter.value = v || { start:'', end:'' }, { immediate: true })
@@ -104,9 +107,14 @@ function parseFilterDates() {
   return { s, e }
 }
 
+function isRoomFiltered(roomId) {
+  return props.rooms.some(r => r.id === roomId)
+}
+
 function isAvailableDuringFilter(roomId) {
   const f = parseFilterDates()
   if (!f) return false
+
   const conflict = bookingsRef.value.some(b => {
     if (Number(b.room_id) !== Number(roomId)) return false
     const bs = new Date(String(b.start_time).replace(' ', 'T'))
@@ -114,6 +122,19 @@ function isAvailableDuringFilter(roomId) {
     return bs < f.e && be > f.s
   })
   return !conflict
+}
+
+function matchesFilter(room) {
+  if (!filter.value.start && !filter.value.end && !filter.value.instrumentId) {
+    return 'default'
+  }
+
+  if (isRoomFiltered(room.id)) {
+    return 'matched'
+  }
+
+  return 'unmatched'
+  
 }
 
 function getRoom(id) {

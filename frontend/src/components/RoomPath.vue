@@ -16,7 +16,7 @@ const props = defineProps({
   path: String,
   booked: Boolean,
   selected: Boolean,
-  availableByFilter: Boolean
+  matchesFilter: String
 })
 
 const emit = defineEmits(['select'])
@@ -25,21 +25,25 @@ const hovering = ref(false)
 
 
 function handleClick(event) {
-  if (!props.booked) emit('select', props.room.id, event)
+  if (!props.booked && props.matchesFilter !== 'unmatched') {
+    emit('select', props.room.id, event)
+  }
 }
 
 
 function getFill(){
+  if (props.matchesFilter === 'unmatched') return "#999999" 
   if (props.selected) return "#0087e6"
   if (props.booked) return "#6c757d"
-  if (props.availableByFilter) return "#03d4a8"
-  return "#1F3A93"
+  if (props.matchesFilter === 'matched') return "#03d4a8" 
+  return "#0029aa"
 }
 
 function getHoverFill(){
+  if (props.matchesFilter === 'unmatched') return "#999999"
+  if (props.matchesFilter === 'matched') return "#02c4a0"
   if (props.booked) return "#5a6268"             
-  if (props.availableByFilter) return "#02c4a0"   
-  return "#34495E"        
+  return "#0044cc"       
 }
 
 const currentFill = computed(() => {

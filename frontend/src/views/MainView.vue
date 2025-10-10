@@ -20,6 +20,7 @@
       <LayoutView
         :filter="filter"
         :rooms="rooms"
+        :allRooms="allRooms"
         :floors="floors"
         :bookings="bookings"
         @selectedRoom="onRoomSelected"
@@ -41,6 +42,7 @@ const rooms = ref([])
 const bookings = ref([])
 const floors = ref([])
 const filterPanelRef = ref(null)
+const allRooms = ref([])
 
 function onFilter(f) {
   Object.assign(filter.value, f)
@@ -74,6 +76,14 @@ async function refreshData() {
       body: form.toString()
     })
     rooms.value = await r1.json()
+
+    const rAll = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams().toString() // empty filter to get all rooms
+    })
+    allRooms.value = await rAll.json()
 
     const r2 = await fetch("http://localhost/RoomMate/backend/pages/get_bookings.php", { credentials: "include" })
     bookings.value = await r2.json()
