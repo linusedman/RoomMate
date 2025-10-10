@@ -27,7 +27,7 @@
         Logout
       </button>
 
-      <button @click="settingsPage" class="link-btn"
+      <button @click="settingsPage" class="settings-btn"
       style="margin-left: auto;
               position: absolute;
                 right: 130px;"
@@ -35,7 +35,7 @@
         {{settingsButtonLabel}}
       </button>
 
-      <button @click="switchPage" class="link-btn"
+      <button @click="switchPage" class="switch-btn"
       style="margin-left: auto;
               position: absolute;
                 right: 250px;"
@@ -146,13 +146,19 @@ header h1 {
   border-color: #ff6b5a;
 }
 
-.link-btn {
+.switch-btn,
+.settings-btn {
   background-color: transparent;
   color: white;
   border: 2px solid white;
 }
 
-.link-btn:hover {
+.settings-btn {
+  width: 105px;
+}
+
+.switch-btn:hover,
+.settings-btn:hover {
   background-color: #03d4a8;
   border-color: #03d4a8;
 }
@@ -167,12 +173,14 @@ header h1 {
     background-color: #e74c3c;
   }
 
-  .link-btn {
+  .switch-btn,
+  .settings-btn {
     background-color: transparent;
     border-color: white;
     color: white;
   }
-  .link-btn:hover {
+  .switch-btn:hover,
+  .settings-btn:hover {
     background-color: #03d4a8;
   }
 }
