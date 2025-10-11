@@ -1,4 +1,5 @@
 -- Drop existing tables in reverse dependency order to make updating simpler
+DROP TABLE IF EXISTS `favorites`
 DROP TABLE IF EXISTS `password_reset_temp`;
 DROP TABLE IF EXISTS `instruments`;
 DROP TABLE IF EXISTS `instrument_types`;
