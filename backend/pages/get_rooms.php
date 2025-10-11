@@ -67,7 +67,9 @@ if ($instrumentId && $start && $end) {
     $result = $conn->query("SELECT id, roomname, floor_id AS floor, path FROM rooms");
 }
 if (!$result) {
-    echo json_encode([]);
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Failed to retrieve rooms"]);
     exit;
 } 
 
