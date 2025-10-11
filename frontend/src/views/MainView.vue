@@ -63,12 +63,12 @@ function resetFilter() {
 
 async function refreshData() {
   try {
-    const form = new URLSearchParams({
-      instrumentId: filter.value.instrumentId || '',
-      start: filter.value.start || '',
-      end: filter.value.end || ''
-    })
-    
+    const form = new URLSearchParams()
+
+    if (filter.value.instrumentId) {
+      form.append('instrumentId', filter.value.instrumentId)
+    }
+
     const r1 = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
       method: "POST",
       credentials: "include",
@@ -76,6 +76,24 @@ async function refreshData() {
       body: form.toString()
     })
     rooms.value = await r1.json()
+
+    const f = filter.value
+    const start = new Date(f.start)
+    const end = new Date(f.end)
+
+    const filteredRooms = rooms.value.filter(room => {
+    const bookingsForRoom = bookings.value.filter(b => Number(b.room_id) === Number(room.id))
+
+    const fullyBooked = bookingsForRoom.some(b => {
+      const bs = new Date(b.start_time)
+      const be = new Date(b.end_time)
+      return bs <= start && be >= end
+    })
+
+    return !fullyBooked
+  })
+
+  rooms.value = filteredRooms
 
     const rAll = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
       method: "POST",

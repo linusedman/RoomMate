@@ -99,42 +99,16 @@ function isBooked(roomId) {
   })
 }
 
-function parseFilterDates() {
-  if (!filter.value.start || !filter.value.end) return null
-  const s = new Date(filter.value.start)
-  const e = new Date(filter.value.end)
-  if (isNaN(s) || isNaN(e) || e <= s) return null
-  return { s, e }
-}
-
 function isRoomFiltered(roomId) {
   return props.rooms.some(r => r.id === roomId)
 }
 
-function isAvailableDuringFilter(roomId) {
-  const f = parseFilterDates()
-  if (!f) return false
-
-  const conflict = bookingsRef.value.some(b => {
-    if (Number(b.room_id) !== Number(roomId)) return false
-    const bs = new Date(String(b.start_time).replace(' ', 'T'))
-    const be = new Date(String(b.end_time).replace(' ', 'T'))
-    return bs < f.e && be > f.s
-  })
-  return !conflict
-}
-
 function matchesFilter(room) {
-  if (!filter.value.start && !filter.value.end && !filter.value.instrumentId) {
-    return 'default'
-  }
+  const hasFilter = filter.value.instrumentId || (filter.value.start && filter.value.end)
 
-  if (isRoomFiltered(room.id)) {
-    return 'matched'
-  }
+  if (!hasFilter) return 'default'
 
-  return 'unmatched'
-  
+  return isRoomFiltered(room.id) ? 'matched' : 'unmatched'
 }
 
 function getRoom(id) {
