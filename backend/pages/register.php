@@ -22,12 +22,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
     }
 
+    if (strlen($_POST['username']) > 20) {
+    echo json_encode(["status" => "error", "message" => "Username must be 20 characters or shorter."]);
+    exit;
+    }
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     $checkEmailStmt = $conn->prepare("SELECT email FROM users WHERE email = ?");
+
+    if (!$checkEmailStmt) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Database error: " . $conn->error
+    ]);
+    exit;
+    }
+
     $checkEmailStmt->bind_param("s", $email);
     $checkEmailStmt->execute();
+
+    if (!$checkEmailStmt) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Database error: " . $conn->error
+    ]);
+    exit;
+    }
+
     $checkEmailStmt->store_result();
 
     if ($checkEmailStmt->num_rows > 0) {
@@ -36,6 +58,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+
+    if (!$stmt) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Database error: " . $conn->error
+    ]);
+    exit;
+    }
+
     $stmt->bind_param("sss", $username, $email, $hashedPassword);
 
     if ($stmt->execute()) {

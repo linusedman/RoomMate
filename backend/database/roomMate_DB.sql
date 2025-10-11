@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS 'favorites' (
 );
 
 
--- create event that re,oves expired passwords--
+-- create event that removes expired passwords--
 -- 1. Enable the MySQL Event Scheduler
 SET GLOBAL event_scheduler = ON;
 

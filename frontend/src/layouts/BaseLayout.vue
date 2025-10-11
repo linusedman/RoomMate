@@ -1,10 +1,25 @@
 <template>
   <div>
-    <header class="text-white p-3 text-center" style="background-color: #0029aa;">
-      <img src="../assets/RoomMate_Logo.png" alt="RoomMate Logo" class="logo" />
+    <header class="text-white p-3 text-center" style="background-color: #0087e6;">
+
+      <router-link to="/main" class="logo-link">
+        <img
+        src="../assets/RoomMate_Logo.png"
+        alt="RoomMate Logo"
+        class="logo"
+        v-show="admin===false"/>
+      </router-link>
+
+      <router-link to="/admin" class="logo-link">
+        <img
+        src="../assets/RoomMate_Logo_inverted.png"
+        alt="RoomMate Logo"
+        class="logo"
+        v-show="admin===true"/>
+      </router-link>
 
       <h1>RoomMate</h1>
-      <button @click="logout" class="btn btn-outline-danger"
+      <button @click="logout" class="logout-btn"
       style="margin-left: auto;
               position: absolute;
                 right: 20px;"
@@ -12,10 +27,10 @@
         Logout
       </button>
 
-      <button @click="switchPage" class="btn btn-outline-danger"
+      <button @click="switchPage" class="switch-btn"
       style="margin-left: auto;
               position: absolute;
-                right: 100px;"
+                right: 130px;"
       v-show="admin===true">
         Switch
       </button>
@@ -70,7 +85,8 @@ header {
   justify-content: center;  
   align-items: center;      
   position: relative;
-  padding: 20px 0;          
+  padding: 20px 0;
+  border-radius: 8px;          
 }
 
 header h1 {
@@ -79,8 +95,58 @@ header h1 {
 .logo {
   position: absolute;
   left: 20px;
-  height: 100px;
+  height: 80px;
   object-fit: contain;
+  cursor: pointer;
 }
+
+.logo-link {
+  left: 0px;
+  display: flex;
+  align-items: center;
+}
+
+.logout-btn {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.logout-btn:hover {
+  background-color: #ff6b5a;
+  border-color: #ff6b5a;
+}
+
+.switch-btn {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.switch-btn:hover {
+  background-color: #03d4a8;
+  border-color: #03d4a8;
+}
+
+@media (prefers-color-scheme: light) {
+  .logout-btn {
+    background-color: transparent;
+    border-color: white;
+    color: white;
+  }
+  .logout-btn:hover {
+    background-color: #e74c3c;
+  }
+
+  .switch-btn {
+    background-color: transparent;
+    border-color: white;
+    color: white;
+  }
+  .switch-btn:hover {
+    background-color: #03d4a8;
+  }
+}
+
 
 </style>

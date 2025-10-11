@@ -37,6 +37,7 @@ export default {
   name: "LoginView",
   data() {
     return {
+      identifier: "",
       email: "",
       password: "",
       errorMessage: "",

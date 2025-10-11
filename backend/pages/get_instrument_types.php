@@ -10,7 +10,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header('Content-Type: application/json');
 include '../database/db_connect.php';
 
-$result = $conn->query('SELECT id, typename FROM instrument_types');
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+
+
+if (!empty($search)) {
+    $sql = "SELECT id, typename 
+            FROM instrument_types 
+            WHERE typename LIKE ?
+            ORDER BY LOCATE(?, typename), typename ASC";
+    $stmt = $conn->prepare($sql);
+    $term = '%' . $search . '%';
+    $stmt->bind_param("ss", $term, $search);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query("SELECT id, typename FROM instrument_types ORDER BY typename ASC");
+}
+
 $types = [];
 while ($row = $result->fetch_assoc()) {
     $types[] = $row;
