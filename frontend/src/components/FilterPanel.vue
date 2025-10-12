@@ -54,7 +54,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+defineExpose({ resetInstrument })
 
 const props = defineProps({
   initialStart: { type: String, default: '' },
@@ -62,7 +63,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['filter'])
 
-const day = ref('')
+const day = ref(new Date().toISOString().substr(0, 10))
 const startTime = ref('08:00')
 const endTime = ref('17:00')
 const instrumentId = ref('')
@@ -107,7 +108,19 @@ function searchInstruments() {
 onMounted(async () => {
   await fetchInstruments()
   allInstrumentTypes.value = [...instrumentTypes.value]
+
+  window.addEventListener('clearInstrument', () => {
+    instrumentId.value = ''
+    selectedInstrumentName.value = ''
+  })
 })
+
+function resetInstrument() {
+  instrumentId.value = ''
+  selectedInstrumentName.value = ''
+  instrumentSearch.value = ''
+  instrumentTypes.value = [...allInstrumentTypes.value]
+}
 
 function handleClickOutside(event) {
   const wrapper = document.querySelector('.dropdown-wrapper')
@@ -131,10 +144,15 @@ function applyFilter() {
   emit('filter', { day: day.value, start, end, instrumentId: instrumentId.value })
 }
 
+
 function clearFilter() {
   day.value = ''
   startTime.value = '08:00'
   endTime.value = '17:00'
+  instrumentId.value = ''
+  selectedInstrumentName.value = ''
+  instrumentSearch.value = ''
+  instrumentTypes.value = [...allInstrumentTypes.value]
   emit('filter', { day: '', start: '', end: '', instrumentId: '' })
 }
 </script>

@@ -14,6 +14,11 @@
           </div>
         </div>
 
+        <div v-if="roomsSorted.length === 0" class="no-rooms">
+          <p>No rooms matched your selected filter.</p>
+          <button @click="showAllRooms">Show all rooms</button>
+        </div>
+
         <div class="rows">
           <RoomSchedule
             v-for="room in roomsSorted"
@@ -24,6 +29,7 @@
             :bookings="bookingsForRoom(room.id)"
             :ticksGridStyle="ticksGridStyle"
             :hourWidth="hourWidth"
+            :bookingStatus="bookingStatus"
             :scrollX="scrollX"
             @confirmBooking="onConfirmBooking"
             @scrollX="syncScroll"
@@ -48,7 +54,8 @@ const props = defineProps({
   rooms: Array,
   bookings: Array
 })
-const emit = defineEmits(['booked'])
+const emit = defineEmits(['booked', 'resetFilter'])
+const bookingStatus = ref(null)
 
 const hourWidth = 60
 
@@ -69,6 +76,12 @@ const hours = computed(() => {
   return arr
 })
 
+
+
+function showAllRooms() {
+  emit('resetFilter')
+}
+
 const ticksGridStyle = computed(() => {
   const count = Math.max(1, hours.value.length)
   return {
@@ -78,7 +91,10 @@ const ticksGridStyle = computed(() => {
   }
 })
 
-const roomsSorted = computed(() => (props.rooms || []).slice().sort((a,b)=>a.id-b.id))
+const roomsSorted = computed(() => {
+  const sorted = (props.rooms || []).slice().sort((a,b)=>a.id-b.id)
+  return sorted
+})
 
 function syncScroll(x) {
   scrollX.value = x
@@ -96,6 +112,28 @@ function toMysqlDatetime(isoLocal) {
 }
 
 async function onConfirmBooking({ roomId, startISO, endISO }) {
+
+  const start = new Date(startISO)
+  const end = new Date(endISO)
+  const durationMinutes = (end - start) / 60000
+   
+  // Frontend restriction before fetch
+  
+  if (durationMinutes < 30) {
+    const evt = new CustomEvent('bookingError', {
+      detail: { roomId, message: 'Booking duration must be at least 30 minutes.' }
+    })
+    window.dispatchEvent(evt)
+    return
+  }
+  if (durationMinutes > 8 * 60) {
+    const evt = new CustomEvent('bookingError', {
+      detail: { roomId, message: 'Booking duration cannot exceed 8 hours.' }
+    })
+    window.dispatchEvent(evt)
+    return
+  }
+
   const form = new URLSearchParams({
     room_id: roomId,
     start_time: toMysqlDatetime(startISO),
@@ -108,17 +146,30 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: form.toString()
     })
+
     const data = await res.json()
+
     if (data.status === 'success') {
       emit('booked')
-      
+      const msg = `Room successfully booked from ${startISO.slice(11,16)} to ${endISO.slice(11,16)}.`
+      const evt = new CustomEvent('bookingSuccess', {
+        detail: { roomId, message: msg }
+      })
+      window.dispatchEvent(evt)
     } else {
-      alert(data.message || 'Booking failed')
+      const evt = new CustomEvent('bookingError', {
+        detail: { roomId, message: data.message || 'Booking failed' }
+      })
+      window.dispatchEvent(evt)
     }
   } catch (e) {
     console.error(e)
-    alert('Network error')
+    const evt = new CustomEvent('bookingError', {
+      detail: { roomId, message: 'Network error' }
+    })
+    window.dispatchEvent(evt)
   }
+
 }
 </script>
 
@@ -161,4 +212,32 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
   overflow: auto;
 }
 .subtitle { font-weight: 600; }
+
+.no-rooms {
+  text-align: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f9f9f9;
+}
+
+.no-rooms p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.no-rooms button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.no-rooms button:hover {
+  background-color: #0056b3;
+}
+
 </style>

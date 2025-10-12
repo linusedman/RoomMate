@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 );
 
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
-  `id` INT PRIMARY KEY AUTO_INCREMENT,  
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
   `user_email` VARCHAR(50) NOT NULL UNIQUE,
   `key` VARCHAR(50) NOT NULL,
   `expDate` datetime NOT NULL,
@@ -69,8 +69,7 @@ CREATE TABLE If NOT EXISTS `favorites` (
 
 );
 
-
--- create event that re,oves expired passwords--
+-- create event that removes expired passwords--
 -- 1. Enable the MySQL Event Scheduler
 SET GLOBAL event_scheduler = ON;
 
