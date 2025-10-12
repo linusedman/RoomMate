@@ -1,86 +1,132 @@
 <template>
-  <div class="popover" v-if="room">
-    <div class="room-shape" :style="shapeStyle">
-      Room {{ room.roomname }}
-    </div>
-  </div>
+  <svg
+    :width="width"
+    :height="height"
+    :viewBox="viewBox"
+    class="room-svg"
+  >
+
+
+    <g :transform="transform">
+      <path
+        ref="pathRef"
+        :d="props.room.path"
+        fill="#0087e6"
+      />
+    </g>
+
+    <text
+      :x="textX"
+      :y="textY"
+      dominant-baseline="middle"
+      text-anchor="middle"
+      fill="white"
+      font-weight="600"
+      font-size="12"
+    >
+      Room {{ props.room.roomname }}
+    </text>
+
+    <g
+      class="favorite-star"
+      @click="toggleFavorite"
+      :transform="`translate(${starX}, ${starY}) scale(1.2)`"
+      cursor="pointer"
+    >
+      <path
+        :d="isFavorite ? filledStar : outlinedStar"
+        :fill="isFavorite ? 'gold' : 'white'"
+        stroke="gold"
+        stroke-width="2"
+      />
+      <title>{{ isFavorite ? 'Unmark room as favorite' : 'Mark room as favorite' }}</title>
+    </g>
+  </svg>
+
 </template>
 
+
+
+
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
+
+const emit = defineEmits(['favoritesChanged'])
 
 const props = defineProps({
   room: { type: Object, required: true },
+  favorites: { type: Array, default: () => [] },
   width: { type: Number, default: 220 },
   height: { type: Number, default: 160 }
 })
 
-// Convert SVG path to CSS clip-path polygon
-function pathToPolygon(path) {
-  try {
-    const svgPath = document.createElementNS("http://www.w3.org/2000/svg", "path")
-    svgPath.setAttribute("d", path)
-    const length = svgPath.getTotalLength()
-    const points = []
+const isFavorite = computed(() => props.favorites.includes(props.room.id))
+const filledStar = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+const outlinedStar = "M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24z"
 
-    for (let i = 0; i <= 50; i++) {
-      const pt = svgPath.getPointAtLength((i / 50) * length)
-      points.push([pt.x, pt.y])
+const pathRef = ref(null)
+const bbox = ref({ x: 0, y: 0, width: 100, height: 100 })
+const viewBox = ref("0 0 220 160")
+const transform = ref("")
+const textX = ref(0)
+const textY = ref(0)
+const starX = ref(0)
+const starY = ref(0)
+
+
+watch(() => props.room.path, (newPath) => {
+  if (!newPath) return
+  nextTick(() => {
+    if (pathRef.value) {
+      const b = pathRef.value.getBBox()
+      bbox.value = b
+
+      const scaleX = props.width / b.width
+      const scaleY = props.height / b.height
+      const scale = Math.min(scaleX, scaleY)
+
+      const scaledWidth = b.width * scale
+      const scaledHeight = b.height * scale
+
+      const offsetX = (props.width - scaledWidth) / 2 - b.x * scale
+      const offsetY = (props.height - scaledHeight) / 2 - b.y * scale
+
+      transform.value = `translate(${offsetX}, ${offsetY}) scale(${scale})`
+
+      textX.value = offsetX + (b.x + b.width / 2) * scale
+      textY.value = offsetY + (b.y + b.height / 2) * scale
+
+      const visualMargin = 20
+      starX.value = offsetX + b.x * scale 
+      starY.value = offsetY + b.y * scale 
     }
+  })
+}, { immediate: true })
 
-    const xs = points.map(p => p[0])
-    const ys = points.map(p => p[1])
-    const minX = Math.min(...xs)
-    const maxX = Math.max(...xs)
-    const minY = Math.min(...ys)
-    const maxY = Math.max(...ys)
-    const widthScale = maxX - minX
-    const heightScale = maxY - minY
-    const scale = Math.min(props.width / widthScale, props.height / heightScale)
-    const xOffset = (props.width - widthScale * scale) / 2
-    const yOffset = (props.height - heightScale * scale) / 2
-    const polygonPoints = points.map(p => {
-      const x = (p[0] - minX) * scale + xOffset
-      const y = (p[1] - minY) * scale + yOffset
-      return `${x}px ${y}px`
-    })
 
-    return `polygon(${polygonPoints.join(",")})`
-  } catch (err) {
-    console.error("Failed to convert path to polygon:", err)
-    return "none"
-  }
+
+
+
+async function toggleFavorite() {
+  console.log("Clicked star for room", props.room.id)
+
+  const method = isFavorite.value ? 'DELETE' : 'POST'
+  await fetch("http://localhost/RoomMate/backend/pages/favorites.php", {
+    method,
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ room_id: props.room.id })
+  })
+  emit('favoritesChanged')
 }
 
 
-const shapeStyle = computed(() => {
-  if (!props.room || !props.room.path) return {}
-  return {
-    width: props.width + "px",
-    height: props.height + "px",
-    clipPath: pathToPolygon(props.room.path),
-    backgroundColor: "#0087e6",
-    color: "white",
-    fontWeight: "600",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
-  }
-})
 </script>
 
 <style scoped>
-.popover {
-  position: relative;
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  pointer-events: auto;
-  overflow: visible; /* allow shape to extend freely */
+.room-svg {
+  overflow: visible;
+  cursor: default;
 }
 
-.room-shape {
-  overflow: visible;
-}
 </style>

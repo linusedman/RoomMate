@@ -27,6 +27,7 @@
           :booked="isBooked(room.id)"
           :matchesFilter="matchesFilter(room)"
           :selected="activePopoverId === room.id"
+          :isFavorite="isFavorite(room.id)"
           @select="(id, e) => onRoomClick(id, e)"
           />
         </g>
@@ -40,7 +41,11 @@
           @mousedown="startDrag"
           @click.stop
         >
-          <RoomPopover :room="getRoom(activePopoverId)" />
+          <RoomPopover 
+          :room="getRoom(activePopoverId)" 
+          :favorites="props.favorites"
+          @favoritesChanged="$emit('favoritesChanged')"
+          />
       </div>
     </div>
   </div>
@@ -59,8 +64,11 @@ const props = defineProps({
   allRooms: Array,
   floors: Array,
   bookings: Array,
+  favorites: Array
 })
-const emit = defineEmits(['selectedRoom'])
+
+const emit = defineEmits(['selectedRoom', 'favoritesChanged'])
+
 
 const roomsRef = ref([])
 const bookingsRef = ref(props.bookings || [])
@@ -73,6 +81,16 @@ const group = ref(null)
 const popoverPos = ref({ x: 0, y: 0 })
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
+
+console.log("Popover room:", getRoom(activePopoverId.value))
+
+watch(activePopoverId, (newId) => {
+  console.log("New active popover room:", getRoom(newId))
+})
+watch(() => activePopoverId.value, (id) => {
+  console.log("LayoutView → activePopoverId:", id)
+  console.log("LayoutView → room:", getRoom(id))
+})
 
 watch(() => props.allRooms, (v) => {
   roomsRef.value = v || []
@@ -89,6 +107,12 @@ const availableFloors = computed(() => {
 const roomsOnFloor = computed(() =>
   roomsRef.value.filter(r => r.floor === selectedFloor.value)
 )
+
+function isFavorite(roomId) {
+  return props.favorites.includes(roomId)
+  console.log("Is room", roomId, "favorite?", props.favorites.includes(roomId))
+
+}
 
 function isBooked(roomId) {
   const now = new Date()
@@ -225,7 +249,7 @@ function getFPath(id){
 watch(
   () => availableFloors.value,
   (floors) => {
-    if (floors && floors.length) {
+    if (floors && floors.length && !selectedFloor.value) {
       selectedFloor.value = floors[0]
       nextTick(() => {
         CenterAndScaleGroup()
@@ -256,8 +280,8 @@ watch(
   cursor: grabbing;
 }
 
-.inline-popover > * {
-  pointer-events: none;
+.inline-popover > svg {
+  pointer-events: auto;
 }
 
 .svg-box {

@@ -23,7 +23,9 @@
         :allRooms="allRooms"
         :floors="floors"
         :bookings="bookings"
+        :favorites="favorites"
         @selectedRoom="onRoomSelected"
+        @favoritesChanged="refreshData"
       />
       <CurrentBookings />
     </div>
@@ -43,6 +45,7 @@ const bookings = ref([])
 const floors = ref([])
 const filterPanelRef = ref(null)
 const allRooms = ref([])
+const favorites = ref([])
 
 function onFilter(f) {
   Object.assign(filter.value, f)
@@ -111,7 +114,17 @@ async function refreshData() {
   } catch (e) {
     console.error(e)
   }
+  
+  
+  const rFav = await fetch("http://localhost/RoomMate/backend/pages/favorites.php", {
+  credentials: "include"
+})
+const favoriteRooms = await rFav.json()
+favorites.value = favoriteRooms.map(f => f.room_id)
+console.log("Fetched favorites:", favoriteRooms)
 }
+
+
 function onRoomSelected(room) {
 }
 
