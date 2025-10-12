@@ -41,7 +41,7 @@ const props = defineProps({
 const isEditing = ref(false);
 const editedUser = ref(props.user);
 const editedEmail = ref(props.email);
-const editedAdmin = ref(Number(props.admin) ? "Yes" : "No");
+const editedAdmin = ref(Number(props.admin) === 1);
 
 const emit = defineEmits(["userDeleted", "userUpdated"])
 
@@ -77,10 +77,15 @@ function cancelEdit() {
   isEditing.value = false;
   editedUser.value = props.user;
   editedEmail.value = props.email;
-  editedAdmin.value = props.admin ? "Yes" : "No";
+  editedAdmin.value = Number(props.admin) === 1;
 }
 
 async function saveEdit() {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(editedEmail.value)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
   const formData = new FormData();
   formData.append('id', props.id)
   formData.append('username', editedUser.value);

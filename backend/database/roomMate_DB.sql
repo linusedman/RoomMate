@@ -1,4 +1,5 @@
 -- Drop existing tables in reverse dependency order to make updating simpler
+DROP TABLE IF EXISTS `favorites`
 DROP TABLE IF EXISTS `password_reset_temp`;
 DROP TABLE IF EXISTS `instruments`;
 DROP TABLE IF EXISTS `instrument_types`;
@@ -52,15 +53,23 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 );
 
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
-  `id` INT PRIMARY KEY AUTO_INCREMENT,  
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
   `user_email` VARCHAR(50) NOT NULL UNIQUE,
   `key` VARCHAR(50) NOT NULL,
   `expDate` datetime NOT NULL,
   CONSTRAINT fk_email_user FOREIGN KEY (`user_email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS 'favorites' (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `room_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  CONSTRAINT fk_id_room FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_id_room FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
--- create event that re,oves expired passwords--
+
+-- create event that removes expired passwords--
 -- 1. Enable the MySQL Event Scheduler
 SET GLOBAL event_scheduler = ON;
 

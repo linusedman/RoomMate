@@ -63,7 +63,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['filter'])
 
-const day = ref('')
+const day = ref(new Date().toISOString().substr(0, 10))
 const startTime = ref('08:00')
 const endTime = ref('17:00')
 const instrumentId = ref('')

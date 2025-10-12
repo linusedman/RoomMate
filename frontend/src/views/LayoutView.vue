@@ -1,23 +1,23 @@
 <template>
   <div class="floor-view container"
-  style="display: flex; flex-direction: column; height: 100%">
+  style="display: flex; flex-direction: column;">
     <FloorSelector :floors="availableFloors" @change="changeFloor" />
 
     <div class="room-layout d-flex flex-wrap"
-    style="width:100%;
-     flex: 1">
-
-      <svg
-          width = 100%
-          id="Floor"
-          ref="svg"
-      >
-        <g
-        ref="group">
-          <FloorPath
-          :floor=selectedFloor
-          :path="getFPath(selectedFloor)"
-          />
+    style="width:100%;">
+      <div class="svg-box">
+        <svg
+            class="floor-svg"
+            width = 100%
+            id="Floor"
+            ref="svg"
+        >
+          <g
+          ref="group">
+            <FloorPath
+            :floor=selectedFloor
+            :path="getFPath(selectedFloor)"
+            />
 
           <RoomPath
           v-for="room in roomsOnFloor"
@@ -31,6 +31,7 @@
           />
         </g>
       </svg>
+      </div>
 
       <div
           v-show="activePopoverId !== null"
@@ -257,5 +258,20 @@ watch(
 
 .inline-popover > * {
   pointer-events: none;
+}
+
+.svg-box {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.svg-box > .floor-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.floor-svg {
+  overflow: visible;
 }
 </style>
