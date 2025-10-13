@@ -131,6 +131,7 @@ function handleClickOutside(event) {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  applyFilter()
 })
 
 onBeforeUnmount(() => {
