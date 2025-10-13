@@ -11,6 +11,7 @@
         :filter="filter"
         :rooms="rooms"
         :bookings="bookings"
+        :selectedFavoriteId="selectedFavoriteId"
         @booked="refreshData"
         @resetFilter="resetFilter"
       />
@@ -26,10 +27,15 @@
         :favorites="favorites"
         :instruments="instruments"
         :instrumentTypes="instrumentTypes"
+        :selectedFavoriteId="selectedFavoriteId"
         @selectedRoom="onRoomSelected"
         @favoritesChanged="refreshData"
       />
       <CurrentBookings />
+      <FavoriteRooms
+        :selectedFavoriteId="selectedFavoriteId"
+        @selectFavorite="onFavoriteSelected"
+      />
     </div>
   </div>
 </template>
@@ -40,6 +46,7 @@ import FilterPanel from '../components/FilterPanel.vue'
 import ScheduleView from './ScheduleView.vue'
 import LayoutView from './LayoutView.vue'
 import CurrentBookings from '../components/CurrentBookings.vue'
+import FavoriteRooms from '../components/FavoriteRooms.vue'
 
 const filter = ref({ day: '', start: '', end: '' })
 const rooms = ref([])
@@ -50,6 +57,11 @@ const allRooms = ref([])
 const favorites = ref([])
 const instruments = ref([])
 const instrumentTypes = ref([])
+const selectedFavoriteId = ref(null)
+
+function onFavoriteSelected(id) {
+  selectedFavoriteId.value = id
+}
 
 function onFilter(f) {
   Object.assign(filter.value, f)

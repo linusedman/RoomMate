@@ -36,7 +36,8 @@ const props = defineProps({
   booked: Boolean,
   selected: Boolean,
   matchesFilter: String,
-  isFavorite: Boolean
+  isFavorite: Boolean,
+  selectedFavorite: Boolean
 })
 
 const emit = defineEmits(['select'])
@@ -54,10 +55,15 @@ function handleClick(event) {
 
 
 function getFill(){
+  if (props.selectedFavorite) {
+    console.log("RoomPath → applying favorite highlight color")
+    return "#21d6e0"
+  }
   if (props.matchesFilter === 'unmatched') return "#999999" 
   if (props.selected) return "#0087e6"
   if (props.booked) return "#6c757d"
   if (props.matchesFilter === 'matched') return "#03d4a8" 
+  if (props.selectedFavorite) return "#21d6e0"
   return "#0029aa"
 }
 

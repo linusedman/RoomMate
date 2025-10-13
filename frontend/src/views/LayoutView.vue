@@ -28,6 +28,7 @@
           :matchesFilter="matchesFilter(room)"
           :selected="activePopoverId === room.id"
           :isFavorite="isFavorite(room.id)"
+          :selectedFavorite="props.selectedFavoriteId === room.id"
           @select="(id, e) => onRoomClick(id, e)"
           />
         </g>
@@ -68,7 +69,8 @@ const props = defineProps({
   bookings: Array,
   favorites: Array,
   instruments: Array,
-  instrumentTypes: Array
+  instrumentTypes: Array,
+  selectedFavoriteId: [Number, null]
 })
 
 const emit = defineEmits(['selectedRoom', 'favoritesChanged'])

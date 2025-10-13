@@ -31,6 +31,7 @@
             :hourWidth="hourWidth"
             :bookingStatus="bookingStatus"
             :scrollX="scrollX"
+            :highlighted="selectedFavoriteId === room.id"
             @confirmBooking="onConfirmBooking"
             @scrollX="syncScroll"
           />
@@ -52,7 +53,8 @@ const scrollX = ref(0)
 const props = defineProps({
   filter: Object,
   rooms: Array,
-  bookings: Array
+  bookings: Array,
+  selectedFavoriteId: Number
 })
 const emit = defineEmits(['booked', 'resetFilter'])
 const bookingStatus = ref(null)

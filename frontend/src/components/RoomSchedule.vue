@@ -1,5 +1,5 @@
 <template>
-  <div class="room-row">
+  <div class="room-row" :class="{ highlighted }">
     <div class="room-label">{{ room.roomname }}</div>
 
     <div class="timeline-wrapper">
@@ -66,7 +66,8 @@ const props = defineProps({
   bookings: { type: Array, default: () => [] },
   ticksGridStyle: { type: Object, default: () => ({}) },
   hourWidth: { type: Number, default: 60 },
-  bookingStatus: { type: Object, default: null } 
+  bookingStatus: { type: Object, default: null }, 
+  highlighted: { type: Boolean, default: false },
 })
 const emit = defineEmits(['confirmBooking', 'scrollX'])
 
@@ -279,6 +280,11 @@ onMounted(() => {
 
 <style scoped>
 .room-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:8px; }
+.room-row.highlighted {
+  background-color: rgba(33, 214, 224, 0.1);
+  box-shadow: 0 0 0 2px rgba(33, 214, 224, 0.4);
+  border-radius: 6px;
+}
 .room-label { width:120px; font-weight:600; margin-top:6px; }
 .timeline-wrapper { flex:1; position:relative; }
 .timeline { position:relative; height:48px; border:1px solid #e0e0e0; background:#f6fff6; overflow:auto; white-space:nowrap; user-select:none; }
