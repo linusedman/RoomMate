@@ -16,19 +16,15 @@
     </div>
 
         <div class="mt-3 position-relative">
-          <label>Instrument</label>
-          <input
-            type="text"
-            v-model="instrumentSearch"
-            @input="searchInstruments"
-            placeholder="Search for instruments..."
-            class="form-control mb-2"
-          />
-
           <div class="dropdown-wrapper">
-            <button class="form-select text-start" @click="toggleDropdown">
-              {{ selectedInstrumentName || 'Select instrument' }}
-            </button>
+            <input
+              type="text"
+              v-model="instrumentSearch"
+              @input="searchInstruments"
+              @focus="dropdownOpen = true"
+              placeholder="Search for instruments..."
+              class="form-control mb-2"
+            />
 
             <ul v-if="dropdownOpen" class="dropdown-list">
               <li
@@ -79,7 +75,7 @@ function toggleDropdown() {
 
 function selectInstrument(type) {
   instrumentId.value = type.id
-  selectedInstrumentName.value = type.typename
+  instrumentSearch.value = type.typename
   dropdownOpen.value = false
 }
 
@@ -111,13 +107,12 @@ onMounted(async () => {
 
   window.addEventListener('clearInstrument', () => {
     instrumentId.value = ''
-    selectedInstrumentName.value = ''
+    instrumentSearch.value = ''
   })
 })
 
 function resetInstrument() {
   instrumentId.value = ''
-  selectedInstrumentName.value = ''
   instrumentSearch.value = ''
   instrumentTypes.value = [...allInstrumentTypes.value]
 }
@@ -147,14 +142,13 @@ function applyFilter() {
 
 
 function clearFilter() {
-  day.value = ''
+  day.value = new Date().toISOString().substr(0, 10)
   startTime.value = '08:00'
   endTime.value = '17:00'
   instrumentId.value = ''
-  selectedInstrumentName.value = ''
   instrumentSearch.value = ''
   instrumentTypes.value = [...allInstrumentTypes.value]
-  emit('filter', { day: '', start: '', end: '', instrumentId: '' })
+  applyFilter()
 }
 </script>
 
