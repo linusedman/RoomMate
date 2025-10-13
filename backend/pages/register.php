@@ -28,27 +28,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    try {$checkEmailStmt = $conn->prepare("SELECT email FROM users WHERE email = ?");
 
-    $checkEmailStmt = $conn->prepare("SELECT email FROM users WHERE email = ?");
-
-    if (!$checkEmailStmt) {
+    } catch(Exception $e) {
     echo json_encode([
         "status" => "error",
-        "message" => "Database error: " . $conn->error
+        "message" => "Database error: " . $e->getMessage()
     ]);
     exit;
     }
 
     $checkEmailStmt->bind_param("s", $email);
     $checkEmailStmt->execute();
-
-    if (!$checkEmailStmt) {
-    echo json_encode([
-        "status" => "error",
-        "message" => "Database error: " . $conn->error
-    ]);
-    exit;
-    }
 
     $checkEmailStmt->store_result();
 
@@ -57,12 +48,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+    try {$stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
 
-    if (!$stmt) {
+    } catch(Exception $e) {
     echo json_encode([
         "status" => "error",
-        "message" => "Database error: " . $conn->error
+        "message" => "Database error: " . $e->getMessage()
     ]);
     exit;
     }
