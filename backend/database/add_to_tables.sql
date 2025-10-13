@@ -1,11 +1,3 @@
--- Cannot add users this way since the passwords will not be hased!
--- INSERT INTO users (username, password, email)
--- VALUES
--- ('Tom_Sawyer', 'Password1', 'tom@example.com'),
--- ('Huck_Finn', 'Password2', 'huck@example.com'),
--- ('Sherlock_Holmes', 'Password3', 'sherlock@example.com'),
--- ('Oliver_Twist', 'password4', 'oliver@example.com');
-
 -- Insert some floors
 INSERT INTO floors (id, path) VALUES
 (1,"m 175.39813,75.18673 7.21432,35.39525 -68.76148,14.42864 4.2835,21.98113 -22.770192,34.83163 -23.221088,
@@ -43,10 +35,46 @@ INSERT INTO rooms (id, roomname, floor_id, path) VALUES
 INSERT INTO instrument_types (typename) VALUES
 ("Centrifuge"),
 ("Autoclave"),
-("Electron microscope");
+("Electron microscope"),
+("Spectrophotometer"),
+("Incubator"),
+("PCR machine"),
+("Microplate reader"),
+("Fume hood"),
+("Refrigerator"),
+("Freezer"),
+("Water bath"),
+("Analytical balance"),
+("pH meter"),
+("Shaker"),
+("Vortex mixer"),
+("Gas chromatograph"),
+("Mass spectrometer"),
+("Flow cytometer"),
+("Ultrasonic cleaner");
+
 
 -- Insert instruments assigned to rooms
 INSERT INTO instruments (type_id, room_id) VALUES
-(1, 1), (2, 2), (3, 3), (1, 4), (2, 5), (1, 6), (3, 7), (2, 8),
-(3, 9), (1, 10), (2, 11), (1, 12), (2, 13), (3, 14),
-(1, 15), (2, 16), (3, 17), (1, 18), (2, 19), (3, 20), (1, 21), (2, 22);
+(1, 1), (2, 1), (3, 1),
+(4, 2), (5, 2), (6, 2),
+(7, 3), (8, 3), (9, 3),
+(10, 4), (11, 4), (12, 4),
+(13, 5), (14, 5), (15, 5),
+(16, 6), (17, 6), (18, 6),
+(19, 7), (1, 7), (2, 7),
+(3, 8), (4, 8), (5, 8),
+(6, 9), (7, 9), (8, 9),
+(9, 10), (10, 10), (11, 10),
+(12, 11), (13, 11), (14, 11),
+(15, 12), (16, 12), (17, 12),
+(18, 13), (19, 13), (1, 13),
+(2, 14), (3, 14), (4, 14),
+(5, 15), (6, 15), (7, 15),
+(8, 16), (9, 16), (10, 16),
+(11, 17), (12, 17), (13, 17),
+(14, 18), (15, 18), (16, 18),
+(17, 19), (18, 19), (19, 19),
+(1, 20), (2, 20), (3, 20),
+(4, 21), (5, 21), (6, 21),
+(7, 22), (8, 22), (9, 22);
