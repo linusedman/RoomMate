@@ -97,7 +97,7 @@ function clamp(v,a=0,b=1){ return Math.max(a, Math.min(b,v)) }
 function fractionToMs(frac){ return props.dayStart.getTime() + frac * (props.dayEnd.getTime() - props.dayStart.getTime()) }
 function msToFraction(ms){ return clamp((ms - props.dayStart.getTime()) / (props.dayEnd.getTime() - props.dayStart.getTime())) }
 function snapToMinutes(ms, minutes=5){ const step = minutes*60*1000; return Math.round(ms/step)*step }
-function isoLocalFromMs(ms){ const d=new Date(ms); return d.toISOString().slice(0,16) }
+function isoUTCFromMs(ms){ const d=new Date(ms); return d.toISOString().slice(0, 16) + 'Z' }
 function displayTimeFromMs(ms){ const d=new Date(ms); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` }
 
 const ticks = computed(() => {
@@ -196,8 +196,8 @@ function endDrag(){
     return
   }
   pendingSelection.value = {
-    startISO: isoLocalFromMs(sMs),
-    endISO: isoLocalFromMs(eMs),
+    startISO: isoUTCFromMs(sMs),
+    endISO: isoUTCFromMs(eMs),
     displayStart: displayTimeFromMs(sMs),
     displayEnd: displayTimeFromMs(eMs)
   }

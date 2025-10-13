@@ -75,7 +75,7 @@ $stmt = $conn->prepare("
      WHERE room_id = ? 
        AND (start_time < ? AND end_time > ?)
 ");
-$stmt->bind_param("iss", $room_id, $end_time, $start_time);
+$stmt->bind_param("iss", $room_id, $end_datetime->format('Y-m-d H:i:s'), $start_datetime->format('Y-m-d H:i:s'));
 $stmt->execute();
 $stmt->bind_result($conflicts);
 $stmt->fetch();
@@ -112,7 +112,7 @@ $stmt = $conn->prepare("
     INSERT INTO bookings (user_id, room_id, start_time, end_time)
     VALUES (?, ?, ?, ?)
 ");
-$stmt->bind_param("iiss", $user_id, $room_id, $start_time, $end_time);
+$stmt->bind_param("iiss", $user_id, $room_id, $start_datetime->format('Y-m-d H:i:s'), $end_datetime->format('Y-m-d H:i:s'));
 
 if ($stmt->execute()) {
     echo json_encode(["status" => "success", "message" => "Booking confirmed!"]);
