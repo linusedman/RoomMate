@@ -142,13 +142,13 @@ function applyFilter() {
 
 
 function clearFilter() {
-  day.value = ''
+  day.value = new Date().toISOString().substr(0, 10)
   startTime.value = '08:00'
   endTime.value = '17:00'
   instrumentId.value = ''
   instrumentSearch.value = ''
   instrumentTypes.value = [...allInstrumentTypes.value]
-  emit('filter', { day: '', start: '', end: '', instrumentId: '' })
+  applyFilter()
 }
 </script>
 
