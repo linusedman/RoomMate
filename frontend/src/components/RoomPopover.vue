@@ -5,8 +5,6 @@
     :viewBox="viewBox"
     class="room-svg"
   >
-
-
     <g :transform="transform">
       <path
         ref="pathRef"
@@ -14,6 +12,7 @@
         fill="#0087e6"
       />
     </g>
+
 
     <text
       :x="textX"
@@ -26,6 +25,44 @@
     >
       Room {{ props.room.roomname }}
     </text>
+
+
+    v-if="props.instrumentName">
+
+      <text
+        :x="textX"
+        :y="textY + 16"
+        text-anchor="middle"
+        font-size="10"
+        font-weight="500"
+        fill="white"
+      >
+        Contains instrument:
+      </text>
+
+
+      <rect
+        :x="textX - instrumentNameWidth / 2"
+        :y="textY + 18"
+        :width="instrumentNameWidth"
+        height="18"
+        rx="4"
+        fill="#0029aa"
+      />
+
+
+      <text
+        :x="textX"
+        :y="textY + 30"
+        text-anchor="middle"
+        fill="white"
+        font-size="10"
+        font-weight="500"
+      >
+        {{ props.instrumentName }}
+      </text>
+
+
 
     <g
       class="favorite-star"
@@ -42,8 +79,8 @@
       <title>{{ isFavorite ? 'Unmark room as favorite' : 'Mark room as favorite' }}</title>
     </g>
   </svg>
-
 </template>
+
 
 
 
@@ -57,12 +94,18 @@ const props = defineProps({
   room: { type: Object, required: true },
   favorites: { type: Array, default: () => [] },
   width: { type: Number, default: 220 },
-  height: { type: Number, default: 160 }
+  height: { type: Number, default: 160 },
+  instrumentName: { type: String, default: '' }
 })
 
 const isFavorite = computed(() => props.favorites.includes(props.room.id))
 const filledStar = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
 const outlinedStar = "M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24z"
+
+const instrumentNameWidth = computed(() => {
+  const avgCharWidth = 6.5 
+  return props.instrumentName.length * avgCharWidth + 4 
+})
 
 const pathRef = ref(null)
 const bbox = ref({ x: 0, y: 0, width: 100, height: 100 })
@@ -96,7 +139,6 @@ watch(() => props.room.path, (newPath) => {
       textX.value = offsetX + (b.x + b.width / 2) * scale
       textY.value = offsetY + (b.y + b.height / 2) * scale
 
-      const visualMargin = 20
       starX.value = offsetX + b.x * scale 
       starY.value = offsetY + b.y * scale 
     }
@@ -105,11 +147,8 @@ watch(() => props.room.path, (newPath) => {
 
 
 
-
-
 async function toggleFavorite() {
-  console.log("Clicked star for room", props.room.id)
-
+  
   const method = isFavorite.value ? 'DELETE' : 'POST'
   await fetch("http://localhost/RoomMate/backend/pages/favorites.php", {
     method,

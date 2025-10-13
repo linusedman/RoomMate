@@ -42,9 +42,11 @@
           @click.stop
         >
           <RoomPopover 
-          :room="getRoom(activePopoverId)" 
-          :favorites="props.favorites"
-          @favoritesChanged="$emit('favoritesChanged')"
+            v-if="activePopoverId !== null"
+            :room="getRoom(activePopoverId)" 
+            :favorites="props.favorites"
+            :instrumentName="getInstrumentName(activePopoverId)"
+            @favoritesChanged="$emit('favoritesChanged')"
           />
       </div>
     </div>
@@ -64,7 +66,9 @@ const props = defineProps({
   allRooms: Array,
   floors: Array,
   bookings: Array,
-  favorites: Array
+  favorites: Array,
+  instruments: Array,
+  instrumentTypes: Array
 })
 
 const emit = defineEmits(['selectedRoom', 'favoritesChanged'])
@@ -82,15 +86,6 @@ const popoverPos = ref({ x: 0, y: 0 })
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
 
-console.log("Popover room:", getRoom(activePopoverId.value))
-
-watch(activePopoverId, (newId) => {
-  console.log("New active popover room:", getRoom(newId))
-})
-watch(() => activePopoverId.value, (id) => {
-  console.log("LayoutView → activePopoverId:", id)
-  console.log("LayoutView → room:", getRoom(id))
-})
 
 watch(() => props.allRooms, (v) => {
   roomsRef.value = v || []
@@ -110,7 +105,6 @@ const roomsOnFloor = computed(() =>
 
 function isFavorite(roomId) {
   return props.favorites.includes(roomId)
-  console.log("Is room", roomId, "favorite?", props.favorites.includes(roomId))
 
 }
 
@@ -176,7 +170,6 @@ function CenterAndScaleGroup() {
   nextTick(() => {
     const bbox = group.value.getBBox()
     if (!bbox.width || !bbox.height) {
-      console.warn("BBox is empty, skipping transform");
       return;
     }
     const svgWidth = svg.value.viewBox.baseVal.width || svg.value.clientWidth
@@ -244,6 +237,14 @@ onBeforeUnmount(() => {
 function getFPath(id){
     const current_floor = floorsRef.value.find(r => r.id === id) || {}
     return current_floor.path
+}
+
+function getInstrumentName(roomId) {
+  if (!roomId) return ''
+  const instrument = props.instruments.find(i => Number(i.room_id) === Number(roomId))
+  const type = props.instrumentTypes.find(t => Number(t.id) === Number(instrument?.type_id))
+  const name = type?.typename || ''
+  return name
 }
 
 watch(
