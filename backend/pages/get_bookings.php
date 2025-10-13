@@ -10,7 +10,10 @@ if (
     header("Access-Control-Allow-Methods: GET, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type");
 }
+
+// PREFLIGHT:  The Browser comunicates with API to check if it can send the actual POST request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204); // Success without body
     exit;
 }
 
@@ -20,7 +23,10 @@ include '../database/db_connect.php';
 
 $res = $conn->query("SELECT id, user_id, room_id, start_time, end_time FROM bookings ORDER BY start_time ASC");
 if (!$res) {
-    echo json_encode([]);
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Failed to retrieve Bookings"
+    ]);
     exit;
 }
 $rows = $res->fetch_all(MYSQLI_ASSOC);

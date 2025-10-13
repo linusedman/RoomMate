@@ -16,19 +16,15 @@
     </div>
 
         <div class="mt-3 position-relative">
-          <label>Instrument</label>
-          <input
-            type="text"
-            v-model="instrumentSearch"
-            @input="searchInstruments"
-            placeholder="Search for instruments..."
-            class="form-control mb-2"
-          />
-
           <div class="dropdown-wrapper">
-            <button class="form-select text-start" @click="toggleDropdown">
-              {{ selectedInstrumentName || 'Select instrument' }}
-            </button>
+            <input
+              type="text"
+              v-model="instrumentSearch"
+              @input="searchInstruments"
+              @focus="dropdownOpen = true"
+              placeholder="Search for instruments..."
+              class="form-control mb-2"
+            />
 
             <ul v-if="dropdownOpen" class="dropdown-list">
               <li
@@ -54,7 +50,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+defineExpose({ resetInstrument })
 
 const props = defineProps({
   initialStart: { type: String, default: '' },
@@ -78,7 +75,7 @@ function toggleDropdown() {
 
 function selectInstrument(type) {
   instrumentId.value = type.id
-  selectedInstrumentName.value = type.typename
+  instrumentSearch.value = type.typename
   dropdownOpen.value = false
 }
 
@@ -107,7 +104,18 @@ function searchInstruments() {
 onMounted(async () => {
   await fetchInstruments()
   allInstrumentTypes.value = [...instrumentTypes.value]
+
+  window.addEventListener('clearInstrument', () => {
+    instrumentId.value = ''
+    instrumentSearch.value = ''
+  })
 })
+
+function resetInstrument() {
+  instrumentId.value = ''
+  instrumentSearch.value = ''
+  instrumentTypes.value = [...allInstrumentTypes.value]
+}
 
 function handleClickOutside(event) {
   const wrapper = document.querySelector('.dropdown-wrapper')
@@ -118,6 +126,7 @@ function handleClickOutside(event) {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  applyFilter()
 })
 
 onBeforeUnmount(() => {
@@ -131,11 +140,15 @@ function applyFilter() {
   emit('filter', { day: day.value, start, end, instrumentId: instrumentId.value })
 }
 
+
 function clearFilter() {
-  day.value = ''
+  day.value = new Date().toISOString().substr(0, 10)
   startTime.value = '08:00'
   endTime.value = '17:00'
-  emit('filter', { day: '', start: '', end: '', instrumentId: '' })
+  instrumentId.value = ''
+  instrumentSearch.value = ''
+  instrumentTypes.value = [...allInstrumentTypes.value]
+  applyFilter()
 }
 </script>
 
@@ -153,7 +166,7 @@ function clearFilter() {
   overflow-y: auto;
   background: white;
   border: 1px solid #ccc;
-  z-index: 10;
+  z-index: 20;
   list-style: none;
   padding: 0;
   margin: 0;

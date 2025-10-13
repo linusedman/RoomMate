@@ -14,6 +14,11 @@
           </div>
         </div>
 
+        <div v-if="roomsSorted.length === 0" class="no-rooms">
+          <p>No rooms matched your selected filter.</p>
+          <button @click="showAllRooms">Show all rooms</button>
+        </div>
+
         <div class="rows">
           <RoomSchedule
             v-for="room in roomsSorted"
@@ -49,7 +54,7 @@ const props = defineProps({
   rooms: Array,
   bookings: Array
 })
-const emit = defineEmits(['booked'])
+const emit = defineEmits(['booked', 'resetFilter'])
 const bookingStatus = ref(null)
 
 const hourWidth = 60
@@ -71,6 +76,12 @@ const hours = computed(() => {
   return arr
 })
 
+
+
+function showAllRooms() {
+  emit('resetFilter')
+}
+
 const ticksGridStyle = computed(() => {
   const count = Math.max(1, hours.value.length)
   return {
@@ -80,7 +91,10 @@ const ticksGridStyle = computed(() => {
   }
 })
 
-const roomsSorted = computed(() => (props.rooms || []).slice().sort((a,b)=>a.id-b.id))
+const roomsSorted = computed(() => {
+  const sorted = (props.rooms || []).slice().sort((a,b)=>a.id-b.id)
+  return sorted
+})
 
 function syncScroll(x) {
   scrollX.value = x
@@ -198,4 +212,32 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
   overflow: auto;
 }
 .subtitle { font-weight: 600; }
+
+.no-rooms {
+  text-align: center;
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f9f9f9;
+}
+
+.no-rooms p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.no-rooms button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.no-rooms button:hover {
+  background-color: #0056b3;
+}
+
 </style>

@@ -19,18 +19,18 @@
             :path="getFPath(selectedFloor)"
             />
 
-            <RoomPath
-            v-for="room in roomsOnFloor"
-            :key="room.id"
-            :room="room"
-            :path="room.path"
-            :booked="isBooked(room.id)"
-            :availableByFilter="isAvailableDuringFilter(room.id)"
-            :selected="activePopoverId === room.id"
-            @select="(id, e) => onRoomClick(id, e)"
-            />
-          </g>
-        </svg>
+          <RoomPath
+          v-for="room in roomsOnFloor"
+          :key="room.id"
+          :room="room"
+          :path="room.path"
+          :booked="isBooked(room.id)"
+          :matchesFilter="matchesFilter(room)"
+          :selected="activePopoverId === room.id"
+          @select="(id, e) => onRoomClick(id, e)"
+          />
+        </g>
+      </svg>
       </div>
 
       <div
@@ -56,12 +56,13 @@ import RoomPath from "../components/RoomPath.vue";
 const props = defineProps({
   filter: Object,
   rooms: Array,
+  allRooms: Array,
   floors: Array,
   bookings: Array,
 })
 const emit = defineEmits(['selectedRoom'])
 
-const roomsRef = ref(props.rooms || [])
+const roomsRef = ref([])
 const bookingsRef = ref(props.bookings || [])
 const floorsRef = ref(props.floors || [])
 const selectedFloor = ref(1)
@@ -73,7 +74,9 @@ const popoverPos = ref({ x: 0, y: 0 })
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
 
-watch(() => props.rooms, (v) => roomsRef.value = v || [])
+watch(() => props.allRooms, (v) => {
+  roomsRef.value = v || []
+})
 watch(() => props.bookings, (v) => bookingsRef.value = v || [])
 watch(() => props.floors, (v) => floorsRef.value = v || [])
 watch(() => props.filter, (v) => filter.value = v || { start:'', end:'' }, { immediate: true })
@@ -97,24 +100,16 @@ function isBooked(roomId) {
   })
 }
 
-function parseFilterDates() {
-  if (!filter.value.start || !filter.value.end) return null
-  const s = new Date(filter.value.start)
-  const e = new Date(filter.value.end)
-  if (isNaN(s) || isNaN(e) || e <= s) return null
-  return { s, e }
+function isRoomFiltered(roomId) {
+  return props.rooms.some(r => r.id === roomId)
 }
 
-function isAvailableDuringFilter(roomId) {
-  const f = parseFilterDates()
-  if (!f) return false
-  const conflict = bookingsRef.value.some(b => {
-    if (Number(b.room_id) !== Number(roomId)) return false
-    const bs = new Date(String(b.start_time).replace(' ', 'T'))
-    const be = new Date(String(b.end_time).replace(' ', 'T'))
-    return bs < f.e && be > f.s
-  })
-  return !conflict
+function matchesFilter(room) {
+  const hasFilter = filter.value.instrumentId || (filter.value.start && filter.value.end)
+
+  if (!hasFilter) return 'default'
+
+  return isRoomFiltered(room.id) ? 'matched' : 'unmatched'
 }
 
 function getRoom(id) {
@@ -231,7 +226,9 @@ watch(
   () => availableFloors.value,
   (floors) => {
     if (floors && floors.length) {
-      selectedFloor.value = floors[0]
+      if (!floors.includes(selectedFloor.value)) {
+        selectedFloor.value = floors[0]
+      }
       nextTick(() => {
         CenterAndScaleGroup()
       })
