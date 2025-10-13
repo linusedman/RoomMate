@@ -226,7 +226,9 @@ watch(
   () => availableFloors.value,
   (floors) => {
     if (floors && floors.length) {
-      selectedFloor.value = floors[0]
+      if (!floors.includes(selectedFloor.value)) {
+        selectedFloor.value = floors[0]
+      }
       nextTick(() => {
         CenterAndScaleGroup()
       })

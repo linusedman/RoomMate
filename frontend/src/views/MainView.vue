@@ -106,8 +106,6 @@ async function refreshData() {
     const r2 = await fetch("http://localhost/RoomMate/backend/pages/get_bookings.php", { credentials: "include" })
     bookings.value = await r2.json()
 
-    const r3 = await fetch("http://localhost/RoomMate/backend/pages/get_floors.php", { credentials: "include" })
-    floors.value = await r3.json()
   } catch (e) {
     console.error(e)
   }
@@ -115,7 +113,16 @@ async function refreshData() {
 function onRoomSelected(room) {
 }
 
-onMounted(refreshData)
+async function fetchFloors() {
+  try {
+    const r3 = await fetch("http://localhost/RoomMate/backend/pages/get_floors.php", {credentials: "include"})
+    floors.value = await r3.json()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+onMounted(refreshData, fetchFloors)
 </script>
 
 <style scoped>
