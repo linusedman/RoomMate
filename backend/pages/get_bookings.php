@@ -11,7 +11,7 @@ if (
     header("Access-Control-Allow-Headers: Content-Type");
 }
 
-// PREFLIGHT:  The Browser comunicates with API to check if it can send the actual POST request
+// PREFLIGHT:  The Browser communicates with API to check if it can send the actual POST request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204); // Success without body
     exit;
@@ -34,7 +34,14 @@ $rows = $res->fetch_all(MYSQLI_ASSOC);
 // Convert datetimes to same format frontend will parse
 foreach ($rows as &$r) {
     $r['room_id'] = (int)$r['room_id'];
-    // keep start_time and end_time as strings (MySQL DATETIME)
+
+    $start = new DateTime($r['start_time']);
+    $start->setTimezone(new DateTimeZone('UTC'));
+    $r['start_time'] = $start->format('Y-m-d\TH:i:s\Z'); // UTC ISO
+
+    $end = new DateTime($r['end_time']);
+    $end->setTimezone(new DateTimeZone('UTC'));
+    $r['end_time'] = $end->format('Y-m-d\TH:i:s\Z'); // UTC ISO
 }
 echo json_encode($rows);
 

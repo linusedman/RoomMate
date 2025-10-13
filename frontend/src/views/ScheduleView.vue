@@ -107,8 +107,11 @@ function bookingsForRoom(roomId) {
   return (props.bookings || []).filter(b => Number(b.room_id) === Number(roomId))
 }
 
-function toMysqlDatetime(isoLocal) {
-  return isoLocal.replace('T', ' ') + ':00'
+function formatLocalTimeFromISO(isoString) {
+    const d = new Date(isoString); // JS converts ISO to local timezone automatically
+    const hours = String(d.getHours()).padStart(2,'0');
+    const minutes = String(d.getMinutes()).padStart(2,'0');
+    return `${hours}:${minutes}`;
 }
 
 async function onConfirmBooking({ roomId, startISO, endISO }) {
@@ -136,8 +139,8 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
 
   const form = new URLSearchParams({
     room_id: roomId,
-    start_time: toMysqlDatetime(startISO),
-    end_time: toMysqlDatetime(endISO)
+    start_time: startISO,
+    end_time: endISO
   })
   try {
     const res = await fetch("http://localhost/RoomMate/backend/pages/book.php", {
@@ -148,10 +151,12 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
     })
 
     const data = await res.json()
+    const displayStart = formatLocalTimeFromISO(startISO)
+    const displayEnd = formatLocalTimeFromISO(endISO)
 
     if (data.status === 'success') {
       emit('booked')
-      const msg = `Room successfully booked from ${startISO.slice(11,16)} to ${endISO.slice(11,16)}.`
+      const msg = `Room successfully booked from ${displayStart} to ${displayEnd}.`
       const evt = new CustomEvent('bookingSuccess', {
         detail: { roomId, message: msg }
       })
