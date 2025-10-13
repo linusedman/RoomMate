@@ -166,7 +166,7 @@ function clearFilter() {
   overflow-y: auto;
   background: white;
   border: 1px solid #ccc;
-  z-index: 10;
+  z-index: 20;
   list-style: none;
   padding: 0;
   margin: 0;
