@@ -36,6 +36,7 @@
       <FavoriteRooms
         :selectedFavoriteId="selectedFavoriteId"
         @selectFavorite="onFavoriteSelected"
+        :favorites="favorites"
       />
     </div>
   </div>
@@ -108,16 +109,16 @@ async function refreshData() {
     const end = new Date(f.end)
 
     const filteredRooms = rooms.value.filter(room => {
-    const bookingsForRoom = bookings.value.filter(b => Number(b.room_id) === Number(room.id))
+      const bookingsForRoom = bookings.value.filter(b => Number(b.room_id) === Number(room.id))
 
-    const fullyBooked = bookingsForRoom.some(b => {
-      const bs = new Date(b.start_time)
-      const be = new Date(b.end_time)
-      return bs <= start && be >= end
+      const fullyBooked = bookingsForRoom.some(b => {
+        const bs = new Date(b.start_time)
+        const be = new Date(b.end_time)
+        return bs <= start && be >= end
+      })
+
+      return !fullyBooked
     })
-
-    return !fullyBooked
-  })
 
   rooms.value = filteredRooms
 
@@ -145,7 +146,7 @@ async function refreshData() {
   } catch (e) {
     console.error(e)
   }
-  
+
 }
 
 
