@@ -1,14 +1,18 @@
 <template>
-  <div class="floor-view container"
-  style="display: flex; flex-direction: column;">
+  <div class="floor-view container" style="display: flex; flex-direction: column; height: 80vh;">
+
     <FloorSelector :floors="availableFloors" @change="changeFloor" />
 
-    <div class="room-layout d-flex flex-wrap"
-    style="width:100%;">
-      <div class="svg-box">
+    <div class="room-layout" style="display: flex; flex-direction: column; flex: 1; height: 100%;">
+
+      <div class="svg-box" style="flex: 1; min-height: 400px;">
         <svg
             class="floor-svg"
             width = 100%
+            height="100%"
+            viewBox="0 50 220 160"
+            preserveAspectRatio="xMinYMin meet"
+
             id="Floor"
             ref="svg"
         >
@@ -259,8 +263,13 @@ watch(
 </script>
 
 <style scoped>
-.room-layout { gap: 10px; display:flex; flex-wrap:wrap; }
-
+.room-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  height: 100%;
+}
 .inline-popover {
   position: absolute; 
   width: 220px;
@@ -283,14 +292,20 @@ watch(
 }
 
 .svg-box {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-}
-
-.svg-box > .floor-svg {
+  flex: 1;
   width: 100%;
   height: 100%;
+  min-height: 400px;
+  max-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg-box {
   display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .floor-svg {
