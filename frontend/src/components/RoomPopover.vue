@@ -27,7 +27,7 @@
     </text>
 
 
-    v-if="props.instrumentName">
+    <g v-if="props.instrumentName">
 
       <text
         :x="textX"
@@ -62,7 +62,7 @@
         {{ props.instrumentName }}
       </text>
 
-
+    </g>
 
     <g
       class="favorite-star"
