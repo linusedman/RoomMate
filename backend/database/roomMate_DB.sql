@@ -63,12 +63,11 @@ CREATE TABLE IF NOT EXISTS `password_reset_temp` (
 
 CREATE TABLE IF NOT EXISTS `favorites` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `room_id` INT NOT NULL,
   `user_id` INT NOT NULL,
-  CONSTRAINT fk_id_room FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_id_user FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  `room_id` INT NOT NULL,
+  CONSTRAINT fk_user_id FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_room_id FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
 
 -- create event that removes expired passwords--
 -- 1. Enable the MySQL Event Scheduler

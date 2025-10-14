@@ -11,6 +11,8 @@
         :filter="filter"
         :rooms="rooms"
         :bookings="bookings"
+        :favorites="favorites"
+        :selectedFavoriteId="selectedFavoriteId"
         @booked="refreshData"
         @resetFilter="resetFilter"
       />
@@ -23,19 +25,29 @@
         :allRooms="allRooms"
         :floors="floors"
         :bookings="bookings"
+        :favorites="favorites"
+        :instruments="instruments"
+        :instrumentTypes="instrumentTypes"
+        :selectedFavoriteId="selectedFavoriteId"
         @selectedRoom="onRoomSelected"
+        @favoritesChanged="refreshData"
       />
       <CurrentBookings />
+      <FavoriteRooms
+        :selectedFavoriteId="selectedFavoriteId"
+        @selectFavorite="onFavoriteSelected"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import FilterPanel from '../components/FilterPanel.vue'
 import ScheduleView from './ScheduleView.vue'
 import LayoutView from './LayoutView.vue'
 import CurrentBookings from '../components/CurrentBookings.vue'
+import FavoriteRooms from '../components/FavoriteRooms.vue'
 
 const filter = ref({ day: '', start: '', end: '' })
 const rooms = ref([])
@@ -43,6 +55,14 @@ const bookings = ref([])
 const floors = ref([])
 const filterPanelRef = ref(null)
 const allRooms = ref([])
+const favorites = ref([])
+const instruments = ref([])
+const instrumentTypes = ref([])
+const selectedFavoriteId = ref(null)
+
+function onFavoriteSelected(id) {
+  selectedFavoriteId.value = id
+}
 
 function onFilter(f) {
   Object.assign(filter.value, f)
@@ -63,6 +83,12 @@ function resetFilter() {
 
 async function refreshData() {
   try {
+    const rFav = await fetch("http://localhost/RoomMate/backend/pages/favorites.php", {
+      credentials: "include"
+    })
+    const favoriteRooms = await rFav.json()
+    favorites.value = Array.isArray(favoriteRooms) ? favoriteRooms : []
+
     const form = new URLSearchParams()
 
     if (filter.value.instrumentId) {
@@ -106,10 +132,23 @@ async function refreshData() {
     const r2 = await fetch("http://localhost/RoomMate/backend/pages/get_bookings.php", { credentials: "include" })
     bookings.value = await r2.json()
 
+    const rTypes = await fetch("http://localhost/RoomMate/backend/pages/get_instrument_types.php", {
+      credentials: "include"
+    })
+    instrumentTypes.value = await rTypes.json()
+
+    const rInstruments = await fetch("http://localhost/RoomMate/backend/pages/get_instruments.php", {
+      credentials: "include"
+    })
+    instruments.value = await rInstruments.json()
+    
   } catch (e) {
     console.error(e)
   }
+  
 }
+
+
 function onRoomSelected(room) {
 }
 
