@@ -1,7 +1,9 @@
 <template>
   <div class="room-row" :class="{ highlighted }">
-    <div class="room-label">{{ room.roomname }}</div>
-
+    <div class="room-label">
+      {{ room.roomname }}
+      <span v-if="isFavorite(room.id)" class="favorite-tag">★</span>
+    </div>
     <div class="timeline-wrapper">
       
       <div
@@ -68,6 +70,8 @@ const props = defineProps({
   hourWidth: { type: Number, default: 60 },
   bookingStatus: { type: Object, default: null }, 
   highlighted: { type: Boolean, default: false },
+  favorites: { type: Array, default: () => [] },
+  // scrollX: { type: Number, default: 0 },
 })
 const emit = defineEmits(['confirmBooking', 'scrollX'])
 
@@ -82,6 +86,10 @@ const pendingSelection = ref(null)
 const dragLabelStyle = ref({ left: '0px', transform: 'translateX(-50%)' })
 const dragLabelStart = ref('')
 const dragLabelEnd = ref('')
+
+function isFavorite(id) {
+  return props.favorites.some(f => f.room_id === id)
+}
 
 function onScroll(e) {
   emit('scrollX', e.target.scrollLeft)
@@ -276,6 +284,7 @@ onMounted(() => {
     })
   }
 })
+
 </script>
 
 <style scoped>
@@ -320,5 +329,10 @@ onMounted(() => {
 }
 .custom-error {
   color: #dc3545; 
+}
+.favorite-tag {
+  color: #21d6e0;
+  margin-left: 6px;
+  font-size: 16px;
 }
 </style>

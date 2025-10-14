@@ -11,6 +11,7 @@
         :filter="filter"
         :rooms="rooms"
         :bookings="bookings"
+        :favorites="favorites"
         :selectedFavoriteId="selectedFavoriteId"
         @booked="refreshData"
         @resetFilter="resetFilter"
@@ -41,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import FilterPanel from '../components/FilterPanel.vue'
 import ScheduleView from './ScheduleView.vue'
 import LayoutView from './LayoutView.vue'
@@ -82,6 +83,12 @@ function resetFilter() {
 
 async function refreshData() {
   try {
+    const rFav = await fetch("http://localhost/RoomMate/backend/pages/favorites.php", {
+      credentials: "include"
+    })
+    const favoriteRooms = await rFav.json()
+    favorites.value = Array.isArray(favoriteRooms) ? favoriteRooms : []
+
     const form = new URLSearchParams()
 
     if (filter.value.instrumentId) {
@@ -138,16 +145,10 @@ async function refreshData() {
     })
     instruments.value = await rInstruments.json()
 
-
   } catch (e) {
     console.error(e)
   }
   
-  const rFav = await fetch("http://localhost/RoomMate/backend/pages/favorites.php", {
-  credentials: "include"
-})
-const favoriteRooms = await rFav.json()
-favorites.value = favoriteRooms.map(f => f.room_id)
 }
 
 

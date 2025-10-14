@@ -27,7 +27,7 @@
           :booked="isBooked(room.id)"
           :matchesFilter="matchesFilter(room)"
           :selected="activePopoverId === room.id"
-          :isFavorite="isFavorite(room.id)"
+          :isFavorite="favorites.some(f => f.room_id === room.id)"
           :selectedFavorite="props.selectedFavoriteId === room.id"
           @select="(id, e) => onRoomClick(id, e)"
           />
@@ -104,11 +104,6 @@ const availableFloors = computed(() => {
 const roomsOnFloor = computed(() =>
   roomsRef.value.filter(r => r.floor === selectedFloor.value)
 )
-
-function isFavorite(roomId) {
-  return props.favorites.includes(roomId)
-
-}
 
 function isBooked(roomId) {
   const now = new Date()
