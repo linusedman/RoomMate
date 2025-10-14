@@ -122,7 +122,10 @@ async function fetchFloors() {
   }
 }
 
-onMounted(refreshData, fetchFloors)
+onMounted(async () => {
+    await refreshData()
+    await fetchFloors()
+})
 </script>
 
 <style scoped>
