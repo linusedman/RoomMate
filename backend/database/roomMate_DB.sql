@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `user_email` VARCHAR(50) NOT NULL UNIQUE,
-  `key` VARCHAR(50) NOT NULL,
+  `key` VARCHAR(100) NOT NULL,
   `expDate` datetime NOT NULL,
   CONSTRAINT fk_email_user FOREIGN KEY (`user_email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
