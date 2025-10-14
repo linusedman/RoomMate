@@ -17,39 +17,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 const props = defineProps({
-  selectedFavoriteId: Number
+  selectedFavoriteId: Number,
+  favorites:  Array
 })
 
 const emit = defineEmits(['selectFavorite'])
 
-const favorites = ref([])
-const sortedFavorites = ref([])
-
-async function loadFavorites() {
-  try {
-    const res = await fetch("http://localhost/RoomMate/backend/pages/favorites.php", {
-      method: "GET",
-      credentials: "include"
-    })
-    const data = await res.json()
-    favorites.value = data
-    sortedFavorites.value = data.slice().sort((a,b)=>a.room_id - b.room_id)
-  } catch (err) {
-    console.error(err)
-    favorites.value = []
-  }
-}
+const sortedFavorites = computed(() => {
+  return props.favorites.sort((a,b) => a.id - b.id)
+})
 
 function selectRoom(id) {
   console.log("FavoriteRooms → clicked room ID:", id)
   const newId = props.selectedFavoriteId === id ? null : id
   emit('selectFavorite', newId)
 }
-
-onMounted(loadFavorites)
 </script>
 
 <style scoped>
