@@ -34,9 +34,13 @@
         <input type="password" v-model="password" id="password" class="form-control" required minlength="8" />
       </div>
 
-      <div class="mb-2 mt-3">
-        <button type="submit" class="btn btn-register fw-bold">Create Account</button>
+      <div>
+        <input type="checkbox" class="checkbox" v-model="accepted_terms" required>
+        I agree to the <a href="">terms and conditions</a>
+      </div>
 
+      <div class="mb-2 mt-3">
+        <button type="submit" class="btn btn-register fw-bold" :disabled="!accepted_terms">Create Account</button>
       </div>
 
       <div class="mb-2 mt-4 text-center fw-bold text-primary">
@@ -65,6 +69,7 @@ export default {
       username: "",
       email: "",
       password: "",
+      accepted_terms: 0,
       message: "",
       messageColor: "#dc3545",
     };
@@ -116,6 +121,16 @@ export default {
 </script>
 
 <style scoped>
+a {
+  color: black;
+  font-weight: normal;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #03d4a8;
+}
+
 .btn-register {
   background-color: #005cbf;
   border: none;
