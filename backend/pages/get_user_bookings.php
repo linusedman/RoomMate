@@ -28,14 +28,22 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-$bookings = [];
-while ($row = $result->fetch_assoc()) {
-    $bookings[] = $row;
+$rows = $result->fetch_all(MYSQLI_ASSOC);
+
+// Convert datetimes to same format frontend will parse
+foreach ($rows as &$r) {
+    $start = new DateTime($r['start_time']);
+    $start->setTimezone(new DateTimeZone('UTC'));
+    $r['start_time'] = $start->format('Y-m-d\TH:i:s\Z'); // UTC ISO
+
+    $end = new DateTime($r['end_time']);
+    $end->setTimezone(new DateTimeZone('UTC'));
+    $r['end_time'] = $end->format('Y-m-d\TH:i:s\Z'); // UTC ISO
 }
 
 echo json_encode([
     "status" => "success",
-    "bookings" => $bookings
+    "bookings" => $rows
 ]);
 
 $stmt->close();
