@@ -91,6 +91,7 @@ export default {
       formData.append("username", this.username);
       formData.append("email", this.email);
       formData.append("password", this.password);
+      formData.append("accepted_terms", this.accepted_terms);
 
       try {
         const response = await fetch("http://localhost/RoomMate/backend/pages/register.php", {
