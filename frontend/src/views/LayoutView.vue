@@ -1,16 +1,16 @@
 <template>
-  <div class="floor-view container" style="display: flex; flex-direction: column; height: 80vh;">
+  <div class="floor-view container" style="display: flex; flex-direction: column;">
 
     <FloorSelector :floors="availableFloors" @change="changeFloor" />
 
     <div class="room-layout" style="display: flex; flex-direction: column; flex: 1; height: 100%;">
 
-      <div class="svg-box" style="flex: 1; min-height: 400px;">
+      <div class="svg-box" style="flex: 1;">
         <svg
             class="floor-svg"
             width = 100%
             height="100%"
-            viewBox="0 50 220 160"
+            viewBox="25 75 160 160"
             preserveAspectRatio="xMinYMin meet"
 
             id="Floor"
@@ -137,8 +137,7 @@ function getRoom(id) {
 
 function changeFloor(f) {
   selectedFloor.value = f
-  activePopoverId.value = null 
-  CenterAndScaleGroup()
+  activePopoverId.value = null
 }
 
 function onRoomClick(id, event) {
@@ -213,7 +212,6 @@ function stopDrag() {
 onMounted(() => {
   const floors = availableFloors.value
   if (floors && floors.length) selectedFloor.value = floors[0]
-  window.addEventListener('resize', CenterAndScaleGroup)
   window.addEventListener('scroll', () => {
   if (activePopoverId.value !== null) {
     const el = document.querySelector('path.selected')
@@ -229,10 +227,6 @@ onMounted(() => {
     }
   }
 })
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', CenterAndScaleGroup)
 })
 
 function getFPath(id){
@@ -253,9 +247,6 @@ watch(
   (floors) => {
     if (floors && floors.length && !selectedFloor.value) {
       selectedFloor.value = floors[0]
-      nextTick(() => {
-        CenterAndScaleGroup()
-      })
     }
   },
   { immediate: true }
@@ -295,7 +286,6 @@ watch(
   flex: 1;
   width: 100%;
   height: 100%;
-  min-height: 400px;
   max-height: 100vh;
   display: flex;
   align-items: center;
