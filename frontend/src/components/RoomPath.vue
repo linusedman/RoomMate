@@ -4,6 +4,8 @@
       ref="pathRef"
       :d="path"
       :fill="currentFill"
+      stroke="black"
+      stroke-width="0.5px"
       @click="(e) => handleClick(e)"
       @mouseover="hovering = true"
       @mouseleave="hovering = false"
