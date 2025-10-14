@@ -45,7 +45,8 @@ async function loadFavorites() {
 
 function selectRoom(id) {
   console.log("FavoriteRooms → clicked room ID:", id)
-  emit('selectFavorite', id)
+  const newId = props.selectedFavoriteId === id ? null : id
+  emit('selectFavorite', newId)
 }
 
 onMounted(loadFavorites)
