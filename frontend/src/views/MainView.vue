@@ -32,7 +32,7 @@
         @selectedRoom="onRoomSelected"
         @favoritesChanged="refreshData"
       />
-      <CurrentBookings />
+      <CurrentBookings ref="currentBookingsRef"/>
       <FavoriteRooms
         :selectedFavoriteId="selectedFavoriteId"
         @selectFavorite="onFavoriteSelected"
@@ -60,6 +60,8 @@ const favorites = ref([])
 const instruments = ref([])
 const instrumentTypes = ref([])
 const selectedFavoriteId = ref(null)
+const currentBookingsRef = ref(null)
+
 
 function onFavoriteSelected(id) {
   selectedFavoriteId.value = id
@@ -146,6 +148,9 @@ async function refreshData() {
   } catch (e) {
     console.error(e)
   }
+
+  await nextTick()
+  await currentBookingsRef.value?.loadBookings()
 
 }
 
