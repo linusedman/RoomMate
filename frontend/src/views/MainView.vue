@@ -13,7 +13,7 @@
         :bookings="bookings"
         :favorites="favorites"
         :selectedFavoriteId="selectedFavoriteId"
-        @booked="refreshData"
+        @booked="onBook"
         @resetFilter="resetFilter"
       />
     </div>
@@ -86,13 +86,40 @@ function resetFilter() {
 
 
 async function refreshData() {
+  await fetchFavorites()
+  await fetchInstruments()
+  await fetchInstrumentTypes()
+  await fetchBookings()
+  await updateFilteredRooms()
+
+  await nextTick()
+  await currentBookingsRef.value?.loadBookings()
+
+}
+
+
+function onRoomSelected(room) {
+}
+
+function onBook() {
+  fetchBookings()
+  currentBookingsRef.value?.loadBookings()
+}
+
+async function fetchFavorites() {
   try {
     const rFav = await fetch("http://localhost/RoomMate/backend/pages/favorites.php", {
       credentials: "include"
     })
     const favoriteRooms = await rFav.json()
     favorites.value = Array.isArray(favoriteRooms) ? favoriteRooms : []
+  } catch (e) {
+    console.error(e)
+  }
+}
 
+async function updateFilteredRooms() {
+  try {
     const form = new URLSearchParams()
 
     if (filter.value.instrumentId) {
@@ -102,7 +129,7 @@ async function refreshData() {
     const r1 = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
       body: form.toString()
     })
     rooms.value = await r1.json()
@@ -140,39 +167,55 @@ async function refreshData() {
     })
 
     rooms.value = filteredRooms
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+async function fetchAllRooms() {
+  try {
 
     const rAll = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams().toString() // empty filter to get all rooms
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams().toString() // empty filter to get all rooms
     })
     allRooms.value = await rAll.json()
+  } catch (e) {
+    console.error(e)
+  }
+}
 
+async function fetchBookings() {
+  try {
     const r2 = await fetch("http://localhost/RoomMate/backend/pages/get_bookings.php", { credentials: "include" })
     bookings.value = await r2.json()
+  } catch (e) {
+    console.error(e)
+  }
+}
 
+async function fetchInstrumentTypes() {
+  try {
     const rTypes = await fetch("http://localhost/RoomMate/backend/pages/get_instrument_types.php", {
       credentials: "include"
     })
     instrumentTypes.value = await rTypes.json()
+  } catch (e) {
+    console.error(e)
+  }
+}
 
+async function fetchInstruments() {
+  try {
     const rInstruments = await fetch("http://localhost/RoomMate/backend/pages/get_instruments.php", {
       credentials: "include"
     })
     instruments.value = await rInstruments.json()
-    
   } catch (e) {
     console.error(e)
   }
-
-  await nextTick()
-  await currentBookingsRef.value?.loadBookings()
-
-}
-
-
-function onRoomSelected(room) {
 }
 
 async function fetchFloors() {
@@ -186,6 +229,7 @@ async function fetchFloors() {
 
 onMounted(async () => {
     await refreshData()
+    await fetchAllRooms()
     await fetchFloors()
 })
 </script>
