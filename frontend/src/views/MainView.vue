@@ -61,6 +61,7 @@ const instruments = ref([])
 const instrumentTypes = ref([])
 const selectedFavoriteId = ref(null)
 const currentBookingsRef = ref(null)
+const stats = ref([])
 
 
 function onFavoriteSelected(id) {
@@ -106,6 +107,22 @@ async function refreshData() {
     })
     rooms.value = await r1.json()
 
+    const rS = await fetch("http://localhost/RoomMate/backend/pages/get_room_statistics.php", {
+      credentials: "include",
+    })
+    const statsJSON = await rS.json()
+    stats.value = statsJSON.status === "success" ? statsJSON.data : [];
+
+    const merged = rooms.value.map(room => {
+      const match = stats.value.find(s => Number(s.room_id) === Number(room.id));
+      return {
+        ...room,
+        booking_count: match ? parseInt(match.booking_count) : 0
+      };
+    });
+
+    rooms.value = merged
+
     const f = filter.value
     const start = new Date(f.start)
     const end = new Date(f.end)
@@ -122,7 +139,7 @@ async function refreshData() {
       return !fullyBooked
     })
 
-  rooms.value = filteredRooms
+    rooms.value = filteredRooms
 
     const rAll = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
       method: "POST",

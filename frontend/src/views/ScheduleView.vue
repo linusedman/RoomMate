@@ -161,7 +161,7 @@ const roomsSorted = computed(() => {
   const all = props.rooms || []
   const favoriteIds = new Set((props.favorites || []).map(f => f.room_id))
   const favorites = all.filter(r => favoriteIds.has(r.id)).sort((a,b) => a.id - b.id)
-  const nonFavorites = all.filter(r => !favoriteIds.has(r.id)).sort((a,b) => a.id - b.id)
+  const nonFavorites = all.filter(r => !favoriteIds.has(r.id)).sort((a,b) => a.booking_count - b.booking_count)
   return [...favorites, ...nonFavorites]
 })
 
