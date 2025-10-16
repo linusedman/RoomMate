@@ -148,7 +148,7 @@ function applyFilter() {
     day: day.value, 
     start, 
     end, 
-    instrumentIds: selectedIds  // Changed from instrumentId to instrumentIds (array)
+    instrumentId: selectedIds  
   })
 }
 
