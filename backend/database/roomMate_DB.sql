@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `favorites` (
 -- 1. Enable the MySQL Event Scheduler
 SET GLOBAL event_scheduler = ON;
 
--- 2. Create an automatic cleanup event
+-- 2. Create an automatic cleanup event for old 
 CREATE EVENT IF NOT EXISTS delete_expired_password_resets
 ON SCHEDULE EVERY 1 DAY
 STARTS CURRENT_TIMESTAMP
@@ -82,3 +82,4 @@ DO
   WHERE expDate < NOW();
 
 
+-- 3. create daily cleanup event for bookings older than a year
