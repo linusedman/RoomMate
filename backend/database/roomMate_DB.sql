@@ -83,3 +83,9 @@ DO
 
 
 -- 3. create daily cleanup event for bookings older than a year
+CREATE EVENT IF NOT EXISTS delete_old_bookings
+ON SCHEDULE EVERY 1 DAY
+STARTS TIMESTAMP(CURRENT_DATE + INTERVAL 1 DAY)
+DO
+  DELETE FROM bookings
+  WHERE end_time < NOW() - INTERVAL 1 YEAR;
