@@ -16,14 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header("Content-Type: application/json");
 include '../database/db_connect.php';
 
-$instrumentIds = $_POST['instrumentIds'] ?? [];
+$instrumentId = $_POST['instrumentId'] ?? [];
 $start = $_POST['start'] ?? '';
 $end = $_POST['end'] ?? '';
 
-$isFilteringByInstruments = is_array($instrumentIds) && count($instrumentIds) > 0;
+$isFilteringByInstruments = is_array($instrumentId) && count($instrumentId) > 0;
 
 if ($isFilteringByInstruments && $start && $end) {
-    $placeholders = implode(',', array_fill(0, count($instrumentIds), '?'));
+    $placeholders = implode(',', array_fill(0, count($instrumentId), '?'));
 
     $sql = "
         SELECT r.id, r.roomname, r.floor_id AS floor, r.path
@@ -40,12 +40,10 @@ if ($isFilteringByInstruments && $start && $end) {
     $stmt = $conn->prepare($sql);
 
     // Dynamic binding
-    $types = str_repeat('i', count($instrumentIds)) . 'ssi';
-    $params = [...$instrumentIds, $end, $start, count($instrumentIds)];
+    $types = str_repeat('i', count($instrumentId)) . 'ssi';
+    $params = [...$instrumentId, $end, $start, count($instrumentId)];
     $stmt->bind_param($types, ...$params);
-    // $stmt->bind_param("iss", $instrumentId, $end, $start);
-    // $stmt->execute();
-    // $result = $stmt->get_result();
+ 
 } elseif ($start && $end) {
     $sql = "
         SELECT r.id, r.roomname, r.floor_id AS floor, r.path
@@ -57,8 +55,7 @@ if ($isFilteringByInstruments && $start && $end) {
     ";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $end, $start);
-    // $stmt->execute();
-    // $result = $stmt->get_result();
+ 
 } elseif ($instrumentId) {
     $sql = "
         SELECT r.id, r.roomname, r.floor_id AS floor, r.path
@@ -69,12 +66,10 @@ if ($isFilteringByInstruments && $start && $end) {
         HAVING COUNT(DISTINCT i.type_id) = ?
     ";
     $stmt = $conn->prepare($sql);
-    $types = str_repeat('i', count($instrumentIds)) . 'i';
-    $params = [...$instrumentIds, count($instrumentIds)];
+    $types = str_repeat('i', count($instrumentId)) . 'i';
+    $params = [...$instrumentId, count($instrumentId)];
     $stmt->bind_param($types, ...$params);
-    // $stmt->bind_param("i", $instrumentId);
-    // $stmt->execute();
-    // $result = $stmt->get_result();
+
 } else {
     $sql = "SELECT id, roomname, floor_id AS floor, path FROM rooms";
     $stmt = $conn->prepare($sql);
