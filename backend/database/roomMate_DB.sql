@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `floors` (
 
 CREATE TABLE IF NOT EXISTS `rooms` (
   `id` INT PRIMARY KEY,
-  `roomname` VARCHAR(30),
+  `roomname` VARCHAR(30) UNIQUE,
   `floor_id` INT NOT NULL,
   `path` VARCHAR(1000), -- Can store a room with ~50 corners
   CONSTRAINT fk_rooms_floor FOREIGN KEY (`floor_id`) REFERENCES `floors` (`id`) ON UPDATE CASCADE
