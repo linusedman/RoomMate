@@ -76,7 +76,7 @@ SET GLOBAL event_scheduler = ON;
 -- 2. Create an automatic cleanup event for old 
 CREATE EVENT IF NOT EXISTS delete_expired_password_resets
 ON SCHEDULE EVERY 1 DAY
-STARTS CURRENT_TIMESTAMP
+STARTS TIMESTAMP(CURRENT_DATE + INTERVAL 1 DAY)
 DO
   DELETE FROM password_reset_temp
   WHERE expDate < NOW();
