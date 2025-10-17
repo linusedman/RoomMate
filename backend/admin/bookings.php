@@ -235,6 +235,16 @@ if ($action === 'list') {
         exit;
     }
 
+    // Avoid booking in the past
+    $now = new DateTime();
+    if ($start_datetime < $now) {
+        echo json_encode([
+            "status"  => "error",
+            "message" => "Cannot book a room in the past."
+        ]);
+        exit;
+    }
+
     // Check for conflicts
     $stmt = $conn->prepare("SELECT COUNT(*) FROM bookings WHERE room_id = ? AND id != ? AND (start_time < ? AND end_time > ?)");
     $stmt->bind_param("iiss", $room_id, $bidToUpd, $end_datetime->format('Y-m-d H:i:s'), $start_datetime->format('Y-m-d H:i:s'));
