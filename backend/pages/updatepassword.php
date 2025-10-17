@@ -33,7 +33,7 @@ if (strtotime($row['expDate']) < time()) {
     exit;
 }
 
-$email = $row['email'];
+$email = $row['user_email'];
 $hashed = password_hash($password, PASSWORD_DEFAULT);
 
 $conn->begin_transaction();

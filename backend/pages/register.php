@@ -1,16 +1,40 @@
 <?php
-include '../database/db_connect.php';
+try {
+    include '../database/db_connect.php';
+} catch (Exception $e) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Could not connect to the database: " . $e->getMessage()
+    ]);
+    exit;
+}
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
+//Prefight CORS request handling
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 $response = [];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'] ?? '';
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
+    $accepted_terms = $_POST['accepted_terms'] ?? '';
+
+    // Check if terms are accepted
+    if ($accepted_terms !== 'true') {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "error", 
+            "message" => "You must accept the Terms and Conditions"
+        ]);
+        exit();
+    }
 
     if (!$username || !$email || !$password) {
         echo json_encode(["status" => "error", "message" => "Missing fields"]);

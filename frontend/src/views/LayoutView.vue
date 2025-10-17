@@ -1,14 +1,18 @@
 <template>
-  <div class="floor-view container"
-  style="display: flex; flex-direction: column;">
+  <div class="floor-view container" style="display: flex; flex-direction: column;">
+
     <FloorSelector :floors="availableFloors" @change="changeFloor" />
 
-    <div class="room-layout d-flex flex-wrap"
-    style="width:100%;">
-      <div class="svg-box">
+    <div class="room-layout" style="display: flex; flex-direction: column; flex: 1; height: 100%;">
+
+      <div class="svg-box" style="flex: 1;">
         <svg
             class="floor-svg"
             width = 100%
+            height="100%"
+            viewBox="25 75 160 160"
+            preserveAspectRatio="xMinYMin meet"
+
             id="Floor"
             ref="svg"
         >
@@ -27,6 +31,8 @@
           :booked="isBooked(room.id)"
           :matchesFilter="matchesFilter(room)"
           :selected="activePopoverId === room.id"
+          :isFavorite="favorites.some(f => f.room_id === room.id)"
+          :selectedFavorite="props.selectedFavoriteId === room.id"
           @select="(id, e) => onRoomClick(id, e)"
           />
         </g>
@@ -40,7 +46,13 @@
           @mousedown="startDrag"
           @click.stop
         >
-          <RoomPopover :room="getRoom(activePopoverId)" />
+          <RoomPopover 
+            v-if="activePopoverId !== null"
+            :room="getRoom(activePopoverId)" 
+            :favorites="props.favorites"
+            :instrumentName="getInstrumentName(activePopoverId)"
+            @favoritesChanged="$emit('favoritesChanged')"
+          />
       </div>
     </div>
   </div>
@@ -59,8 +71,14 @@ const props = defineProps({
   allRooms: Array,
   floors: Array,
   bookings: Array,
+  favorites: Array,
+  instruments: Array,
+  instrumentTypes: Array,
+  selectedFavoriteId: [Number, null]
 })
-const emit = defineEmits(['selectedRoom'])
+
+const emit = defineEmits(['selectedRoom', 'favoritesChanged'])
+
 
 const roomsRef = ref([])
 const bookingsRef = ref(props.bookings || [])
@@ -73,6 +91,7 @@ const group = ref(null)
 const popoverPos = ref({ x: 0, y: 0 })
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
+
 
 watch(() => props.allRooms, (v) => {
   roomsRef.value = v || []
@@ -118,8 +137,7 @@ function getRoom(id) {
 
 function changeFloor(f) {
   selectedFloor.value = f
-  activePopoverId.value = null 
-  CenterAndScaleGroup()
+  activePopoverId.value = null
 }
 
 function onRoomClick(id, event) {
@@ -152,7 +170,6 @@ function CenterAndScaleGroup() {
   nextTick(() => {
     const bbox = group.value.getBBox()
     if (!bbox.width || !bbox.height) {
-      console.warn("BBox is empty, skipping transform");
       return;
     }
     const svgWidth = svg.value.viewBox.baseVal.width || svg.value.clientWidth
@@ -195,7 +212,6 @@ function stopDrag() {
 onMounted(() => {
   const floors = availableFloors.value
   if (floors && floors.length) selectedFloor.value = floors[0]
-  window.addEventListener('resize', CenterAndScaleGroup)
   window.addEventListener('scroll', () => {
   if (activePopoverId.value !== null) {
     const el = document.querySelector('path.selected')
@@ -213,25 +229,24 @@ onMounted(() => {
 })
 })
 
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', CenterAndScaleGroup)
-})
-
 function getFPath(id){
     const current_floor = floorsRef.value.find(r => r.id === id) || {}
     return current_floor.path
 }
 
+function getInstrumentName(roomId) {
+  if (!roomId) return ''
+  const instrument = props.instruments.find(i => Number(i.room_id) === Number(roomId))
+  const type = props.instrumentTypes.find(t => Number(t.id) === Number(instrument?.type_id))
+  const name = type?.typename || ''
+  return name
+}
+
 watch(
   () => availableFloors.value,
   (floors) => {
-    if (floors && floors.length) {
-      if (!floors.includes(selectedFloor.value)) {
-        selectedFloor.value = floors[0]
-      }
-      nextTick(() => {
-        CenterAndScaleGroup()
-      })
+    if (floors && floors.length && !selectedFloor.value) {
+      selectedFloor.value = floors[0]
     }
   },
   { immediate: true }
@@ -239,8 +254,13 @@ watch(
 </script>
 
 <style scoped>
-.room-layout { gap: 10px; display:flex; flex-wrap:wrap; }
-
+.room-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  height: 100%;
+}
 .inline-popover {
   position: absolute; 
   width: 220px;
@@ -258,19 +278,24 @@ watch(
   cursor: grabbing;
 }
 
-.inline-popover > * {
-  pointer-events: none;
+.inline-popover > svg {
+  pointer-events: auto;
 }
 
 .svg-box {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-}
-
-.svg-box > .floor-svg {
+  flex: 1;
   width: 100%;
   height: 100%;
+  max-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg-box {
   display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .floor-svg {

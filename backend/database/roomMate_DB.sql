@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `floors` (
 
 CREATE TABLE IF NOT EXISTS `rooms` (
   `id` INT PRIMARY KEY,
-  `roomname` VARCHAR(30),
+  `roomname` VARCHAR(30) UNIQUE,
   `floor_id` INT NOT NULL,
   `path` VARCHAR(1000), -- Can store a room with ~50 corners
   CONSTRAINT fk_rooms_floor FOREIGN KEY (`floor_id`) REFERENCES `floors` (`id`) ON UPDATE CASCADE
@@ -56,30 +56,36 @@ CREATE TABLE IF NOT EXISTS `instruments` (
 CREATE TABLE IF NOT EXISTS `password_reset_temp` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `user_email` VARCHAR(50) NOT NULL UNIQUE,
-  `key` VARCHAR(50) NOT NULL,
+  `key` VARCHAR(100) NOT NULL,
   `expDate` datetime NOT NULL,
   CONSTRAINT fk_email_user FOREIGN KEY (`user_email`) REFERENCES `users`(`email`) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `favorites` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `room_id` INT NOT NULL,
   `user_id` INT NOT NULL,
-  CONSTRAINT fk_id_room FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_id_user FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  `room_id` INT NOT NULL,
+  CONSTRAINT fk_user_id FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_room_id FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
 
 -- create event that removes expired passwords--
 -- 1. Enable the MySQL Event Scheduler
 SET GLOBAL event_scheduler = ON;
 
--- 2. Create an automatic cleanup event
+-- 2. Create an automatic cleanup event for old 
 CREATE EVENT IF NOT EXISTS delete_expired_password_resets
 ON SCHEDULE EVERY 1 DAY
-STARTS CURRENT_TIMESTAMP
+STARTS TIMESTAMP(CURRENT_DATE + INTERVAL 1 DAY)
 DO
   DELETE FROM password_reset_temp
   WHERE expDate < NOW();
 
 
+-- 3. create daily cleanup event for bookings older than a year
+CREATE EVENT IF NOT EXISTS delete_old_bookings
+ON SCHEDULE EVERY 1 DAY
+STARTS TIMESTAMP(CURRENT_DATE + INTERVAL 1 DAY)
+DO
+  DELETE FROM bookings
+  WHERE end_time < NOW() - INTERVAL 1 YEAR;

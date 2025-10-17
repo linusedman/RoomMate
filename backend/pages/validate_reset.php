@@ -13,7 +13,7 @@ if (!$key) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT email, expDate FROM password_reset_temp WHERE `key` = ? LIMIT 1");
+$stmt = $conn->prepare("SELECT user_email, expDate FROM password_reset_temp WHERE `key` = ? LIMIT 1");
 $stmt->bind_param("s", $key);
 $stmt->execute();
 $res = $stmt->get_result();

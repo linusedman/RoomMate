@@ -41,6 +41,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+defineExpose({
+  loadBookings
+})
+
 const bookings = ref([])
 const loading = ref(true)
 const message = ref("")
