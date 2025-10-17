@@ -7,7 +7,7 @@
       <div class="row text-center">
         <i class="fa fa-user-circle-o fa-3x mt-1 mb-2" style="color: #005cbf;"></i>
 
-        <h5 class="p-4 fw-bold">Change Your Password</h5>
+        <h5 class="p-4 fw-bold">Change Password</h5>
       </div>
       <div class="mb-3">
         <label for="currentPassword"><i class="fa fa-lock"></i> Current Password</label>
@@ -19,7 +19,7 @@
         <small class="text-muted">Password must be at least 8 characters long.</small>
       </div>
       <div class="mb-3">
-        <label for="confirmPassword"><i class="fa fa-lock"></i> Confirm New Password</label>
+        <label for="confirmPassword"><i class="fa fa-lock"></i> Confirm Password</label>
         <input type="password" v-model="confirmPassword" id="confirmPassword" class="form-control" required minlength="8" />
       </div>
       <div class="mb-3">
@@ -35,60 +35,79 @@
 
 <script>
 export default {
-  name: "LoginView",
+  name: "ChangePasswordView",
   data() {
     return {
-      identifier: "",
-      email: "",
-      password: "",
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+      submitting: false,
       errorMessage: "",
       successMessage: "",
     };
   },
-  methods: {
-    async handleLogin() {
-      const formData = new URLSearchParams();
-      formData.append("identifier", this.identifier);
-      formData.append("password", this.password);
+    methods: {
+    async handleChangePassword() {
+      this.errorMessage = ''
+      this.successMessage = ''
 
+    //   Same as in RegisterView.vue
+      if (this.newPassword.length < 8) {
+        this.errorMessage = 'New password must be at least 8 characters long.'
+        return
+      }
+    //   ---------------------------
+      if (this.newPassword !== this.confirmPassword) {
+        this.errorMessage = 'New password and confirmation do not match.'
+        return
+      }
+      if (this.newPassword === this.currentPassword) {
+        this.errorMessage = 'New password must be different from current password.'
+        return
+      }
+
+      this.submitting = true
       try {
-        const response = await fetch("http://localhost/RoomMate/backend/pages/login.php", {
-          method: "POST",
-          credentials: "include",  
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: formData.toString(),
+        const body = new URLSearchParams({
+        current_password: this.currentPassword,
+        new_password: this.newPassword,
         });
 
-        const data = await response.json();
+        const res = await fetch('http://localhost/RoomMate/backend/pages/user_update_password.php', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString(),
+        }
+        );
 
-        if (data.status === "success") {
-          this.successMessage = data.message;
-          this.errorMessage = "";
-          if (data.role === true) {
-            setTimeout(() => {
-              this.$router.push("/admin");
-            }, 1500);
-          }
-          else {
-            setTimeout(() => {
-              this.$router.push("/main");
-            }, 1500);
-          }
-        } else {
-          this.errorMessage = data.message || "Login failed.";
-          this.successMessage = "";
+        const text = await res.text();
+        console.log('Raw response from backend:', text);
+
+        let data;
+        try {
+        data = JSON.parse(text);
+        } catch (err) {
+        console.error('Response is not valid JSON:', err);
+        this.errorMessage = 'Server returned invalid response.';
+        return;
         }
 
-      } catch (e) {
-        this.errorMessage = "Server error. Please try again.";
-        this.successMessage = "";
-        console.error("Login fetch error:", e);
-      }
+        if (data.status === 'success') {
+        this.successMessage = data.message || 'Password updated.';
+        setTimeout(() => this.$router.push('/main'), 800);
+        } else {
+        this.errorMessage = data.message || 'Failed to update password.';
+        }
+    } catch (e) {
+        console.error('Network or fetch error:', e);
+        this.errorMessage = 'Server error. Please try again.';
+    } finally {
+        this.submitting = false;
     }
+    },
   },
-};
+}
 </script>
 
 <style scoped>
