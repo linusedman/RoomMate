@@ -31,12 +31,22 @@ if (!$current_password || !$new_password || strlen($new_password) < 8) {
     exit;
 }
 
+// Verify current password
+$stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($hashed_current);
+$stmt->fetch();
+$stmt->close();
 
-
+if (!password_verify($current_password, $hashed_current)) {
+    echo json_encode(["status" => "error", "message" => "Current password is incorrect"]);
+    exit;
+}
 
 // Update password
 $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-$stmt = $conn->prepare("UPDATE users SET password = ? WHERE user_id = ?");
+$stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
 $stmt->bind_param("si", $hashed_password, $user_id);
 
 if ($stmt->execute()) {
