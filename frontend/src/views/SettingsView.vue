@@ -11,7 +11,13 @@
             </div>
         </div>
         <div class="right-panel p-3">
-            <div class="danger-card">
+            <h2>Handle Account</h2>
+            <div class="change-password-card">
+                <button class="change-password-btn" @click="directToChangePassword">
+                Change My Password
+                </button>
+            </div>
+            <div class="delete-account-card">
             <button class="delete-btn" @click="deleteAccount">
                 Delete My Account
             </button>
