@@ -2,40 +2,7 @@
   <div class="schedule-view">
     <h4>Schedule</h4>
 
-    <div v-if="!filter.start || !filter.end">
-      <div class="text-muted mb-2">Select day in the filter panel</div>
-      
-      <div v-if="favoriteRoomsOnly.length > 0">
-        <div class="subtitle mb-2">Your favorite rooms</div>
-        
-        <div class="schedule-grid">
-          <div class="time-header-wrapper" ref="timeHeaderWrapper">
-            <div class="time-header" :style="ticksGridStyle">
-              <div class="time-cell" v-for="t in hours" :key="t">{{ t }}</div>
-            </div>
-          </div>
-
-          <div class="rows">
-            <RoomSchedule
-              v-for="room in favoriteRoomsOnly"
-              :key="room.id"
-              :room="room"
-              :dayStart="dayStart"
-              :dayEnd="dayEnd"
-              :bookings="bookingsForRoom(room.id)"
-              :ticksGridStyle="ticksGridStyle"
-              :hourWidth="hourWidth"
-              :bookingStatus="bookingStatus"
-              :scrollX="scrollX"
-              :highlighted="selectedFavoriteId === room.id"
-              :favorites="favorites"
-              @confirmBooking="onConfirmBooking"
-              @scrollX="syncScroll"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <div v-if="!filter.start || !filter.end" class="text-muted">Select day and time in the filter panel</div>
 
     <div v-else>
       <div class="subtitle mb-2">{{ filter.day }}</div>
@@ -64,8 +31,6 @@
             :hourWidth="hourWidth"
             :bookingStatus="bookingStatus"
             :scrollX="scrollX"
-            :highlighted="selectedFavoriteId === room.id"
-            :favorites="favorites"
             @confirmBooking="onConfirmBooking"
             @scrollX="syncScroll"
           />
@@ -76,8 +41,9 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref } from 'vue'
 
+import { computed } from 'vue'
 import RoomSchedule from '../components/RoomSchedule.vue'
 
 const timeHeaderWrapper = ref(null)
@@ -86,60 +52,28 @@ const scrollX = ref(0)
 const props = defineProps({
   filter: Object,
   rooms: Array,
-  bookings: Array,
-  selectedFavoriteId: Number,
-  favorites: Array
+  bookings: Array
 })
 const emit = defineEmits(['booked', 'resetFilter'])
 const bookingStatus = ref(null)
 
 const hourWidth = 60
 
-const today = new Date()
-const defaultStart = new Date(today)
-defaultStart.setHours(8, 0, 0, 0)
-
-const defaultEnd = new Date(today)
-defaultEnd.setHours(17, 0, 0, 0)
-
-
-const dayStart = computed(() =>
-  props.filter && props.filter.start
-    ? new Date(props.filter.start)
-    : defaultStart
-)
-
-const dayEnd = computed(() =>
-  props.filter && props.filter.end
-    ? new Date(props.filter.end)
-    : defaultEnd
-)
-
+const dayStart = computed(() => props.filter && props.filter.start ? new Date(props.filter.start) : null)
+const dayEnd = computed(() => props.filter && props.filter.end ? new Date(props.filter.end) : null)
 
 const hours = computed(() => {
-  const s = dayStart.value
-  const e = dayEnd.value
+  if (!props.filter.start || !props.filter.end) return []
+  const s = new Date(props.filter.start)
+  const e = new Date(props.filter.end)
   const arr = []
   const cur = new Date(s)
-  cur.setMinutes(0, 0, 0)
+  cur.setMinutes(0,0,0)
   while (cur <= e) {
-    arr.push(cur.toTimeString().slice(0, 5))
-    cur.setHours(cur.getHours() + 1)
+    arr.push(cur.toTimeString().slice(0,5))
+    cur.setHours(cur.getHours()+1)
   }
   return arr
-})
-
-
-const favoriteRoomsOnly = computed(() => {
-  const all = props.rooms || []
-  const favoriteIds = new Set(
-    Array.isArray(props.favorites)
-      ? props.favorites.map(f => f.room_id)
-      : []
-  )
-  const filtered = all.filter(r => r && favoriteIds.has(r.id))
-
-  return filtered.sort((a,b)=>a.id - b.id)
 })
 
 
@@ -158,11 +92,8 @@ const ticksGridStyle = computed(() => {
 })
 
 const roomsSorted = computed(() => {
-  const all = props.rooms || []
-  const favoriteIds = new Set((props.favorites || []).map(f => f.room_id))
-  const favorites = all.filter(r => favoriteIds.has(r.id)).sort((a,b) => a.id - b.id)
-  const nonFavorites = all.filter(r => !favoriteIds.has(r.id)).sort((a,b) => a.booking_count - b.booking_count)
-  return [...favorites, ...nonFavorites]
+  const sorted = (props.rooms || []).slice().sort((a,b)=>a.id-b.id)
+  return sorted
 })
 
 function syncScroll(x) {

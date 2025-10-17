@@ -50,6 +50,8 @@ const loading = ref(true)
 const message = ref("")
 const deletedBookingId = ref(null)
 
+const emit = defineEmits(["bookingDeleted"])
+
 
 async function loadBookings() {
   try {
@@ -85,10 +87,12 @@ async function deleteBooking(bookingId) {
     if (data.status === "success") {
       message.value = `Booking of ${roomname} was successfully deleted.`
       deletedBookingId.value = bookingId
+      
       setTimeout(() => {
         message.value = ""
         deletedBookingId.value = null
         loadBookings()
+        emit("bookingDeleted")
       }, 5000)
     } else {
       console.error("Failed to delete booking:", data.message)
