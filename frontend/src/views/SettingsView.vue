@@ -1,12 +1,19 @@
 <template>
     <h1>Settings</h1>
-    <div class="danger-card">
-      <button class="delete-btn" @click="deleteAccount">
-        Delete My Account
-      </button>
-      <div class="warning-text">
-        This action is irreversible.
-      </div>
+    <div class="settings-view d-flex">
+        <div class="left-panel p-3">
+
+        </div>
+        <div class="right-panel p-3">
+            <div class="danger-card">
+            <button class="delete-btn" @click="deleteAccount">
+                Delete My Account
+            </button>
+            <div class="warning-text">
+                This action is irreversible.
+            </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -34,3 +41,17 @@ async function deleteAccount() {
 }
 </script>
 
+<style scoped>
+.settings-view {
+  display: flex; 
+  gap: 1rem;
+  min-height: 70vh;
+  align-items: flex-start;
+}
+
+.left-panel,
+.right-panel {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+</style>
