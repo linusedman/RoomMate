@@ -2,7 +2,13 @@
     <h1>Settings</h1>
     <div class="settings-view d-flex">
         <div class="left-panel p-3">
-
+            <h2>Account Info</h2>
+            <div v-if="loading">Loading...</div>
+            <div v-else-if="error" class="text-danger">{{ error }}</div>
+            <div v-else>
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+            </div>
         </div>
         <div class="right-panel p-3">
             <div class="danger-card">
@@ -18,8 +24,30 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 const router = useRouter()
+const user = ref({ username: "", email: "" })
+const loading = ref(true)
+const error = ref(null)
+
+onMounted(async () => {
+  try {
+    const response = await fetch("http://localhost/RoomMate/backend/pages/view_user_info.php", {credentials: "include" })
+    const data = await response.json()
+    if (data.status === "success") {
+      user.value.username = data.username
+      user.value.email = data.email
+    } else {
+      error.value = data.message || "Failed to load user info."
+    }
+  } catch (err) {
+        console.error(err)
+        error.value = "Error connecting to server."
+  } finally {
+        loading.value = false
+  }
+})
 
 async function deleteAccount() {
     // ask for user confirmation
