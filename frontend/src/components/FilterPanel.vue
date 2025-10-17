@@ -177,7 +177,9 @@ function clearFilter() {
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
 <style scoped>
-
+::v-deep(.multiselect__input) {
+  color: black !important;
+}
 </style>
 
 
