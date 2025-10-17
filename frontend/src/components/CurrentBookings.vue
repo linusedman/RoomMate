@@ -13,12 +13,16 @@
         :key="idx"
         class="booking-card"
       >
-        <div class="room">{{ b.roomname }}</div>
-
-        <div class="time-info">
-          <div><strong>Date:</strong> {{ formatDate(b.start_time) }}</div>
-          <div><strong>Start:</strong> {{ formatTime(b.start_time) }}</div>
-          <div><strong>End:</strong> {{ formatTime(b.end_time) }}</div>
+        <div class="booking-content">
+          <div class="room">{{ b.roomname }}</div>
+          <div class="time-info">
+            <div><strong>Date:</strong> {{ formatDate(b.start_time) }}</div>
+            <div><strong>Start:</strong> {{ formatTime(b.start_time) }}</div>
+            <div><strong>End:</strong> {{ formatTime(b.end_time) }}</div>
+          </div>
+          <div v-if="deletedBookingId === b.booking_id && message" style="color: #dc3545; font-size: 14px; margin-top: 8px;">
+            {{ message }}
+          </div>
         </div>
 
         <button 
@@ -27,6 +31,7 @@
         >
         Delete
         </button>
+
       </div>
 
     </div>
@@ -38,6 +43,9 @@ import { ref, onMounted } from 'vue'
 
 const bookings = ref([])
 const loading = ref(true)
+const message = ref("")
+const deletedBookingId = ref(null)
+
 
 async function loadBookings() {
   try {
@@ -60,7 +68,8 @@ async function loadBookings() {
 }
 
 async function deleteBooking(bookingId) {
-  console.log("Trying to delete booking:", bookingId)
+  const booking = bookings.value.find(b => b.booking_id === bookingId)
+  const roomname = booking?.roomname || "unknown room"
   try {
     const res = await fetch("http://localhost/RoomMate/backend/pages/delete_bookings.php", {
       method: "POST",
@@ -69,9 +78,14 @@ async function deleteBooking(bookingId) {
       body: new URLSearchParams({ booking_id: bookingId })
     })
     const data = await res.json()
-    console.log("Delete response:", data)
     if (data.status === "success") {
-      bookings.value = bookings.value.filter(b => b.id !== bookingId)
+      message.value = `Booking of ${roomname} was successfully deleted.`
+      deletedBookingId.value = bookingId
+      setTimeout(() => {
+        message.value = ""
+        deletedBookingId.value = null
+        loadBookings()
+      }, 5000)
     } else {
       console.error("Failed to delete booking:", data.message)
     }
@@ -122,13 +136,20 @@ onMounted(loadBookings)
   flex-direction: column;
   gap: 8px;
 }
-
 .booking-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   padding: 10px 12px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.booking-content {
+  margin: 0 auto;
+  text-align: center;
 }
 
 .room {
@@ -143,7 +164,6 @@ onMounted(loadBookings)
 }
 
 .delete-btn {
-  margin-top: 8px;
   background-color: #ff4d4f;
   color: white;
   border: none;
@@ -151,7 +171,6 @@ onMounted(loadBookings)
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
-  align-self: flex-end;
 }
 
 .delete-btn:hover {
