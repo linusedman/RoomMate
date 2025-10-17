@@ -2,7 +2,7 @@
     <h1>Settings</h1>
     <div class="settings-view d-flex">
         <div class="left-panel p-3">
-            <h2>Account Info</h2>
+            <h2>Account information</h2>
             <div v-if="loading">Loading...</div>
             <div v-else-if="error" class="text-danger">{{ error }}</div>
             <div v-else>
@@ -11,15 +11,15 @@
             </div>
         </div>
         <div class="right-panel p-3">
-            <h2>Handle Account</h2>
+            <h2>Handle account</h2>
             <div class="change-password-card">
                 <button class="change-password-btn" @click="$router.push({ name: 'ChangePassword' })">
-                Change My Password
+                Change password
                 </button>
             </div>
             <div class="delete-account-card">
             <button class="delete-btn" @click="deleteAccount">
-                Delete My Account
+                Delete account
             </button>
             <div class="warning-text">
                 This action is irreversible.
