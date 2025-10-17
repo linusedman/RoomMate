@@ -3,12 +3,15 @@
     <div class="settings-view d-flex">
         <div class="left-panel p-3">
             <h2>Account information</h2>
-            <div v-if="loading">Loading...</div>
-            <div v-else-if="error" class="text-danger">{{ error }}</div>
-            <div v-else>
-                <p><strong>Username:</strong> {{ user.username }}</p>
-                <p><strong>Email:</strong> {{ user.email }}</p>
+            <div class="info-block">
+                <div v-if="loading">Loading...</div>
+                <div v-else-if="error" class="text-danger">{{ error }}</div>
+                <div v-else>
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                </div>
             </div>
+            
         </div>
         <div class="right-panel p-3">
             <h2>Handle account</h2>
@@ -89,13 +92,39 @@ async function deleteAccount() {
   min-width: 0;
 }
 
-.left-panel {
-  text-align: left;
+.info-block {
+    max-width: 270px;
+    text-align: left;
+    margin: 0 auto;
 }
 
 .right-panel {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.delete-btn,
+.change-password-btn {
+  color: white;
+  border: 2px solid white;
+}
+
+.delete-btn:hover {
+    background-color: #e74c3c;
+    border-color: #ff6b5a;
+}
+.change-password-btn:hover {
+  background-color: #03d4a8;
+  border-color: #03d4a8;
+}
+
+@media (prefers-color-scheme: light) {
+  .delete-btn,
+  .change-password-btn {
+  color: black;
+  border: 2px solid black;
+}
+
 }
 </style>
