@@ -27,10 +27,18 @@
         Logout
       </button>
 
-      <button @click="switchPage" class="switch-btn"
+      <button @click="settingsPage" class="settings-btn"
       style="margin-left: auto;
               position: absolute;
                 right: 130px;"
+      v-show="loggedIn">
+        {{settingsButtonLabel}}
+      </button>
+
+      <button @click="switchPage" class="switch-btn"
+      style="margin-left: auto;
+              position: absolute;
+                right: 250px;"
       v-show="admin===true">
         Switch
       </button>
@@ -57,6 +65,11 @@ export default {
   setup() {
     return { loggedIn, admin };
   },
+  computed: {
+    settingsButtonLabel() {
+      return this.$route.path === "/settings" ? "Home" : "Settings";
+    },
+  },
   methods: {
     async logout() {
       this.$router.push("/logout")
@@ -65,8 +78,24 @@ export default {
       const current = this.$route.path;
       if (current === '/admin') {
         await this.$router.push('/main');
-      } else if (current === '/main') {
+      } else {
         await this.$router.push('/admin');
+      }
+    },
+     async settingsPage() {
+      const current = this.$route.path;
+      if (admin) {
+        if (current === '/settings') {
+          await this.$router.push('/admin');
+        } else {
+          await this.$router.push('/settings');
+        }
+      } else {
+        if (current === '/settings') {
+          await this.$router.push('/main');
+        } else {
+          await this.$router.push('/settings');
+        }
       }
     }
   },
@@ -117,13 +146,19 @@ header h1 {
   border-color: #ff6b5a;
 }
 
-.switch-btn {
+.switch-btn,
+.settings-btn {
   background-color: transparent;
   color: white;
   border: 2px solid white;
 }
 
-.switch-btn:hover {
+.settings-btn {
+  width: 105px;
+}
+
+.switch-btn:hover,
+.settings-btn:hover {
   background-color: #03d4a8;
   border-color: #03d4a8;
 }
@@ -138,12 +173,14 @@ header h1 {
     background-color: #e74c3c;
   }
 
-  .switch-btn {
+  .switch-btn,
+  .settings-btn {
     background-color: transparent;
     border-color: white;
     color: white;
   }
-  .switch-btn:hover {
+  .switch-btn:hover,
+  .settings-btn:hover {
     background-color: #03d4a8;
   }
 }
