@@ -88,4 +88,14 @@ async function deleteAccount() {
   flex: 1 1 0%;
   min-width: 0;
 }
+
+.left-panel {
+  text-align: left;
+}
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 </style>
