@@ -23,10 +23,10 @@ if (!$user_id) {
     exit;
 }
 
-
+$current_password = $_POST['current_password'] ?? '';
 $new_password = $_POST['new_password'] ?? '';
 
-if (!$new_password || strlen($new_password) < 8) {
+if (!$current_password || !$new_password || strlen($new_password) < 8) {
     echo json_encode(["status"=>"error","message"=>"Invalid input"]);
     exit;
 }
