@@ -1,16 +1,40 @@
 <?php
-include '../database/db_connect.php';
+try {
+    include '../database/db_connect.php';
+} catch (Exception $e) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Could not connect to the database: " . $e->getMessage()
+    ]);
+    exit;
+}
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
+//Prefight CORS request handling
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 $response = [];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'] ?? '';
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
+    $accepted_terms = $_POST['accepted_terms'] ?? '';
+
+    // Check if terms are accepted
+    if ($accepted_terms !== 'true') {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "error", 
+            "message" => "You must accept the Terms and Conditions"
+        ]);
+        exit();
+    }
 
     if (!$username || !$email || !$password) {
         echo json_encode(["status" => "error", "message" => "Missing fields"]);
@@ -28,27 +52,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    try {$checkEmailStmt = $conn->prepare("SELECT email FROM users WHERE email = ?");
 
-    $checkEmailStmt = $conn->prepare("SELECT email FROM users WHERE email = ?");
-
-    if (!$checkEmailStmt) {
+    } catch(Exception $e) {
     echo json_encode([
         "status" => "error",
-        "message" => "Database error: " . $conn->error
+        "message" => "Database error: " . $e->getMessage()
     ]);
     exit;
     }
 
     $checkEmailStmt->bind_param("s", $email);
     $checkEmailStmt->execute();
-
-    if (!$checkEmailStmt) {
-    echo json_encode([
-        "status" => "error",
-        "message" => "Database error: " . $conn->error
-    ]);
-    exit;
-    }
 
     $checkEmailStmt->store_result();
 
@@ -57,12 +72,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+    try {$stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
 
-    if (!$stmt) {
+    } catch(Exception $e) {
     echo json_encode([
         "status" => "error",
-        "message" => "Database error: " . $conn->error
+        "message" => "Database error: " . $e->getMessage()
     ]);
     exit;
     }

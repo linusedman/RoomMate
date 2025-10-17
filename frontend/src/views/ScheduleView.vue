@@ -2,7 +2,40 @@
   <div class="schedule-view">
     <h4>Schedule</h4>
 
-    <div v-if="!filter.start || !filter.end" class="text-muted">Select day and time in the filter panel</div>
+    <div v-if="!filter.start || !filter.end">
+      <div class="text-muted mb-2">Select day in the filter panel</div>
+      
+      <div v-if="favoriteRoomsOnly.length > 0">
+        <div class="subtitle mb-2">Your favorite rooms</div>
+        
+        <div class="schedule-grid">
+          <div class="time-header-wrapper" ref="timeHeaderWrapper">
+            <div class="time-header" :style="ticksGridStyle">
+              <div class="time-cell" v-for="t in hours" :key="t">{{ t }}</div>
+            </div>
+          </div>
+
+          <div class="rows">
+            <RoomSchedule
+              v-for="room in favoriteRoomsOnly"
+              :key="room.id"
+              :room="room"
+              :dayStart="dayStart"
+              :dayEnd="dayEnd"
+              :bookings="bookingsForRoom(room.id)"
+              :ticksGridStyle="ticksGridStyle"
+              :hourWidth="hourWidth"
+              :bookingStatus="bookingStatus"
+              :scrollX="scrollX"
+              :highlighted="selectedFavoriteId === room.id"
+              :favorites="favorites"
+              @confirmBooking="onConfirmBooking"
+              @scrollX="syncScroll"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div v-else>
       <div class="subtitle mb-2">{{ filter.day }}</div>
@@ -31,6 +64,8 @@
             :hourWidth="hourWidth"
             :bookingStatus="bookingStatus"
             :scrollX="scrollX"
+            :highlighted="selectedFavoriteId === room.id"
+            :favorites="favorites"
             @confirmBooking="onConfirmBooking"
             @scrollX="syncScroll"
           />
@@ -41,9 +76,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, computed } from 'vue'
 
-import { computed } from 'vue'
 import RoomSchedule from '../components/RoomSchedule.vue'
 
 const timeHeaderWrapper = ref(null)
@@ -52,28 +86,60 @@ const scrollX = ref(0)
 const props = defineProps({
   filter: Object,
   rooms: Array,
-  bookings: Array
+  bookings: Array,
+  selectedFavoriteId: Number,
+  favorites: Array
 })
 const emit = defineEmits(['booked', 'resetFilter'])
 const bookingStatus = ref(null)
 
 const hourWidth = 60
 
-const dayStart = computed(() => props.filter && props.filter.start ? new Date(props.filter.start) : null)
-const dayEnd = computed(() => props.filter && props.filter.end ? new Date(props.filter.end) : null)
+const today = new Date()
+const defaultStart = new Date(today)
+defaultStart.setHours(8, 0, 0, 0)
+
+const defaultEnd = new Date(today)
+defaultEnd.setHours(17, 0, 0, 0)
+
+
+const dayStart = computed(() =>
+  props.filter && props.filter.start
+    ? new Date(props.filter.start)
+    : defaultStart
+)
+
+const dayEnd = computed(() =>
+  props.filter && props.filter.end
+    ? new Date(props.filter.end)
+    : defaultEnd
+)
+
 
 const hours = computed(() => {
-  if (!props.filter.start || !props.filter.end) return []
-  const s = new Date(props.filter.start)
-  const e = new Date(props.filter.end)
+  const s = dayStart.value
+  const e = dayEnd.value
   const arr = []
   const cur = new Date(s)
-  cur.setMinutes(0,0,0)
+  cur.setMinutes(0, 0, 0)
   while (cur <= e) {
-    arr.push(cur.toTimeString().slice(0,5))
-    cur.setHours(cur.getHours()+1)
+    arr.push(cur.toTimeString().slice(0, 5))
+    cur.setHours(cur.getHours() + 1)
   }
   return arr
+})
+
+
+const favoriteRoomsOnly = computed(() => {
+  const all = props.rooms || []
+  const favoriteIds = new Set(
+    Array.isArray(props.favorites)
+      ? props.favorites.map(f => f.room_id)
+      : []
+  )
+  const filtered = all.filter(r => r && favoriteIds.has(r.id))
+
+  return filtered.sort((a,b)=>a.id - b.id)
 })
 
 
@@ -92,8 +158,11 @@ const ticksGridStyle = computed(() => {
 })
 
 const roomsSorted = computed(() => {
-  const sorted = (props.rooms || []).slice().sort((a,b)=>a.id-b.id)
-  return sorted
+  const all = props.rooms || []
+  const favoriteIds = new Set((props.favorites || []).map(f => f.room_id))
+  const favorites = all.filter(r => favoriteIds.has(r.id)).sort((a,b) => a.id - b.id)
+  const nonFavorites = all.filter(r => !favoriteIds.has(r.id)).sort((a,b) => a.booking_count - b.booking_count)
+  return [...favorites, ...nonFavorites]
 })
 
 function syncScroll(x) {
@@ -107,8 +176,11 @@ function bookingsForRoom(roomId) {
   return (props.bookings || []).filter(b => Number(b.room_id) === Number(roomId))
 }
 
-function toMysqlDatetime(isoLocal) {
-  return isoLocal.replace('T', ' ') + ':00'
+function formatLocalTimeFromISO(isoString) {
+    const d = new Date(isoString); // JS converts ISO to local timezone automatically
+    const hours = String(d.getHours()).padStart(2,'0');
+    const minutes = String(d.getMinutes()).padStart(2,'0');
+    return `${hours}:${minutes}`;
 }
 
 async function onConfirmBooking({ roomId, startISO, endISO }) {
@@ -136,8 +208,8 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
 
   const form = new URLSearchParams({
     room_id: roomId,
-    start_time: toMysqlDatetime(startISO),
-    end_time: toMysqlDatetime(endISO)
+    start_time: startISO,
+    end_time: endISO
   })
   try {
     const res = await fetch("http://localhost/RoomMate/backend/pages/book.php", {
@@ -148,10 +220,12 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
     })
 
     const data = await res.json()
+    const displayStart = formatLocalTimeFromISO(startISO)
+    const displayEnd = formatLocalTimeFromISO(endISO)
 
     if (data.status === 'success') {
       emit('booked')
-      const msg = `Room successfully booked from ${startISO.slice(11,16)} to ${endISO.slice(11,16)}.`
+      const msg = `Room successfully booked from ${displayStart} to ${displayEnd}.`
       const evt = new CustomEvent('bookingSuccess', {
         detail: { roomId, message: msg }
       })

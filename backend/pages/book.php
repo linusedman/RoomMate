@@ -28,11 +28,19 @@ $end_time   = $_POST['end_time']      ?? null;
 
 
 if (!$user_id) {
+    http_response_code(401); // Unauthorized
     echo json_encode(["status" => "error", "message" => "Not logged in"]);
     exit;
 }
 if (!$room_id || !$start_time || !$end_time) {
+    http_response_code(400); // Bad request
     echo json_encode(["status" => "error", "message" => "Missing parameters"]);
+    exit;
+}
+
+if ($start_time > $end_time) {
+    http_response_code(400); // Bad request
+    echo json_encode(["status" => "error", "message" => "Not possible to book backwards in time"]);
     exit;
 }
 
@@ -40,8 +48,11 @@ if (!$room_id || !$start_time || !$end_time) {
 // Time validation
 $start_datetime = new DateTime($start_time);
 $end_datetime = new DateTime($end_time);
+$start_str = $start_datetime->format('Y-m-d H:i:s');
+$end_str= $end_datetime->format('Y-m-d H:i:s');
 
 if ($start_datetime >= $end_datetime) {
+    http_response_code(400); // Bad request
     echo json_encode([
         "status" => "error", 
         "message" => "Start time cannot be after or equal to end time"
@@ -54,6 +65,7 @@ if ($start_datetime >= $end_datetime) {
 $duration = ($end_datetime->getTimestamp() - $start_datetime->getTimestamp()) / 60; // duration in minutes
 
 if ($duration < 30) {
+    http_response_code(400); // Bad request
     echo json_encode([
         "status" => "error", 
         "message" => "Booking duration must be at least 30 minutes"
@@ -62,6 +74,7 @@ if ($duration < 30) {
 }
 
 if ($duration > 8 * 60) {
+    http_response_code(400); // Bad request
     echo json_encode([
         "status" => "error", 
         "message" => "Booking duration cannot exceed 8 hours"
@@ -69,56 +82,96 @@ if ($duration > 8 * 60) {
     exit;
 }
 
-$stmt = $conn->prepare("
-    SELECT COUNT(*) 
-      FROM bookings 
-     WHERE room_id = ? 
-       AND (start_time < ? AND end_time > ?)
-");
-$stmt->bind_param("iss", $room_id, $end_time, $start_time);
-$stmt->execute();
-$stmt->bind_result($conflicts);
-$stmt->fetch();
-$stmt->close();
-
-if ($conflicts > 0) {
+// Avoid Booking in the past
+$now = new DateTime();
+if ($start_datetime < $now) {
     echo json_encode([
         "status"  => "error",
-        "message" => "This room is already booked during the selected time."
+        "message" => "Cannot book a room in the past."
     ]);
     exit;
 }
 
-$maxBookings = 5;
-$stmt = $conn->prepare("
-    SELECT COUNT(*) 
-    FROM bookings 
-    WHERE user_id = ?
-");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$stmt->bind_result($userBookingCount);
-$stmt->fetch();
-$stmt->close();
+// Transaction to avoid race conditions  -> atomicity 
+// PREVENTS TWO EQUAL BOOKINGS AT THE SAME TIME 
+$conn->begin_transaction(); 
 
-if ($userBookingCount >= $maxBookings) {
+try {
+
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) 
+        FROM bookings 
+        WHERE room_id = ? 
+        AND (start_time < ? AND end_time > ?)
+        FOR UPDATE 
+    ");
+    $stmt->bind_param("iss", $room_id,$start_str, $end_str);
+    $stmt->execute();
+    $stmt->bind_result($conflicts);
+    $stmt->fetch();
+    $stmt->close();
+
+    if ($conflicts > 0) {
+        $conn->rollback();
+        http_response_code(409); // Conflict
+        echo json_encode([
+            "status"  => "error",
+            "message" => "This room is already booked during the selected time.",
+            "conflict" => true
+
+        ]);
+        exit;
+    }
+    // Only ongoing bookings > Now() 
+    $maxBookings = 5;
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) 
+        FROM bookings 
+        WHERE user_id = ?
+        AND end_time > NOW()  
+    ");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($userBookingCount);
+    $stmt->fetch();
+    $stmt->close();
+
+    if ($userBookingCount >= $maxBookings) {
+        $conn->rollback();
+        http_response_code(403); // Forbidden
+        echo json_encode([
+            "status" => "error",
+            "message" => "You already have the maximum number of allowed bookings ($maxBookings)."
+        ]);
+        exit;
+    }
+    $stmt = $conn->prepare("
+        INSERT INTO bookings (user_id, room_id, start_time, end_time)
+        VALUES (?, ?, ?, ?)
+    ");
+    $stmt->bind_param("iiss", $user_id, $room_id, $start_str, $end_str);
+
+    if ($stmt->execute()) {
+        $conn->commit();
+        http_response_code(200); // Created 
+        echo json_encode(["status" => "success", "message" => "Booking confirmed!"]);
+    } else {
+        $conn->rollback();
+        http_response_code(500); // Internal Server Error
+        echo json_encode(["status" => "error", "message" => "Error saving booking"]);
+    }
+
+    $stmt->close();
+
+    } catch(Exception $e) {
+        $conn->rollback();
+        error_log("Transaction failed: " . $e->getMessage());
+    http_response_code(500);
     echo json_encode([
         "status" => "error",
-        "message" => "You already have the maximum number of allowed bookings ($maxBookings)."
+        "message" => "An error occurred. Please try again."
     ]);
-    exit;
-}
-$stmt = $conn->prepare("
-    INSERT INTO bookings (user_id, room_id, start_time, end_time)
-    VALUES (?, ?, ?, ?)
-");
-$stmt->bind_param("iiss", $user_id, $room_id, $start_time, $end_time);
 
-if ($stmt->execute()) {
-    echo json_encode(["status" => "success", "message" => "Booking confirmed!"]);
-} else {
-    echo json_encode(["status" => "error", "message" => "Error saving booking"]);
-}
+} 
 
-$stmt->close();
 $conn->close();

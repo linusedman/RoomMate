@@ -41,8 +41,17 @@ if ($action === 'list') {
                         FROM bookings b 
                         JOIN users u ON b.user_id = u.id
                         ORDER BY start_time ASC");
-    $bookings = $res->fetch_all(MYSQLI_ASSOC);
-    echo json_encode($bookings);
+    $rows = $res->fetch_all(MYSQLI_ASSOC);
+    foreach ($rows as &$r) {
+    $start = new DateTime($r['start_time']);
+    $start->setTimezone(new DateTimeZone('UTC'));
+    $r['start_time'] = $start->format('Y-m-d\TH:i:s\Z'); // UTC ISO
+
+    $end = new DateTime($r['end_time']);
+    $end->setTimezone(new DateTimeZone('UTC'));
+    $r['end_time'] = $end->format('Y-m-d\TH:i:s\Z'); // UTC ISO
+    }
+    echo json_encode($rows);
 
 // Delete booking
 } elseif ($action === 'delete') {
@@ -108,7 +117,7 @@ if ($action === 'list') {
 
     // Check for conflicts
     $stmt = $conn->prepare("SELECT COUNT(*) FROM bookings WHERE room_id = ? AND (start_time < ? AND end_time > ?)");
-    $stmt->bind_param("iss", $room_id, $end_time, $start_time);
+    $stmt->bind_param("iss", $room_id, $end_datetime->format('Y-m-d H:i:s'), $start_datetime->format('Y-m-d H:i:s'));
     $stmt->execute();
     $stmt->bind_result($conflicts);
     $stmt->fetch();
@@ -121,7 +130,7 @@ if ($action === 'list') {
 
     // Insert booking
     $stmt = $conn->prepare("INSERT INTO bookings (user_id, room_id, start_time, end_time) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("iiss", $target_user_id, $room_id, $start_time, $end_time);
+    $stmt->bind_param("iiss", $target_user_id, $room_id, $start_datetime->format('Y-m-d H:i:s'), $end_datetime->format('Y-m-d H:i:s'));
 
     if ($stmt->execute()) {
         echo json_encode(["status" => "success", "message" => "Booking created"]);
@@ -204,10 +213,41 @@ if ($action === 'list') {
         ]);
         exit;
     }
+    
+    // Min/Max booking duration (30 mins to 8 hours)
+    $duration = ($end_datetime->getTimestamp() - $start_datetime->getTimestamp()) / 60; // duration in minutes
+
+    if ($duration < 30) {
+        http_response_code(400); // Bad request
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Booking duration must be at least 30 minutes"
+        ]);
+        exit;
+    }
+
+    if ($duration > 8 * 60) {
+        http_response_code(400); // Bad request
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Booking duration cannot exceed 8 hours"
+        ]);
+        exit;
+    }
+
+    // Avoid booking in the past
+    $now = new DateTime();
+    if ($start_datetime < $now) {
+        echo json_encode([
+            "status"  => "error",
+            "message" => "Cannot book a room in the past."
+        ]);
+        exit;
+    }
 
     // Check for conflicts
     $stmt = $conn->prepare("SELECT COUNT(*) FROM bookings WHERE room_id = ? AND id != ? AND (start_time < ? AND end_time > ?)");
-    $stmt->bind_param("iiss", $room_id, $bidToUpd, $new_end, $new_start);
+    $stmt->bind_param("iiss", $room_id, $bidToUpd, $end_datetime->format('Y-m-d H:i:s'), $start_datetime->format('Y-m-d H:i:s'));
     $stmt->execute();
     $stmt->bind_result($conflicts);
     $stmt->fetch();
@@ -220,12 +260,12 @@ if ($action === 'list') {
 
     if ($start_time) {
         $updates[] = "start_time = ?";
-        $params[] = $start_time;
+        $params[] = $start_datetime->format('Y-m-d H:i:s');
         $types .= "s";
     }
     if ($end_time) {
         $updates[] = "end_time = ?";
-        $params[] = $end_time;
+        $params[] = $end_datetime->format('Y-m-d H:i:s');
         $types .= "s";
     }
 

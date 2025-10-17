@@ -1,7 +1,9 @@
 <template>
-  <div class="room-row">
-    <div class="room-label">{{ room.roomname }}</div>
-
+  <div class="room-row" :class="{ highlighted }">
+    <div class="room-label">
+      {{ room.roomname }}
+      <span v-if="isFavorite(room.id)" class="favorite-tag">★</span>
+    </div>
     <div class="timeline-wrapper">
       
       <div
@@ -66,7 +68,10 @@ const props = defineProps({
   bookings: { type: Array, default: () => [] },
   ticksGridStyle: { type: Object, default: () => ({}) },
   hourWidth: { type: Number, default: 60 },
-  bookingStatus: { type: Object, default: null } 
+  bookingStatus: { type: Object, default: null }, 
+  highlighted: { type: Boolean, default: false },
+  favorites: { type: Array, default: () => [] },
+  // scrollX: { type: Number, default: 0 },
 })
 const emit = defineEmits(['confirmBooking', 'scrollX'])
 
@@ -81,6 +86,10 @@ const pendingSelection = ref(null)
 const dragLabelStyle = ref({ left: '0px', transform: 'translateX(-50%)' })
 const dragLabelStart = ref('')
 const dragLabelEnd = ref('')
+
+function isFavorite(id) {
+  return props.favorites.some(f => f.room_id === id)
+}
 
 function onScroll(e) {
   emit('scrollX', e.target.scrollLeft)
@@ -97,7 +106,7 @@ function clamp(v,a=0,b=1){ return Math.max(a, Math.min(b,v)) }
 function fractionToMs(frac){ return props.dayStart.getTime() + frac * (props.dayEnd.getTime() - props.dayStart.getTime()) }
 function msToFraction(ms){ return clamp((ms - props.dayStart.getTime()) / (props.dayEnd.getTime() - props.dayStart.getTime())) }
 function snapToMinutes(ms, minutes=5){ const step = minutes*60*1000; return Math.round(ms/step)*step }
-function isoLocalFromMs(ms){ const d=new Date(ms); return d.toISOString().slice(0,16) }
+function isoUTCFromMs(ms){ const d=new Date(ms); return d.toISOString().slice(0, 16) + 'Z' }
 function displayTimeFromMs(ms){ const d=new Date(ms); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` }
 
 const ticks = computed(() => {
@@ -196,8 +205,8 @@ function endDrag(){
     return
   }
   pendingSelection.value = {
-    startISO: isoLocalFromMs(sMs),
-    endISO: isoLocalFromMs(eMs),
+    startISO: isoUTCFromMs(sMs),
+    endISO: isoUTCFromMs(eMs),
     displayStart: displayTimeFromMs(sMs),
     displayEnd: displayTimeFromMs(eMs)
   }
@@ -275,10 +284,16 @@ onMounted(() => {
     })
   }
 })
+
 </script>
 
 <style scoped>
 .room-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:8px; }
+.room-row.highlighted {
+  background-color: rgba(33, 214, 224, 0.1);
+  box-shadow: 0 0 0 2px rgba(33, 214, 224, 0.4);
+  border-radius: 6px;
+}
 .room-label { width:120px; font-weight:600; margin-top:6px; }
 .timeline-wrapper { flex:1; position:relative; }
 .timeline { position:relative; height:48px; border:1px solid #e0e0e0; background:#f6fff6; overflow:auto; white-space:nowrap; user-select:none; }
@@ -314,5 +329,10 @@ onMounted(() => {
 }
 .custom-error {
   color: #dc3545; 
+}
+.favorite-tag {
+  color: #21d6e0;
+  margin-left: 6px;
+  font-size: 16px;
 }
 </style>

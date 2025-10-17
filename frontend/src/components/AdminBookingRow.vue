@@ -56,12 +56,27 @@ const props = defineProps({
 const emit = defineEmits(["bookingDeleted", "bookingUpdated"])
 const isEditing = ref(false)
 const editedRoom = ref(Number(props.room_id));
-const editedStart = ref(props.start);
-const editedEnd = ref(props.end);
+const editedStart = ref(toLocalDateTimeString(props.start));
+const editedEnd = ref(toLocalDateTimeString(props.end));
 
 function get_roomname(id){
   const current_room = props.rooms.find(r => Number(r.id) === Number(id)) || {}
   return current_room.roomname
+}
+
+function toLocalDateTimeString(isoUTC) {
+  const date = new Date(isoUTC); // UTC
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+function toIsoUTC(localString) {
+  const date = new Date(localString)
+  return date.toISOString().slice(0, 16) + 'Z'
 }
 
 function startEditing() {
@@ -71,16 +86,16 @@ function startEditing() {
 function cancelEdit() {
   isEditing.value = false;
   editedRoom.value = Number(props.room_id);
-  editedStart.value = props.start;
-  editedEnd.value = props.end;
+  editedStart.value = toLocalDateTimeString(props.start);
+  editedEnd.value = toLocalDateTimeString(props.end);
 }
 
 async function saveEdit() {
   const formData = new FormData();
   formData.append('id', props.id)
   formData.append('room_id', editedRoom.value);
-  formData.append('start_time', editedStart.value);
-  formData.append('end_time', editedEnd.value);
+  formData.append('start_time', toIsoUTC(editedStart.value));
+  formData.append('end_time', toIsoUTC(editedEnd.value));
   try {
     const res = await fetch(`http://localhost/RoomMate/backend/admin/bookings.php?action=update`, {
       method: "POST",
