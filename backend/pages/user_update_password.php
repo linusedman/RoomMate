@@ -31,10 +31,11 @@ if (!$current_password || !$new_password || strlen($new_password) < 8) {
     exit;
 }
 
-$hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+
 
 
 // Update password
+$hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
 $stmt = $conn->prepare("UPDATE users SET password = ? WHERE user_id = ?");
 $stmt->bind_param("si", $hashed_password, $user_id);
 
