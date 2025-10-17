@@ -28,7 +28,7 @@ const routes = [
       { path: 'admin', component: AdminView, meta: { requiresAuth: true, role: 'admin' }},
       { path: '/reset-password', name: 'ResetPassword', component: ResetPasswordFormView },
       { path: 'settings', component: SettingsView, meta: { requiresAuth: true, role: 'user' }},
-      { path: 'change-password', component: ChangePasswordView, meta: { requiresAuth: true, role: 'user' }}
+      { path: 'change-password', name: 'ChangePassword', component: ChangePasswordView, meta: { requiresAuth: true, role: 'user' }}
     ],
   },
   { path: '/:pathMatch(.*)*', redirect: '/main' },

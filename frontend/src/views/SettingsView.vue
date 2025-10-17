@@ -13,7 +13,7 @@
         <div class="right-panel p-3">
             <h2>Handle Account</h2>
             <div class="change-password-card">
-                <button class="change-password-btn" @click="directToChangePassword">
+                <button class="change-password-btn" @click="$router.push({ name: 'ChangePassword' })">
                 Change My Password
                 </button>
             </div>
