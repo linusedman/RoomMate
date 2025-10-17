@@ -109,7 +109,7 @@ onMounted(async () => {
   allInstrumentTypes.value = [...instrumentTypes.value]
 
   window.addEventListener('clearInstrument', () => {
-    instrumentId.value = ''
+    instrumentId.value = []
     instrumentSearch.value = ''
   })
 })
@@ -140,10 +140,19 @@ function applyFilter() {
   if (!day.value) return
   const start = `${day.value}T${startTime.value}`
   const end = `${day.value}T${endTime.value}`
-  
-  // Extract only the IDs from selected instruments
-  const selectedIds = instrumentId.value.map(instrument => instrument.id)
-  
+
+  const selectedIds = instrumentId.value
+    .map(instrument => parseInt(instrument.id))
+    .filter(id => !isNaN(id) && id > 0)
+
+  console.log('FilterPanel emitting:', { 
+    day: day.value, 
+    start, 
+    end, 
+    instrumentId: selectedIds 
+  })
+
+
   emit('filter', { 
     day: day.value, 
     start, 
@@ -170,3 +179,5 @@ function clearFilter() {
 <style scoped>
 
 </style>
+
+

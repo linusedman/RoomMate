@@ -50,7 +50,7 @@ import LayoutView from './LayoutView.vue'
 import CurrentBookings from '../components/CurrentBookings.vue'
 import FavoriteRooms from '../components/FavoriteRooms.vue'
 
-const filter = ref({ day: '', start: '', end: '' })
+const filter = ref({ day: '', start: '', end: '', instrumentId: [] })
 const rooms = ref([])
 const bookings = ref([])
 const floors = ref([])
@@ -69,14 +69,18 @@ function onFavoriteSelected(id) {
 }
 
 function onFilter(f) {
+  console.log('MainView received filter:', f)
+  console.log('filter.value before assign:', filter.value)
   Object.assign(filter.value, f)
+  console.log('filter.value after assign:', filter.value)
   nextTick(() => {
     refreshData()
   })
 }
 
+
 function resetFilter() {
-  filter.value.instrumentId = ''
+  filter.value.instrumentId = []
   refreshData()
  
   if (filterPanelRef.value?.resetInstrument) {
@@ -120,10 +124,18 @@ async function fetchFavorites() {
 
 async function updateFilteredRooms() {
   try {
+    console.log('updateFilteredRooms called with filter:', filter.value)
+    console.log('instrumentId:', filter.value.instrumentId)
+    console.log('Is array?', Array.isArray(filter.value.instrumentId))
     const form = new URLSearchParams()
 
-    if (filter.value.instrumentId) {
-      form.append('instrumentId', filter.value.instrumentId)
+    if (filter.value.instrumentId && 
+        Array.isArray(filter.value.instrumentId) && 
+        filter.value.instrumentId.length > 0) {
+      
+      filter.value.instrumentId.forEach(id => {
+        form.append('instrumentId[]', id)
+      })
     }
 
     const r1 = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
