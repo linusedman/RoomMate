@@ -17,7 +17,8 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-$sql = "SELECT r.roomname, b.start_time, b.end_time
+$sql = "SELECT b.id AS booking_id, r.roomname, b.start_time, b.end_time
+
         FROM bookings b
         JOIN rooms r ON b.room_id = r.id
         WHERE b.user_id = ?

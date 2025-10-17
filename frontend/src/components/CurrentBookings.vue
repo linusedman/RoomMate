@@ -14,12 +14,21 @@
         class="booking-card"
       >
         <div class="room">{{ b.roomname }}</div>
+
         <div class="time-info">
           <div><strong>Date:</strong> {{ formatDate(b.start_time) }}</div>
           <div><strong>Start:</strong> {{ formatTime(b.start_time) }}</div>
           <div><strong>End:</strong> {{ formatTime(b.end_time) }}</div>
         </div>
+
+        <button 
+        class="delete-btn" 
+        @click="deleteBooking(b.booking_id)"
+        >
+        Delete
+        </button>
       </div>
+
     </div>
   </div>
 </template>
@@ -47,6 +56,27 @@ async function loadBookings() {
     bookings.value = []
   } finally {
     loading.value = false
+  }
+}
+
+async function deleteBooking(bookingId) {
+  console.log("Trying to delete booking:", bookingId)
+  try {
+    const res = await fetch("http://localhost/RoomMate/backend/pages/delete_bookings.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ booking_id: bookingId })
+    })
+    const data = await res.json()
+    console.log("Delete response:", data)
+    if (data.status === "success") {
+      bookings.value = bookings.value.filter(b => b.id !== bookingId)
+    } else {
+      console.error("Failed to delete booking:", data.message)
+    }
+  } catch (err) {
+    console.error("Error deleting booking:", err)
   }
 }
 
@@ -111,4 +141,21 @@ onMounted(loadBookings)
   font-size: 13px;
   color: #333;
 }
+
+.delete-btn {
+  margin-top: 8px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.delete-btn:hover {
+  background-color: #d9363e;
+}
+
 </style>

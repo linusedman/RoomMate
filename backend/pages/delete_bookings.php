@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header("Content-Type: application/json");
 session_start();
-include '../database/db_connect.php'
+include '../database/db_connect.php';
 
 $user_id  = $_SESSION['user_id'] ?? null;
 
