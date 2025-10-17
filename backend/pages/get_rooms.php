@@ -7,24 +7,33 @@ if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type");
 }
-// PREFLIGHT:  The Browser comunicates with API to check if it can send the actual POST request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204); // Success without body
     exit;
 }
-
 header("Content-Type: application/json");
 include '../database/db_connect.php';
 
+// ---- DEBUG LOGGING ----
+error_log('DEBUG $_POST: ' . print_r($_POST, true));
+
+// Ensure array and parse instrument IDs as integers only
 $instrumentId = $_POST['instrumentId'] ?? [];
+if (!is_array($instrumentId)) {
+    $instrumentId = [$instrumentId];
+}
+$instrumentId = array_filter(array_map('intval', $instrumentId));
+error_log('DEBUG $instrumentId: ' . print_r($instrumentId, true));
+
 $start = $_POST['start'] ?? '';
 $end = $_POST['end'] ?? '';
-
-$isFilteringByInstruments = is_array($instrumentId) && count($instrumentId) > 0;
+$isFilteringByInstruments = count($instrumentId) > 0;
+if ($isFilteringByInstruments) {
+    $placeholders = implode(',', array_fill(0, count($instrumentId), '?'));
+}
 
 if ($isFilteringByInstruments && $start && $end) {
-    $placeholders = implode(',', array_fill(0, count($instrumentId), '?'));
-
+    // FILTER: by instruments AND by time
     $sql = "
         SELECT r.id, r.roomname, r.floor_id AS floor, r.path
         FROM rooms r
@@ -38,13 +47,12 @@ if ($isFilteringByInstruments && $start && $end) {
         HAVING COUNT(DISTINCT i.type_id) = ?
     ";
     $stmt = $conn->prepare($sql);
-
-    // Dynamic binding
     $types = str_repeat('i', count($instrumentId)) . 'ssi';
     $params = [...$instrumentId, $end, $start, count($instrumentId)];
     $stmt->bind_param($types, ...$params);
- 
+
 } elseif ($start && $end) {
+    // FILTER: by time only
     $sql = "
         SELECT r.id, r.roomname, r.floor_id AS floor, r.path
         FROM rooms r
@@ -55,8 +63,9 @@ if ($isFilteringByInstruments && $start && $end) {
     ";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $end, $start);
- 
-} elseif ($instrumentId) {
+
+} elseif ($isFilteringByInstruments) {
+    // FILTER: by instruments only
     $sql = "
         SELECT r.id, r.roomname, r.floor_id AS floor, r.path
         FROM rooms r
@@ -71,21 +80,19 @@ if ($isFilteringByInstruments && $start && $end) {
     $stmt->bind_param($types, ...$params);
 
 } else {
+    // ALL ROOMS (no filter)
     $sql = "SELECT id, roomname, floor_id AS floor, path FROM rooms";
     $stmt = $conn->prepare($sql);
 }
 
-// Execute one of the if-statements
 $stmt->execute();
 $result = $stmt->get_result();
-
 if (!$result) {
     echo json_encode([
         "status" => "error", 
         "message" => "Failed to retrieve rooms"]);
     exit;
-} 
-
+}
 $rows = $result->fetch_all(MYSQLI_ASSOC);
 $rooms = array_map(function($r) {
     return [
@@ -95,8 +102,6 @@ $rooms = array_map(function($r) {
         'path' => $r['path'],
     ];
 }, $rows);
-
 echo json_encode($rooms);
-
 $result->free();
 $conn->close();
