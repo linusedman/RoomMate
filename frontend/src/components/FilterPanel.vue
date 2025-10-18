@@ -18,6 +18,7 @@
     <div class="mt-3">
   <label>Instrument Types</label>
   <multiselect
+      ref="multiSelectRef"
     v-model="instrumentId"
     :options="instrumentTypes"
     :multiple="true"
@@ -71,6 +72,7 @@ const allInstrumentTypes = ref([])
 const selectedInstrumentName = ref('')
 const dropdownOpen = ref(false)
 
+const multiSelectRef = ref(null)
 
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value
@@ -158,7 +160,7 @@ function clearFilter() {
   startTime.value = '08:00'
   endTime.value = '17:00'
   instrumentId.value = []
-  instrumentSearch.value = ''
+  multiSelectRef.value.search = ''
   instrumentTypes.value = [...allInstrumentTypes.value]
   applyFilter()
 }
@@ -167,7 +169,9 @@ function clearFilter() {
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
 <style scoped>
-
+::v-deep(.multiselect__input) {
+  color: black !important;
+}
 </style>
 
 

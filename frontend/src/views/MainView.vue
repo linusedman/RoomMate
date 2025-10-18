@@ -8,6 +8,7 @@
         @filter="onFilter" 
         />
       <ScheduleView
+        ref="scheduleViewRef"
         :filter="filter"
         :rooms="rooms"
         :bookings="bookings"
@@ -32,7 +33,10 @@
         @selectedRoom="onRoomSelected"
         @favoritesChanged="refreshData"
       />
-      <CurrentBookings ref="currentBookingsRef"/>
+      <CurrentBookings 
+        ref="currentBookingsRef" 
+        @bookingDeleted="onBookingDeleted"
+      />
       <FavoriteRooms
         :selectedFavoriteId="selectedFavoriteId"
         @selectFavorite="onFavoriteSelected"
@@ -231,6 +235,10 @@ async function fetchFloors() {
   } catch (e) {
     console.error(e)
   }
+}
+
+async function onBookingDeleted() {
+  await refreshData()
 }
 
 onMounted(async () => {
