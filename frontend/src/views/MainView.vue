@@ -54,7 +54,7 @@ import LayoutView from './LayoutView.vue'
 import CurrentBookings from '../components/CurrentBookings.vue'
 import FavoriteRooms from '../components/FavoriteRooms.vue'
 
-const filter = ref({ day: '', start: '', end: '' })
+const filter = ref({ day: '', start: '', end: '', instrumentId: [] })
 const rooms = ref([])
 const bookings = ref([])
 const floors = ref([])
@@ -79,8 +79,9 @@ function onFilter(f) {
   })
 }
 
+
 function resetFilter() {
-  filter.value.instrumentId = ''
+  filter.value.instrumentId = []
   refreshData()
  
   if (filterPanelRef.value?.resetInstrument) {
@@ -126,8 +127,13 @@ async function updateFilteredRooms() {
   try {
     const form = new URLSearchParams()
 
-    if (filter.value.instrumentId) {
-      form.append('instrumentId', filter.value.instrumentId)
+    if (filter.value.instrumentId && 
+        Array.isArray(filter.value.instrumentId) && 
+        filter.value.instrumentId.length > 0) {
+      
+      filter.value.instrumentId.forEach(id => {
+        form.append('instrumentId[]', id)
+      })
     }
 
     const r1 = await fetch("http://localhost/RoomMate/backend/pages/get_rooms.php", {
