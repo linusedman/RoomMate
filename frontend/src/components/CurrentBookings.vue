@@ -13,13 +13,27 @@
         :key="idx"
         class="booking-card"
       >
-        <div class="room">{{ b.roomname }}</div>
-        <div class="time-info">
-          <div><strong>Date:</strong> {{ formatDate(b.start_time) }}</div>
-          <div><strong>Start:</strong> {{ formatTime(b.start_time) }}</div>
-          <div><strong>End:</strong> {{ formatTime(b.end_time) }}</div>
+        <div class="booking-content">
+          <div class="room">{{ b.roomname }}</div>
+          <div class="time-info">
+            <div><strong>Date:</strong> {{ formatDate(b.start_time) }}</div>
+            <div><strong>Start:</strong> {{ formatTime(b.start_time) }}</div>
+            <div><strong>End:</strong> {{ formatTime(b.end_time) }}</div>
+          </div>
+          <div v-if="deletedBookingId === b.booking_id && message" style="color: #dc3545; font-size: 14px; margin-top: 8px;">
+            {{ message }}
+          </div>
         </div>
+
+        <button 
+        class="delete-btn" 
+        @click="deleteBooking(b.booking_id)"
+        >
+        Delete
+        </button>
+
       </div>
+
     </div>
   </div>
 </template>
@@ -33,6 +47,11 @@ defineExpose({
 
 const bookings = ref([])
 const loading = ref(true)
+const message = ref("")
+const deletedBookingId = ref(null)
+
+const emit = defineEmits(["bookingDeleted"])
+
 
 async function loadBookings() {
   try {
@@ -51,6 +70,35 @@ async function loadBookings() {
     bookings.value = []
   } finally {
     loading.value = false
+  }
+}
+
+async function deleteBooking(bookingId) {
+  const booking = bookings.value.find(b => b.booking_id === bookingId)
+  const roomname = booking?.roomname || "unknown room"
+  try {
+    const res = await fetch("http://localhost/RoomMate/backend/pages/delete_bookings.php", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ booking_id: bookingId })
+    })
+    const data = await res.json()
+    if (data.status === "success") {
+      message.value = `Booking of ${roomname} was successfully deleted.`
+      deletedBookingId.value = bookingId
+      
+      setTimeout(() => {
+        message.value = ""
+        deletedBookingId.value = null
+        loadBookings()
+        emit("bookingDeleted")
+      }, 5000)
+    } else {
+      console.error("Failed to delete booking:", data.message)
+    }
+  } catch (err) {
+    console.error("Error deleting booking:", err)
   }
 }
 
@@ -96,13 +144,20 @@ onMounted(loadBookings)
   flex-direction: column;
   gap: 8px;
 }
-
 .booking-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   padding: 10px 12px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.booking-content {
+  margin: 0 auto;
+  text-align: center;
 }
 
 .room {
@@ -115,4 +170,19 @@ onMounted(loadBookings)
   font-size: 13px;
   color: #333;
 }
+
+.delete-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #d9363e;
+}
+
 </style>

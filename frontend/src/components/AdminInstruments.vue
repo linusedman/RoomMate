@@ -94,7 +94,7 @@ const newInstrumentType = ref('')
 const newInstrumentRoom = ref('')
 
 const searchQuery = ref('')
-const sortKey = ref('instrument_name')
+const sortKey = ref('typename')
 const sortOrder = ref('asc')
 const selectedRoom = ref('');
 

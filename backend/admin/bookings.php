@@ -213,6 +213,37 @@ if ($action === 'list') {
         ]);
         exit;
     }
+    
+    // Min/Max booking duration (30 mins to 8 hours)
+    $duration = ($end_datetime->getTimestamp() - $start_datetime->getTimestamp()) / 60; // duration in minutes
+
+    if ($duration < 30) {
+        http_response_code(400); // Bad request
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Booking duration must be at least 30 minutes"
+        ]);
+        exit;
+    }
+
+    if ($duration > 8 * 60) {
+        http_response_code(400); // Bad request
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Booking duration cannot exceed 8 hours"
+        ]);
+        exit;
+    }
+
+    // Avoid booking in the past
+    $now = new DateTime();
+    if ($start_datetime < $now) {
+        echo json_encode([
+            "status"  => "error",
+            "message" => "Cannot book a room in the past."
+        ]);
+        exit;
+    }
 
     // Check for conflicts
     $stmt = $conn->prepare("SELECT COUNT(*) FROM bookings WHERE room_id = ? AND id != ? AND (start_time < ? AND end_time > ?)");
