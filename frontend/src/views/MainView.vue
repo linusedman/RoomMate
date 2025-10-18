@@ -69,10 +69,7 @@ function onFavoriteSelected(id) {
 }
 
 function onFilter(f) {
-  console.log('MainView received filter:', f)
-  console.log('filter.value before assign:', filter.value)
   Object.assign(filter.value, f)
-  console.log('filter.value after assign:', filter.value)
   nextTick(() => {
     refreshData()
   })
@@ -124,9 +121,6 @@ async function fetchFavorites() {
 
 async function updateFilteredRooms() {
   try {
-    console.log('updateFilteredRooms called with filter:', filter.value)
-    console.log('instrumentId:', filter.value.instrumentId)
-    console.log('Is array?', Array.isArray(filter.value.instrumentId))
     const form = new URLSearchParams()
 
     if (filter.value.instrumentId && 

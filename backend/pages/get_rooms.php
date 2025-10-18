@@ -14,16 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header("Content-Type: application/json");
 include '../database/db_connect.php';
 
-// ---- DEBUG LOGGING ----
-error_log('DEBUG $_POST: ' . print_r($_POST, true));
-
 // Ensure array and parse instrument IDs as integers only
 $instrumentId = $_POST['instrumentId'] ?? [];
 if (!is_array($instrumentId)) {
     $instrumentId = [$instrumentId];
 }
 $instrumentId = array_filter(array_map('intval', $instrumentId));
-error_log('DEBUG $instrumentId: ' . print_r($instrumentId, true));
 
 $start = $_POST['start'] ?? '';
 $end = $_POST['end'] ?? '';

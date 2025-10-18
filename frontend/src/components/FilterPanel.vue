@@ -145,14 +145,6 @@ function applyFilter() {
     .map(instrument => parseInt(instrument.id))
     .filter(id => !isNaN(id) && id > 0)
 
-  console.log('FilterPanel emitting:', { 
-    day: day.value, 
-    start, 
-    end, 
-    instrumentId: selectedIds 
-  })
-
-
   emit('filter', { 
     day: day.value, 
     start, 
@@ -160,8 +152,6 @@ function applyFilter() {
     instrumentId: selectedIds  
   })
 }
-
-
 
 function clearFilter() {
   day.value = new Date().toISOString().substr(0, 10)
