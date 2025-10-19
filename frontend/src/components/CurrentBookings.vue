@@ -61,7 +61,8 @@ async function loadBookings() {
     })
     const data = await res.json()
     if (data.status === "success") {
-      bookings.value = data.bookings
+      const now = new Date()
+      bookings.value = data.bookings.filter(b => new Date(b.end_time) > now)
     } else {
       bookings.value = []
     }
