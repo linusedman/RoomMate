@@ -62,7 +62,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['filter'])
 
-const day = ref(new Date().toISOString().substr(0, 10))
+const day = ref(new Date().toLocaleDateString('swe'))
 const startTime = ref('08:00')
 const endTime = ref('17:00')
 const instrumentId = ref([])
@@ -156,7 +156,7 @@ function applyFilter() {
 }
 
 function clearFilter() {
-  day.value = new Date().toISOString().substr(0, 10)
+  day.value = new Date().toLocaleDateString('swe')
   startTime.value = '08:00'
   endTime.value = '17:00'
   instrumentId.value = []
