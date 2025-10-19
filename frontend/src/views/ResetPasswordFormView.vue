@@ -1,5 +1,5 @@
 <template>
-  <div class="container p-5 d-flex flex-column align-items-center bg-light">
+  <div class="container p-5 d-flex flex-column align-items-center">
     <div class="card p-4" style="max-width:440px; width:100%;">
       <h4 class="text-center mb-3">Set New Password</h4>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="container p-5 d-flex flex-column align-items-center bg-light">
+  <div class="container p-5 d-flex flex-column align-items-center">
     <form
       @submit.prevent="handleReset"
       class="form-control mt-5 p-4"
