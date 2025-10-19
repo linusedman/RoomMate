@@ -2,42 +2,7 @@
   <div class="schedule-view">
     <h4>Schedule</h4>
 
-    <div v-if="!filter.start || !filter.end">
-      <div class="text-muted mb-2">Select day in the filter panel</div>
-      
-      <div v-if="favoriteRoomsOnly.length > 0">
-        <div class="subtitle mb-2">Your favorite rooms</div>
-        
-        <div class="schedule-grid">
-          <div class="time-header-wrapper" ref="timeHeaderWrapper">
-            <div class="time-header" :style="ticksGridStyle">
-              <div class="time-cell" v-for="t in hours" :key="t">{{ t }}</div>
-            </div>
-          </div>
-
-          <div class="rows">
-            <RoomSchedule
-              v-for="room in favoriteRoomsOnly"
-              :key="room.id"
-              :room="room"
-              :dayStart="dayStart"
-              :dayEnd="dayEnd"
-              :bookings="bookingsForRoom(room.id)"
-              :ticksGridStyle="ticksGridStyle"
-              :hourWidth="hourWidth"
-              :bookingStatus="bookingStatus"
-              :scrollX="scrollX"
-              :highlighted="selectedFavoriteId === room.id"
-              :favorites="favorites"
-              @confirmBooking="onConfirmBooking"
-              @scrollX="syncScroll"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div v-else>
+    <div>
       <div class="subtitle mb-2">{{ filter.day }}</div>
 
       <div class="schedule-grid">
@@ -128,21 +93,6 @@ const hours = computed(() => {
   }
   return arr
 })
-
-
-const favoriteRoomsOnly = computed(() => {
-  const all = props.rooms || []
-  const favoriteIds = new Set(
-    Array.isArray(props.favorites)
-      ? props.favorites.map(f => f.room_id)
-      : []
-  )
-  const filtered = all.filter(r => r && favoriteIds.has(r.id))
-
-  return filtered.sort((a,b)=>a.id - b.id)
-})
-
-
 
 function showAllRooms() {
   emit('resetFilter')
