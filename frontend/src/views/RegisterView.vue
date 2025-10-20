@@ -36,7 +36,7 @@
 
       <div>
         <input type="checkbox" class="checkbox" v-model="accepted_terms" required>
-        I agree to the <a href="">terms and conditions</a>
+        I agree to the <router-link to="/terms" class="text-decoration-none">terms and conditions</router-link>
       </div>
 
       <div class="mb-2 mt-3">
