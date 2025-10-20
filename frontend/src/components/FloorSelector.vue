@@ -16,16 +16,14 @@
 import { ref } from 'vue'
 
 const props = defineProps({
-  floors: Array
+  floors: Array,
+  selected: Number
 })
 
 const emit = defineEmits(['change'])
 
-const selected = ref(props.floors[0] || 1)
-
 async function onClick(id) {
-  selected.value = id;
-  emit('change', selected.value)
+  emit('change', id)
 }
 </script>
 

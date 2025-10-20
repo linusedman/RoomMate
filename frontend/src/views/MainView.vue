@@ -21,6 +21,7 @@
 
     <div class="right-panel p-3">
       <LayoutView
+          ref="LayoutRef"
         :filter="filter"
         :rooms="rooms"
         :allRooms="allRooms"
@@ -59,6 +60,8 @@ const rooms = ref([])
 const bookings = ref([])
 const floors = ref([])
 const filterPanelRef = ref(null)
+const LayoutRef = ref(null)
+const selectorRef = ref(null)
 const allRooms = ref([])
 const favorites = ref([])
 const instruments = ref([])
@@ -70,6 +73,11 @@ const stats = ref([])
 
 function onFavoriteSelected(id) {
   selectedFavoriteId.value = id
+  if (id) {
+    const f_room = allRooms.value.find(r => r.id === id) || {}
+    const f_floor = Number(f_room.floor)
+    LayoutRef.value.changeFloor(f_floor)
+  }
 }
 
 function onFilter(f) {

@@ -1,7 +1,10 @@
 <template>
   <div class="floor-view container" style="display: flex; flex-direction: column;">
 
-    <FloorSelector :floors="availableFloors" @change="changeFloor" />
+    <FloorSelector
+        :floors="availableFloors"
+        :selected="selectedFloor"
+        @change="changeFloor" />
 
     <div class="room-layout" style="display: flex; flex-direction: column; flex: 1; height: 100%;">
 
@@ -64,6 +67,10 @@ import FloorSelector from '../components/FloorSelector.vue'
 import RoomPopover from '../components/RoomPopover.vue'
 import FloorPath from "../components/FloorPath.vue";
 import RoomPath from "../components/RoomPath.vue";
+
+defineExpose({
+  changeFloor
+})
 
 const props = defineProps({
   filter: Object,
