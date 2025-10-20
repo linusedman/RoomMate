@@ -8,7 +8,7 @@
       <div class="schedule-grid">
         <div class="time-header-wrapper" ref="timeHeaderWrapper">
           <div class="time-header" :style="ticksGridStyle">
-            <div class="time-cell" v-for="t in hours" :key="t">{{ t }}</div>
+            <div class="time-cell" v-for="t in hours" :key="t">{{ t.label }}</div>
           </div>
         </div>
 
@@ -80,9 +80,28 @@ const hours = computed(() => {
   const arr = []
   const cur = new Date(s)
   cur.setMinutes(0, 0, 0)
-  while (cur <= e) {
-    arr.push(cur.toTimeString().slice(0, 5))
-    cur.setHours(cur.getHours() + 1)
+  while (cur < e) {
+    const hourStart = new Date(cur);
+    const hourEnd = new Date(cur);
+    hourEnd.setHours(hourEnd.getHours() + 1);
+
+    const start = Math.max(hourStart.getTime(), s.getTime());
+    const end = Math.min(hourEnd.getTime(), e.getTime());
+    const minutes = Math.max(0, (end - start) / 60000); // milliseconds → minutes
+    if (minutes >= 45) {
+      arr.push({
+        label: hourStart.toTimeString().slice(0, 5),
+        minutes
+      });
+    } else {
+      arr.push({
+        label: "",
+        minutes
+      });
+    }
+
+
+    cur.setHours(cur.getHours() + 1);
   }
   return arr
 })
@@ -92,9 +111,10 @@ function showAllRooms() {
 }
 
 const ticksGridStyle = computed(() => {
+  const columns = hours.value.map(h => `${h.minutes}fr`).join(' ');
   return {
     display: 'grid',
-    gridTemplateColumns: `repeat(auto-fit, minmax(0, 1fr))`,
+    gridTemplateColumns: columns,
     width: `100%`
   }
 })
@@ -225,12 +245,13 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
 }
 
 .time-cell {
-  width: 60px;
-  text-align: center;
+  text-align: left;
   font-size: 12px;
   color: #333;
   box-sizing: border-box;
   z-index: 10;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .rows {
