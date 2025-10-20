@@ -25,14 +25,10 @@
             :dayStart="dayStart"
             :dayEnd="dayEnd"
             :bookings="bookingsForRoom(room.id)"
-            :ticksGridStyle="ticksGridStyle"
-            :hourWidth="hourWidth"
             :bookingStatus="bookingStatus"
-            :scrollX="scrollX"
             :highlighted="selectedFavoriteId === room.id"
             :favorites="favorites"
             @confirmBooking="onConfirmBooking"
-            @scrollX="syncScroll"
           />
         </div>
       </div>
@@ -46,7 +42,6 @@ import { ref, watch, computed } from 'vue'
 import RoomSchedule from '../components/RoomSchedule.vue'
 
 const timeHeaderWrapper = ref(null)
-const scrollX = ref(0)
 
 const props = defineProps({
   filter: Object,
@@ -57,8 +52,6 @@ const props = defineProps({
 })
 const emit = defineEmits(['booked', 'resetFilter'])
 const bookingStatus = ref(null)
-
-const hourWidth = 60
 
 const today = new Date()
 const defaultStart = new Date(today)
@@ -99,11 +92,10 @@ function showAllRooms() {
 }
 
 const ticksGridStyle = computed(() => {
-  const count = Math.max(1, hours.value.length)
   return {
     display: 'grid',
-    gridTemplateColumns: `repeat(${count}, ${hourWidth}px)`,
-    width: `${count * hourWidth}px`
+    gridTemplateColumns: `repeat(auto-fit, minmax(0, 1fr))`,
+    width: `100%`
   }
 })
 
@@ -114,13 +106,6 @@ const roomsSorted = computed(() => {
   const nonFavorites = all.filter(r => !favoriteIds.has(r.id)).sort((a,b) => a.booking_count - b.booking_count)
   return [...favorites, ...nonFavorites]
 })
-
-function syncScroll(x) {
-  scrollX.value = x
-  if (timeHeaderWrapper.value) {
-    timeHeaderWrapper.value.scrollLeft = x
-  }
-}
 
 function bookingsForRoom(roomId) {
   return (props.bookings || []).filter(b => Number(b.room_id) === Number(roomId))
@@ -199,42 +184,63 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
 
 <style scoped>
 .schedule-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  grid-template-rows: auto 1fr;
   border: 1px solid #ddd;
   padding: 8px;
-  overflow-x: hidden;
   position: relative;
+  gap: 6px;
+  overflow: auto;
+  max-height: 60vh;
+}
+
+:deep(.room-row) {
+  display: contents;
+  position: relative;
+}
+
+:deep(.room-label) {
+  grid-column: 1;
+}
+
+:deep(.timeline-wrapper) {
+  grid-column: 2;
 }
 
 .time-header-wrapper {
   position: sticky;
+  grid-column: 2;
   top: 0;
   background: white;
   z-index: 10;
-  overflow-x: auto;
   border-bottom: 1px solid #ccc;
-  scrollbar-width: none;
+  height: 40px
 }
-.time-header-wrapper::-webkit-scrollbar { display: none; }
 
 .time-header {
   display: grid;
   margin-bottom: 6px;
+  z-index: 10;
 }
+
 .time-cell {
   width: 60px;
   text-align: center;
   font-size: 12px;
   color: #333;
   box-sizing: border-box;
+  z-index: 10;
 }
+
 .rows {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: contents;
+  margin-top: 40px;
+  row-gap: 6px;
   max-height: 60vh;
   overflow: auto;
 }
+
 .subtitle { font-weight: 600; }
 
 .no-rooms {
@@ -242,6 +248,7 @@ async function onConfirmBooking({ roomId, startISO, endISO }) {
   margin-top: 1rem;
   padding: 1rem;
   background-color: #f9f9f9;
+  grid-column: 2
 }
 
 .no-rooms p {

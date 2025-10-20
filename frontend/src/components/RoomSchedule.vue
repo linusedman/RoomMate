@@ -1,15 +1,14 @@
 <template>
-  <div class="room-row" :class="{ highlighted }">
+  <div class="room-row">
     <div class="room-label">
       {{ room.roomname }}
       <span v-if="isFavorite(room.id)" class="favorite-tag">★</span>
     </div>
-    <div class="timeline-wrapper">
-      
+    <div class="timeline-wrapper" :class="{ highlighted: highlighted }">
+
       <div
         class="timeline"
         ref="timeline"
-        @scroll="onScroll"
         @mousedown="onMouseDown"
         @mousemove="onMouseMove"
         @mouseup="onMouseUp"
@@ -18,13 +17,13 @@
         @touchmove.prevent="onTouchMove"
         @touchend.prevent="onTouchEnd"
       >
-        <div class="timeline-content" ref="content" :style="contentStyle">
-          <div class="ticks" :style="ticksGridStyle" aria-hidden="true">
-            <div v-for="(t, idx) in ticks" :key="idx" class="tick">
-              <div class="tick-label">{{ t }}</div>
-            </div>
-          </div>
+        <div class="timeline-content" ref="content">
+          <div v-for="h in ticksMSHours"
+               :style="styleForTicks(h)"
+               :key="room.id + h"
+               class="tick"
 
+          ></div>
           <div
             v-for="b in bookings"
             :key="b.id || (b.start_time + b.end_time)"
@@ -66,14 +65,11 @@ const props = defineProps({
   dayStart: { type: Date, required: true },
   dayEnd: { type: Date, required: true },
   bookings: { type: Array, default: () => [] },
-  ticksGridStyle: { type: Object, default: () => ({}) },
-  hourWidth: { type: Number, default: 60 },
   bookingStatus: { type: Object, default: null }, 
   highlighted: { type: Boolean, default: false },
   favorites: { type: Array, default: () => [] },
-  // scrollX: { type: Number, default: 0 },
 })
-const emit = defineEmits(['confirmBooking', 'scrollX'])
+const emit = defineEmits(['confirmBooking'])
 
 const timeline = ref(null)
 const content = ref(null)
@@ -91,17 +87,6 @@ function isFavorite(id) {
   return props.favorites.some(f => f.room_id === id)
 }
 
-function onScroll(e) {
-  emit('scrollX', e.target.scrollLeft)
-}
-watch(
-  () => props.scrollX,
-  (newX) => {
-    if (timeline.value && timeline.value.scrollLeft !== newX) {
-      timeline.value.scrollLeft = newX
-    }
-  }
-)
 function clamp(v,a=0,b=1){ return Math.max(a, Math.min(b,v)) }
 function fractionToMs(frac){ return props.dayStart.getTime() + frac * (props.dayEnd.getTime() - props.dayStart.getTime()) }
 function msToFraction(ms){ return clamp((ms - props.dayStart.getTime()) / (props.dayEnd.getTime() - props.dayStart.getTime())) }
@@ -109,26 +94,35 @@ function snapToMinutes(ms, minutes=5){ const step = minutes*60*1000; return Math
 function isoUTCFromMs(ms){ const d=new Date(ms); return d.toISOString().slice(0, 16) + 'Z' }
 function displayTimeFromMs(ms){ const d=new Date(ms); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` }
 
-const ticks = computed(() => {
-  const arr = []
-  const s = new Date(props.dayStart)
-  const e = new Date(props.dayEnd)
-  const cur = new Date(s)
-  cur.setMinutes(0,0,0)
-  while (cur <= e) {
-    arr.push(cur.toTimeString().slice(0,5))
-    cur.setHours(cur.getHours()+1)
+const ticksMSHours = computed(() => {
+  const start = new Date(props.dayStart);
+  const end = new Date(props.dayEnd);
+  const timestamps = [];
+
+  const firstHour = new Date(start);
+  firstHour.setHours(firstHour.getHours() + 1, 0, 0, 0);
+
+  const lastHour = new Date(end);
+  lastHour.setMinutes(0, 0, 0);
+  if (lastHour.getTime() >= end.getTime()) {
+    lastHour.setHours(lastHour.getHours() - 1);
   }
-  return arr
+
+  let cur = firstHour;
+  while (cur <= lastHour) {
+    timestamps.push(cur.getTime());
+    cur.setHours(cur.getHours() + 1);
+  }
+  return timestamps;
 })
 
-const ticksGridStyleLocal = computed(() => {
-  return Object.assign({}, props.ticksGridStyle || {})
-})
-
-const contentStyle = computed(() => {
-  return { width: (ticks.value.length * props.hourWidth) + 'px' }
-})
+function styleForTicks(hour){
+  const sMs = new Date(hour).getTime()
+  const leftFrac = msToFraction(sMs)
+  const el = content.value
+  if(!el) return { left: '0px', width: '0px' }
+  return { left: (leftFrac * el.offsetWidth) + 'px', width: '1px' }
+}
 
 function clientXToFraction(clientX){
   const el = content.value
@@ -289,18 +283,17 @@ onMounted(() => {
 
 <style scoped>
 .room-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:8px; }
-.room-row.highlighted {
+
+.timeline-wrapper.highlighted {
   background-color: rgba(33, 214, 224, 0.1);
   box-shadow: 0 0 0 2px rgba(33, 214, 224, 0.4);
   border-radius: 6px;
 }
-.room-label { width:120px; font-weight:600; margin-top:6px; }
-.timeline-wrapper { flex:1; position:relative; }
+.room-label {font-weight:600; margin-top:6px; display: flex; flex-direction: column}
+.timeline-wrapper { flex:1; position:relative; align-content: center}
 .timeline { position:relative; height:48px; border:1px solid #e0e0e0; background:#f6fff6; overflow:auto; white-space:nowrap; user-select:none; }
-.timeline-content { position:relative; height:100%; }
-.ticks { position:absolute; inset:0; display:grid; z-index:0; pointer-events:none; }
-.tick { border-left:1px dashed rgba(0,0,0,0.03); height:100%; box-sizing:border-box; position:relative; }
-.tick-label { font-size:11px; color:rgba(0,0,0,0.45); position:absolute; top:-18px; left:6px; }
+.timeline-content { position:relative; height:100%; width:100%;}
+.tick { position:absolute; border-left:1px dashed rgba(0,0,0,0.2); height:100%;}
 .booked-block { position:absolute; top:4px; bottom:4px; background:#6c757d; border-radius:4px; z-index:3; }
 .selection {
   position: absolute;
@@ -323,6 +316,7 @@ onMounted(() => {
   border-color: #03d4a8;
   color: #fff;
   }
+
 @media (max-width:720px) { .room-label { width:90px; font-size:13px } .tick-label { display:none } }
 .custom-success {
   color: #03d4a8;
