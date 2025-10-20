@@ -35,9 +35,10 @@
         </div>
       </div>
 
-      <div v-if="dragging" class="drag-label" :style="dragLabelStyle">
-        <div class="time-text">{{ dragLabelStart }} → {{ dragLabelEnd }}</div>
-        <button class="btn btn-sm btn-success ms-2" @click="confirmSelection">Book</button>
+      <div v-if="dragging" class="drag-label mt-2">
+        <strong>Selected:</strong>
+        <span class="ms-2">{{ dragLabelStart }} → {{ dragLabelEnd }}</span>
+        <button class="btn btn-sm btn-success ms-3" @click="confirmSelection">Book</button>
         <button class="btn btn-sm btn-secondary ms-2" @click="clearSelection">Cancel</button>
       </div>
 
