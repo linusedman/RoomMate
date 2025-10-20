@@ -30,6 +30,10 @@
             class="booked-block"
             :style="styleForBooking(b.start_time, b.end_time)"
           ></div>
+          <div
+            class="past-block"
+            :style="styleForPast()"
+          ></div>
 
           <div v-if="selectionVisible" class="selection" :style="selectionStyle"></div>
         </div>
@@ -154,6 +158,28 @@ function styleForBooking(start, end){
   return { left: (leftFrac * el.scrollWidth) + 'px', width: ((rightFrac - leftFrac) * el.scrollWidth) + 'px' }
 }
 
+function styleForPast(){
+  const start = new Date(props.dayStart)
+  const end = new Date(props.dayEnd)
+  const now = new Date()
+  if ((now > start)&&(now < end)) {
+    const leftFrac = msToFraction(start)
+    const rightFrac = msToFraction(now)
+    const el = content.value
+    if(!el) return { left: '0px', width: '0px' }
+    return { left: (leftFrac * el.scrollWidth) + 'px', width: ((rightFrac - leftFrac) * el.scrollWidth) + 'px' }
+  }
+  if (now > start) {
+    const leftFrac = msToFraction(start)
+    const rightFrac = msToFraction(end)
+    const el = content.value
+    if(!el) return { left: '0px', width: '0px' }
+    return { left: (leftFrac * el.scrollWidth) + 'px', width: ((rightFrac - leftFrac) * el.scrollWidth) + 'px' }
+  }
+
+  return { display: "none" }
+}
+
 function overlapsExistingRange(sMs,eMs){
   return props.bookings.some(b => {
     const bs = new Date(b.start_time).getTime()
@@ -191,6 +217,16 @@ function endDrag(){
   if(eMs <= sMs){ clearSelection(); return }
   if (overlapsExistingRange(sMs,eMs)) {
     messageText.value = 'Selected time overlaps an existing booking.'
+    messageType.value = 'error'
+    clearSelection()
+    setTimeout(() => {
+      messageText.value = ''
+      messageType.value = ''
+    }, 5000)
+    return
+  }
+  if (sMs < new Date()) {
+    messageText.value = 'Cannot book in the past.'
     messageType.value = 'error'
     clearSelection()
     setTimeout(() => {
@@ -296,6 +332,7 @@ onMounted(() => {
 .timeline-content { position:relative; height:100%; width:100%;}
 .tick { position:absolute; border-left:1px dashed rgba(0,0,0,0.2); height:100%;}
 .booked-block { position:absolute; top:4px; bottom:4px; background:#6c757d; border-radius:4px; z-index:3; }
+.past-block { position:absolute; top:0; bottom:0; background:#6c757d; border-radius:4px; z-index:5; opacity: 50%}
 .selection {
   position: absolute;
   top: 4px;
