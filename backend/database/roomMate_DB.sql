@@ -26,8 +26,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` VARCHAR(20) NOT NULL UNIQUE,
   `password` VARCHAR(255) NOT NULL,
   `email` VARCHAR(50) NOT NULL UNIQUE,
-  `admin` BOOLEAN DEFAULT FALSE,
-  `last_login` DATETIME
+  `admin` BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS `bookings` (
