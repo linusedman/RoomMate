@@ -66,7 +66,8 @@ CREATE TABLE IF NOT EXISTS `favorites` (
   `user_id` INT NOT NULL,
   `room_id` INT NOT NULL,
   CONSTRAINT fk_user_id FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_room_id FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT fk_room_id FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  UNIQUE KEY unique_user_room (user_id, room_id)
 );
 
 -- create event that removes expired passwords--
