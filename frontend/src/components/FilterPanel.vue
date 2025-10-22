@@ -1,16 +1,18 @@
 <template>
   <div class="filter-panel mb-3">
     <h4>Filter</h4>
-    <label>Day</label>
-    <input type="date" v-model="day" />
+    <div class="d-flex gap-2 mt-2 centered">
+      <label>Day: </label>
+      <input type="date" v-model="day" />
+    </div>
 
-    <div class="d-flex gap-2 mt-2">
-      <div>
-        <label>Start</label>
+    <div class="d-flex gap-2 mt-2 centered">
+      <div class="d-flex gap-2 mt-2">
+        <label>Start: </label>
         <input type="time" v-model="startTimeEdit" />
       </div>
-      <div>
-        <label>End</label>
+      <div class="d-flex gap-2 mt-2" >
+        <label>End: </label>
         <input type="time" v-model="endTimeEdit" />
       </div>
     </div>
@@ -20,34 +22,34 @@
       </p>
 
     <div class="mt-3">
-  <label>Instrument Types</label>
-  <multiselect
-      ref="multiSelectRef"
-    v-model="instrumentId"
-    :options="instrumentTypes"
-    :multiple="true"
-    :close-on-select="false"
-    :clear-on-select="false"
-    :preserve-search="true"
-    placeholder="Select Instrument Types"
-    label="typename"
-    track-by="id"
-    :preselect-first="false"
-    :searchable="true"
-    @search-change="searchInstruments"
-  >
-    <template #noResult>
-      <span>No instruments found.</span>
-    </template>
-  </multiselect>
+      <label>Instrument Types</label>
+      <multiselect
+          ref="multiSelectRef"
+        v-model="instrumentId"
+        :options="instrumentTypes"
+        :multiple="true"
+        :close-on-select="false"
+        :clear-on-select="false"
+        :preserve-search="true"
+        placeholder="Select Instrument Types"
+        label="typename"
+        track-by="id"
+        :preselect-first="false"
+        :searchable="true"
+        @search-change="searchInstruments"
+      >
+        <template #noResult>
+          <span>No instruments found.</span>
+        </template>
+      </multiselect>
   
-  <!-- Display selected instruments count -->
-  <small v-if="instrumentId.length > 0" class="text-muted mt-1 d-block">
-    {{ instrumentId.length }} instrument(s) selected
-  </small>
-</div>
+      <!-- Display selected instruments count -->
+      <small v-if="instrumentId.length > 0" class="text-muted mt-1 d-block">
+        {{ instrumentId.length }} instrument(s) selected
+      </small>
+    </div>
 
-    <div class="d-flex gap-2 mt-2">
+    <div class="d-flex gap-2 mt-2 centered">
       <button class="btn btn-primary" @click="applyFilter">Apply</button>
       <button class="btn btn-outline-secondary" @click="clearFilter">Clear</button>
     </div>
@@ -221,6 +223,10 @@ function clearFilter() {
 
 .custom-error {
   color: #dc3545;
+}
+
+.centered {
+  justify-content: center;
 }
 </style>
 
