@@ -7,13 +7,17 @@
     <div class="d-flex gap-2 mt-2">
       <div>
         <label>Start</label>
-        <input type="time" v-model="startTime" />
+        <input type="time" v-model="startTimeEdit" />
       </div>
       <div>
         <label>End</label>
-        <input type="time" v-model="endTime" />
+        <input type="time" v-model="endTimeEdit" />
       </div>
     </div>
+
+    <p v-if="timeError" :class="['mt-2 fw-bold custom-error']">
+        {{ timeError }}
+      </p>
 
     <div class="mt-3">
   <label>Instrument Types</label>
@@ -65,11 +69,13 @@ const emit = defineEmits(['filter'])
 const day = ref(new Date().toLocaleDateString('swe'))
 const startTime = ref('08:00')
 const endTime = ref('17:00')
+const startTimeEdit = ref('08:00')
+const endTimeEdit = ref('17:00')
 const instrumentId = ref([])
 const instrumentSearch = ref('')
 const instrumentTypes = ref([])
 const allInstrumentTypes = ref([])
-const selectedInstrumentName = ref('')
+const timeError = ref('')
 const dropdownOpen = ref(false)
 
 const multiSelectRef = ref(null)
@@ -138,12 +144,48 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-watch([day, startTime, endTime], () => {
+watch([day, startTimeEdit, endTimeEdit], () => {
   applyFilter()
 })
 
+function checkTimeValidity(){
+  const start = `${day.value}T${startTimeEdit.value}`
+  const end = `${day.value}T${endTimeEdit.value}`
+
+  const startMs = new Date(start)
+  const endMs = new Date(end)
+
+  const durationMinutes = (endMs - startMs) / 60000
+
+  if (startMs >= endMs) {
+    startTimeEdit.value = startTime.value
+    endTimeEdit.value = endTime.value
+    timeError.value = "Start time must be before end time"
+    setTimeout(() => {
+    timeError.value = ''
+    }, 5000)
+  }
+
+  else if (durationMinutes < 60) {
+    startTimeEdit.value = startTime.value
+    endTimeEdit.value = endTime.value
+    timeError.value = "Must filter an interval of at least an hour"
+    setTimeout(() => {
+    timeError.value = ''
+    }, 5000)
+  }
+
+  else {
+    startTime.value = startTimeEdit.value
+    endTime.value = endTimeEdit.value
+  }
+}
+
 function applyFilter() {
   if (!day.value) return
+
+  checkTimeValidity()
+
   const start = `${day.value}T${startTime.value}`
   const end = `${day.value}T${endTime.value}`
 
@@ -175,6 +217,10 @@ function clearFilter() {
 <style scoped>
 ::v-deep(.multiselect__input) {
   color: black !important;
+}
+
+.custom-error {
+  color: #dc3545;
 }
 </style>
 
