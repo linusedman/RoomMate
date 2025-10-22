@@ -138,6 +138,10 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
+watch([day, startTime, endTime], () => {
+  applyFilter()
+})
+
 function applyFilter() {
   if (!day.value) return
   const start = `${day.value}T${startTime.value}`
