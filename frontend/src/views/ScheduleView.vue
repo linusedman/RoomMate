@@ -1,6 +1,7 @@
 <template>
   <div class="schedule-view">
     <h4>Schedule</h4>
+    <p> <i>Drag and release to book a room</i></p>
 
     <div>
       <div class="subtitle mb-2">{{ filter.day }}</div>
