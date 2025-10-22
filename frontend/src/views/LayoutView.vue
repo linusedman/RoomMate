@@ -52,7 +52,7 @@
             v-if="activePopoverId !== null"
             :room="getRoom(activePopoverId)" 
             :favorites="props.favorites"
-            :instrumentName="getInstrumentName(activePopoverId)"
+            :instrumentNames="getInstrumentNames(activePopoverId)"
             @favoritesChanged="$emit('favoritesChanged')"
           />
       </div>
@@ -230,12 +230,17 @@ function getFPath(id){
     return current_floor.path
 }
 
-function getInstrumentName(roomId) {
+function getInstrumentNames(roomId) {
   if (!roomId) return ''
-  const instrument = props.instruments.find(i => Number(i.room_id) === Number(roomId))
-  const type = props.instrumentTypes.find(t => Number(t.id) === Number(instrument?.type_id))
-  const name = type?.typename || ''
-  return name
+
+  const instruments = props.instruments.filter(i => Number(i.room_id) === Number(roomId))
+
+  const names = instruments.map(i => {
+    const type = props.instrumentTypes.find(t => Number(t.id) === Number(i.type_id))
+    return type?.typename || ''
+  }).filter(Boolean) // removes empty strings
+
+  return names
 }
 
 watch(
@@ -259,7 +264,7 @@ watch(
 }
 .inline-popover {
   position: absolute; 
-  width: 220px;
+  width: 320px;
   height: 160px;
   display: flex;
   align-items: center;
