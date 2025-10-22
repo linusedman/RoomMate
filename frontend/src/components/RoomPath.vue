@@ -35,7 +35,6 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 const props = defineProps({
   room: Object,
   path: String,
-  booked: Boolean,
   selected: Boolean,
   matchesFilter: String,
   isFavorite: Boolean,
@@ -50,7 +49,7 @@ const pathRef = ref(null)
 
 
 function handleClick(event) {
-  if (!props.booked && props.matchesFilter !== 'unmatched') {
+  if (props.matchesFilter !== 'unmatched') {
     emit('select', props.room.id, event)
   }
 }
@@ -63,7 +62,6 @@ function getFill(){
   }
   if (props.matchesFilter === 'unmatched') return "#999999" 
   if (props.selected) return "#0087e6"
-  if (props.booked) return "#6c757d"
   if (props.matchesFilter === 'matched') return "#03d4a8" 
   if (props.selectedFavorite) return "#21d6e0"
   return "#0029aa"
@@ -72,7 +70,6 @@ function getFill(){
 function getHoverFill(){
   if (props.matchesFilter === 'unmatched') return "#999999"
   if (props.matchesFilter === 'matched') return "#02c4a0"
-  if (props.booked) return "#5a6268"             
   return "#0044cc"       
 }
 
@@ -104,12 +101,6 @@ onMounted(() => {
   justify-content: center;
   position: relative;
   z-index: 20; 
-}
-/* compleately occupied */
-.booked {
-  background-color: #6c757d;
-  color: #fff;
-  cursor: not-allowed;
 }
 
 .star-icon {

@@ -31,7 +31,6 @@
           :key="room.id"
           :room="room"
           :path="room.path"
-          :booked="isBooked(room.id)"
           :matchesFilter="matchesFilter(room)"
           :selected="activePopoverId === room.id"
           :isFavorite="favorites.some(f => f.room_id === room.id)"
@@ -115,16 +114,6 @@ const availableFloors = computed(() => {
 const roomsOnFloor = computed(() =>
   roomsRef.value.filter(r => r.floor === selectedFloor.value)
 )
-
-function isBooked(roomId) {
-  const now = new Date()
-  return bookingsRef.value.some(b => {
-    if (Number(b.room_id) !== Number(roomId)) return false
-    const s = new Date(String(b.start_time).replace(' ', 'T'))
-    const e = new Date(String(b.end_time).replace(' ', 'T'))
-    return s < now && e > now
-  })
-}
 
 function isRoomFiltered(roomId) {
   return props.rooms.some(r => r.id === roomId)
