@@ -51,8 +51,8 @@ async function onClick(id) {
 }
 
 .panel-box.active {
-  background-color: #007bff;
+  background-color: #0087e6;
   color: white;
-  border-color: #007bff;
+  border-color: #0087e6;
 }
 </style>
