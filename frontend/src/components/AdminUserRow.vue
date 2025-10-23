@@ -123,7 +123,7 @@ tr:nth-child(even) {
       background-color: #fafafa;
     }
 button {
-  background-color: #2ecc71;
+  background-color: #21d6e0;
 }
 input, select {
   background-color: #ffffff;

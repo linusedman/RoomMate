@@ -219,7 +219,7 @@ table {
 }
 
 button {
-  background-color: #2ecc71;
+  background-color: #21d6e0;
 }
 
 .no-results {
