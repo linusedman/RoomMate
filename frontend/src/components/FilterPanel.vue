@@ -225,6 +225,16 @@ function clearFilter() {
   color: #dc3545;
 }
 
+.btn-primary {
+  background-color: #0087e6;
+  border-color: #0087e6;
+}
+
+.btn-primary:hover {
+  background-color: #0029aa;
+  border-color: #0029aa;
+}
+
 .centered {
   justify-content: center;
 }
