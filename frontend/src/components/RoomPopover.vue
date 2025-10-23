@@ -1,52 +1,85 @@
 <template>
-  <div class="popover-wrapper">
-    <svg
-      :width="width"
-      :height="height"
-      :viewBox="viewBox"
-      class="room-svg"
-    >
-      <g :transform="transform">
-        <path
-          ref="pathRef"
-          :d="props.room.path"
-          fill="#0087e6"
-        />
-      </g>
+  <svg
+    :width="width"
+    :height="height"
+    :viewBox="viewBox"
+    class="room-svg"
+  >
+    <g :transform="transform">
+      <path
+        ref="pathRef"
+        :d="props.room.path"
+        fill="#0087e6"
+      />
+    </g>
 
+
+    <text
+      :x="textX"
+      :y="textY"
+      dominant-baseline="middle"
+      text-anchor="middle"
+      fill="white"
+      font-weight="600"
+      font-size="12"
+    >
+      Room {{ props.room.roomname }}
+    </text>
+
+
+    <g v-if="props.instrumentNames">
 
       <text
         :x="textX"
-        :y="textY"
-        dominant-baseline="middle"
+        :y="textY + 16"
         text-anchor="middle"
+        font-size="10"
+        font-weight="500"
         fill="white"
-        font-weight="600"
-        font-size="12"
       >
-        Room {{ props.room.roomname }}
+        Contains instruments:
       </text>
 
       <g
-        class="favorite-star"
-        @click="toggleFavorite"
-        :transform="`translate(${starX}, ${starY}) scale(1.2)`"
-        cursor="pointer"
+        v-for="(count, name, i) in instrumentCounts"
+        :key="i"
       >
-        <path
-          :d="isFavorite ? filledStar : outlinedStar"
-          :fill="isFavorite ? 'gold' : 'white'"
-          stroke="gold"
-          stroke-width="2"
+        <rect
+          :x="textX - instrumentNameWidth / 2"
+          :y="textY + 20 + i * 22"
+          :width="instrumentNameWidth"
+          height="18"
+          rx="4"
+          fill="#0029aa"
         />
-        <title>{{ isFavorite ? 'Unmark room as favorite' : 'Mark room as favorite' }}</title>
+        <text
+          :x="textX"
+          :y="textY + 32 + i * 22"
+          text-anchor="middle"
+          fill="white"
+          font-size="10"
+          font-weight="500"
+        >
+          {{ name }} <tspan v-if="count > 1"> ×{{ count }}</tspan>
+        </text>
       </g>
-    </svg>
-    <div class="instrument-names-wrapper">
-      Contains:
-      <p v-for='instrument in instrumentNames'> {{instrument}}</p>
-    </div>
-  </div>
+    </g>
+
+    <g
+      class="favorite-star"
+      @click="toggleFavorite"
+      :transform="`translate(${starX}, ${starY}) scale(1.2)`"
+      cursor="pointer"
+    >
+      <path
+        :d="isFavorite ? filledStar : outlinedStar"
+        :fill="isFavorite ? 'gold' : 'white'"
+        stroke="gold"
+        stroke-width="2"
+      />
+      <title>{{ isFavorite ? 'Unmark room as favorite' : 'Mark room as favorite' }}</title>
+    </g>
+  </svg>
 </template>
 
 
@@ -66,6 +99,14 @@ const props = defineProps({
   instrumentNames: Array
 })
 
+const instrumentCounts = computed(() => {
+  const counts = {}
+  props.instrumentNames.forEach(name => {
+    counts[name] = (counts[name] || 0) + 1
+  })
+  return counts
+})
+
 const isFavorite = computed(() =>
   props.favorites.some(f => f.room_id === props.room.id)
 )
@@ -73,8 +114,12 @@ const filledStar = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.
 const outlinedStar = "M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24z"
 
 const instrumentNameWidth = computed(() => {
-  const avgCharWidth = 6.5 
-  return props.instrumentNames.length * avgCharWidth + 4
+  const avgCharWidth = 6.5
+  const namesWithCounts = Object.entries(instrumentCounts.value).map(
+    ([name, count]) => (count > 1 ? `${name} ×${count}` : name)
+  )
+  const longestName = namesWithCounts.reduce((a, b) => (a.length > b.length ? a : b), '')
+  return longestName.length * avgCharWidth + 8
 })
 
 const pathRef = ref(null)
@@ -136,16 +181,6 @@ async function toggleFavorite() {
 .room-svg {
   overflow: visible;
   cursor: default;
-}
-
-.popover-wrapper {
-  border: solid black;
-  display: flex;
-  flex-direction: row;
-}
-
-.instrument-names-wrapper {
-  flex: 1;
 }
 
 </style>
