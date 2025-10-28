@@ -15,8 +15,8 @@
       v-if="isFavorite"
       :x="starX"
       :y="starY"
-      width="16"
-      height="16"
+      width="10"
+      height="10"
       viewBox="0 0 24 24"
       class="svg-star"
     >
@@ -81,8 +81,8 @@ onMounted(() => {
   nextTick(() => {
     if (pathRef.value) {
       const bbox = pathRef.value.getBBox()
-      starX.value = bbox.x + bbox.width - 18
-      starY.value = bbox.y + 4
+      starX.value = bbox.x + bbox.width - 13
+      starY.value = bbox.y 
     }
   })
 })
